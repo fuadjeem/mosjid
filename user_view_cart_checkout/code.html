@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout | Curator Shop</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-container": "#1a73e8",
+              "on-secondary": "#ffffff",
+              "background": "#f9f9ff",
+              "outline": "#727785",
+              "surface-container-lowest": "#ffffff",
+              "surface-tint": "#005bc0",
+              "primary": "#005bbf",
+              "surface-container-high": "#e6e8f2",
+              "on-tertiary-fixed": "#410001",
+              "tertiary": "#bb1712",
+              "on-tertiary-container": "#ffffff",
+              "tertiary-fixed-dim": "#ffb4a9",
+              "on-tertiary": "#ffffff",
+              "primary-fixed-dim": "#adc7ff",
+              "tertiary-fixed": "#ffdad5",
+              "secondary-fixed": "#ffdfa0",
+              "tertiary-container": "#df3429",
+              "surface-container-low": "#f2f3fd",
+              "on-secondary-container": "#6d5000",
+              "on-error-container": "#93000a",
+              "surface-container-highest": "#e0e2ec",
+              "outline-variant": "#c1c6d6",
+              "on-primary": "#ffffff",
+              "secondary": "#795900",
+              "surface": "#f9f9ff",
+              "surface-variant": "#e0e2ec",
+              "inverse-primary": "#adc7ff",
+              "inverse-surface": "#2d3038",
+              "on-background": "#191c23",
+              "on-surface-variant": "#414754",
+              "error": "#ba1a1a",
+              "on-primary-container": "#ffffff",
+              "on-surface": "#191c23",
+              "error-container": "#ffdad6",
+              "on-secondary-fixed": "#261a00",
+              "inverse-on-surface": "#eff0fa",
+              "surface-container": "#ecedf7",
+              "secondary-fixed-dim": "#fbbc05",
+              "on-secondary-fixed-variant": "#5c4300",
+              "on-error": "#ffffff",
+              "primary-fixed": "#d8e2ff",
+              "on-tertiary-fixed-variant": "#930004",
+              "on-primary-fixed-variant": "#004493",
+              "surface-dim": "#d8d9e3",
+              "on-primary-fixed": "#001a41",
+              "secondary-container": "#febf0d",
+              "surface-bright": "#f9f9ff"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-fixed-dim">
+<!-- TopAppBar Navigation -->
+<nav class="fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-xl shadow-[0_40px_40px_-15px_rgba(25,28,35,0.06)] h-16 flex justify-between items-center px-8 font-['Inter'] antialiased tracking-tight text-sm">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-slate-900">Curator Shop</span>
+<div class="hidden md:flex gap-6">
+<a class="text-slate-500 hover:text-slate-900 transition-all duration-200" href="#">Home</a>
+<a class="text-blue-700 font-semibold border-b-2 border-blue-700 pb-1" href="#">Cart</a>
+<a class="text-slate-500 hover:text-slate-900 transition-all duration-200" href="#">Dashboard</a>
+<a class="text-slate-500 hover:text-slate-900 transition-all duration-200" href="#">Products</a>
+<a class="text-slate-500 hover:text-slate-900 transition-all duration-200" href="#">Orders</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden sm:block relative">
+<input class="bg-surface-container-low border-none rounded-lg text-xs py-2 px-4 w-64 focus:ring-1 focus:ring-primary" placeholder="Search curated list..." type="text"/>
+</div>
+<button class="active:scale-95 cursor-pointer p-2 hover:bg-slate-100/50 rounded-full">
+<span class="material-symbols-outlined text-slate-700">notifications</span>
+</button>
+<button class="active:scale-95 cursor-pointer p-2 hover:bg-slate-100/50 rounded-full">
+<span class="material-symbols-outlined text-slate-700">account_circle</span>
+</button>
+</div>
+</nav>
+<main class="pt-24 pb-20 px-4 md:px-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
+<!-- Cart Items Section -->
+<div class="lg:col-span-7 space-y-8">
+<header>
+<h1 class="text-3xl font-extrabold tracking-tight text-on-surface">Review Your Selection</h1>
+<p class="text-on-surface-variant text-sm mt-1">3 items ready for high-performance delivery.</p>
+</header>
+<div class="space-y-4">
+<!-- Product Row 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl flex gap-6 items-center hover:bg-surface-bright transition-colors">
+<div class="w-24 h-24 bg-surface-container rounded overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Minimalist luxury wristwatch with black leather strap on a clean white background with soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPJsf5LMJ5RqxF9OeQLlmydqJFg0FbhQv2KJouqKtwNnx9lKrY28StOBhZ3UK9ve0qEKgp_8jakwo-xrLoYZ6S1QJZK_VKRDnEip2teeeZP5JWuy_A0UoJ3f0EvmloGS1rbGdlxa_-ASXERHRFQWCWsOewsK_Vb32EM95I59kLP2z9GAWSUvpSNp2RjdBOrBVXqvnSrfWF1IE1ND4rdhW4cwaaSPIYdXIdKUCXmvQJ9tWZhN7Z9M5YNd5WZLNwWxhiJ46887xdeSDl"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-lg font-bold text-on-surface leading-none">MK-II Precision Timepiece</h3>
+<p class="text-xs text-on-surface-variant mt-2 font-mono">SKU: CUR-882-X</p>
+</div>
+<span class="text-lg font-bold text-on-surface">€145.00</span>
+</div>
+<div class="flex items-center gap-4 mt-4">
+<div class="flex items-center bg-surface-container rounded-full px-2 py-1">
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-sm">remove</span></button>
+<span class="px-3 text-xs font-bold">1</span>
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<button class="text-xs font-medium text-error hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">delete</span> Remove
+                            </button>
+</div>
+</div>
+</div>
+<!-- Product Row 2 (Nearing Expiry) -->
+<div class="bg-surface-container-low p-5 rounded-xl flex gap-6 items-center">
+<div class="w-24 h-24 bg-surface-container rounded overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Minimalist smart glass bottle with sustainable wood cap on a soft grey textured surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgvtc2MspCIrGtJdk61xQSCeXqw_3ue5o0YdxI7AHApWlX0zHLFPr_T6JPwP3PeiGi0dFaJJzFFzA2KaJjfrxaoIf5L_M_qmJOFmCF2WjdW7PSE5gGXX9HBc2BOTSDD0CTDU4cSHpqVzkmgG-30o_QTem8f0jIky14Tgh8E0VUxtl84snpm0eEb3Kvmy18OO2gEXSCbsV8gTGDVTfmxdRcqZsuN07k1CTc1Lgtmyr-KUEvxQvMO7DyVFdrfnWtbaRYlQCNDOI9FYXC"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-lg font-bold text-on-surface leading-none">Hydro-Core Smart Vessel</h3>
+<div class="mt-2 flex gap-2 items-center">
+<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Low Stock</span>
+</div>
+</div>
+<span class="text-lg font-bold text-on-surface">€42.00</span>
+</div>
+<div class="flex items-center gap-4 mt-4">
+<div class="flex items-center bg-surface-container rounded-full px-2 py-1">
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-sm">remove</span></button>
+<span class="px-3 text-xs font-bold">1</span>
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<button class="text-xs font-medium text-error hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">delete</span> Remove
+                            </button>
+</div>
+</div>
+</div>
+<!-- Product Row 3 (Expired/Invalid) -->
+<div class="bg-surface-container-highest/40 p-5 rounded-xl flex gap-6 items-center opacity-80">
+<div class="w-24 h-24 bg-surface-container rounded overflow-hidden flex-shrink-0 grayscale">
+<img class="w-full h-full object-cover" data-alt="Modern studio headphones with sleek matte black finish on a dark minimalist background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxRFknG8b3xhSJUlLL-iQKjeM_AEzMsY2Q1RbCN4FRN424rRzEyG4LJw9VJPMaeRTJD668iFCghQLTbFCDQG16HCTIIpa9jvhH-sVydD1lLWishzmM02Zfyrb1j8NnDTcDPnCN2Wxlqfcjo7nxync4j2yEkl7-zgNTynuNqlO4-rEP7SdFmu8kE6vl44CcJFxVTVR1RCcvHVnSPOlAuQBeY2FiXgQF1kMcCXRkgt2tguuQXYXjznlbOgV_ljda5PcEDqHYTRzUkWI_"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-lg font-bold text-on-surface leading-none">Studio-X Wireless Node</h3>
+<div class="mt-2">
+<span class="bg-tertiary-container text-on-tertiary-container px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Selection Expired</span>
+</div>
+</div>
+<span class="text-lg font-bold text-on-surface-variant line-through">€89.00</span>
+</div>
+<p class="text-[10px] text-tertiary font-medium mt-2">This offer is no longer valid. Please remove to proceed.</p>
+<div class="flex items-center gap-4 mt-4">
+<button class="text-xs font-medium text-error hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">delete</span> Remove Invalid Item
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Total Warning Logic -->
+<div class="bg-tertiary-fixed p-4 rounded-xl flex items-center gap-4 border border-tertiary/10">
+<span class="material-symbols-outlined text-tertiary leading-none">error</span>
+<p class="text-sm font-medium text-on-tertiary-fixed-variant">
+                    One or more items in your cart are no longer available or have expired. Checkout is restricted until these items are removed.
+                </p>
+</div>
+</div>
+<!-- Checkout Form Section -->
+<aside class="lg:col-span-5">
+<div class="sticky top-24 space-y-6">
+<!-- Summary Card -->
+<section class="bg-surface-container-high/50 backdrop-blur-md p-8 rounded-2xl border border-outline-variant/20 shadow-sm">
+<h2 class="text-xl font-bold text-on-surface mb-6">Order Logistics</h2>
+<form class="space-y-4">
+<div class="space-y-1">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Full Name</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="Johnathan Curator" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Phone Number</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="+31 6 12345678" type="tel"/>
+</div>
+<div class="space-y-1">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Email Address</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="curator@precision.com" type="email"/>
+</div>
+</div>
+<div class="space-y-1">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Delivery Address</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none" placeholder="Suite 404, Precision Plaza, Innovation District" rows="2"></textarea>
+</div>
+<div class="space-y-1">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Delivery Instructions</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="Leave at the front desk" type="text"/>
+</div>
+<div class="pt-6 mt-6 border-t border-outline-variant/20 space-y-3">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Subtotal</span>
+<span class="text-on-surface font-semibold">€187.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Premium Logistics</span>
+<span class="text-on-surface font-semibold">€12.50</span>
+</div>
+<div class="flex justify-between text-lg pt-2">
+<span class="font-extrabold text-on-surface">Total</span>
+<span class="font-extrabold text-primary">€199.50</span>
+</div>
+</div>
+<!-- Error State: Checkout Button Disabled -->
+<button class="w-full mt-6 py-4 rounded-xl bg-outline text-surface-container-lowest font-bold text-sm uppercase tracking-widest cursor-not-allowed opacity-50 flex items-center justify-center gap-2" disabled="">
+<span class="material-symbols-outlined text-sm">lock</span>
+                            Resolve Cart Issues to Proceed
+                        </button>
+<p class="text-[10px] text-center text-on-surface-variant mt-4 italic">
+                            Secured via 256-bit Precision Encryption.
+                        </p>
+</form>
+</section>
+<!-- Warning Block: Minimum Order -->
+<div class="bg-secondary-container/20 p-4 rounded-xl border border-secondary-container/30 flex gap-3">
+<span class="material-symbols-outlined text-secondary">info</span>
+<div>
+<p class="text-xs font-bold text-on-secondary-fixed-variant">Minimum Delivery Threshold</p>
+<p class="text-[11px] text-on-secondary-fixed-variant/80">Orders must exceed €30.00 for standard courier dispatch.</p>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Success Modal Simulation (Hidden by default) -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center bg-inverse-surface/40 backdrop-blur-sm hidden">
+<div class="bg-surface-container-lowest max-w-md w-full p-8 rounded-3xl shadow-2xl text-center space-y-6">
+<div class="w-20 h-20 bg-primary-container rounded-full flex items-center justify-center mx-auto">
+<span class="material-symbols-outlined text-on-primary-container text-4xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<h2 class="text-2xl font-black tracking-tight text-on-surface">Order Synchronized</h2>
+<p class="text-on-surface-variant text-sm mt-2">Your requisition is being processed. Order #CUR-99210.</p>
+</div>
+<div class="bg-surface-container p-4 rounded-xl text-left space-y-2">
+<div class="flex justify-between text-xs font-bold">
+<span>INVOICE_GENERATE.PDF</span>
+<span class="text-primary cursor-pointer hover:underline">Download</span>
+</div>
+<div class="w-full bg-outline-variant/30 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-full"></div>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold text-sm tracking-wide">Return to Dashboard</button>
+</div>
+</div>
+<!-- Footer -->
+<footer class="w-full py-12 bg-slate-50 border-t border-slate-100 flex flex-col items-center justify-center gap-4 px-8 font-['Inter'] text-xs text-slate-500">
+<div class="flex gap-8 mb-4">
+<a class="text-slate-500 hover:text-blue-700 transition-colors" href="#">Privacy Policy</a>
+<a class="text-slate-500 hover:text-blue-700 transition-colors" href="#">Terms of Service</a>
+<a class="text-slate-500 hover:text-blue-700 transition-colors" href="#">API Documentation</a>
+<a class="text-slate-500 hover:text-blue-700 transition-colors" href="#">Support</a>
+</div>
+<div class="flex flex-col items-center gap-2">
+<span class="font-bold text-slate-900 text-sm">Curator Shop</span>
+<p>© 2024 The Precision Curator. High-performance utility.</p>
+</div>
+</footer>
+</body></html>

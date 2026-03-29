@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Create Account | Bangladesh Asiatische Kultur Zentrum</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary-container": "#1a73e8", "on-secondary": "#ffffff", "background": "#f9f9ff", "outline": "#727785", "surface-container-lowest": "#ffffff", "primary": "#005bbf", "surface-container-high": "#e6e8f2", "surface-container-low": "#f2f3fd", "on-primary": "#ffffff", "surface": "#f9f9ff", "surface-variant": "#e0e2ec", "on-background": "#191c23", "on-surface-variant": "#414754", "on-surface": "#191c23", "surface-container": "#ecedf7", "outline-variant": "#c1c6d6", } } } }
+    </script>
+    <style>body { font-family: 'Inter', sans-serif; background-color: #f9f9ff; }</style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col items-center justify-center p-4">
+
+    <a href="/login.html" class="absolute top-8 left-8 flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        <span class="text-xs font-bold uppercase tracking-widest">Back to Login</span>
+    </a>
+
+    <div class="w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-xl border border-outline-variant/20 p-8 mt-12 mb-12">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-extrabold tracking-tight text-on-surface">Create an Account</h1>
+            <p class="text-sm text-on-surface-variant mt-2">Join us for a streamlined grocery experience.</p>
+        </div>
+
+        <form id="register-form" class="space-y-4">
+            <div class="space-y-1">
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Full Name</label>
+                <input id="reg-name" type="text" required class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="Johnathan Curator"/>
+            </div>
+
+            <div class="space-y-1">
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Email Address</label>
+                <input id="reg-email" type="email" required class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="curator@precision.com"/>
+            </div>
+
+            <div class="space-y-1">
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Password</label>
+                <input id="reg-password" type="password" required class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="••••••••"/>
+            </div>
+
+            <button type="submit" class="w-full py-3 mt-4 rounded-lg bg-primary text-white font-bold text-sm hover:opacity-90 transition-opacity">
+                Register
+            </button>
+        </form>
+
+        <div class="mt-6 border-t border-outline-variant/20 pt-6">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-center text-on-surface-variant mb-4">Or sign up with</p>
+            <div class="grid grid-cols-2 gap-4">
+                <button type="button" onclick="window.authGoogle()" class="flex items-center justify-center gap-2 py-2 px-4 border border-outline-variant/30 rounded-lg text-sm font-medium hover:bg-surface-container-low transition-colors">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-4 h-4" alt="Google">
+                    Google
+                </button>
+                <button type="button" onclick="window.authFacebook()" class="flex items-center justify-center gap-2 py-2 px-4 border border-outline-variant/30 rounded-lg text-sm font-medium hover:bg-surface-container-low transition-colors">
+                    <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" class="w-5 h-5" alt="Facebook">
+                    Facebook
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center text-xs text-on-surface-variant">
+            Already have an account? <a href="/login.html" class="font-bold text-primary hover:underline">Log in</a>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+</body>
+</html>

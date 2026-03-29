@@ -1,0 +1,989 @@
+[
+    {
+        "name": "ফলি মাছ",
+        "category": "Fish",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "সর পুটি",
+        "category": "Fish",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ইলিশ পিস আস্ত (বড়)",
+        "category": "Fish",
+        "price": 20,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ইলিশ পিস কাটা (বড়)",
+        "category": "Fish",
+        "price": 25,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ইলিশ পিস (ছোট)",
+        "category": "Fish",
+        "price": 7,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ইলিশ কেজি (ছোট)",
+        "category": "Fish",
+        "price": 12,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ইলিশের ডিম",
+        "category": "Fish",
+        "price": 9,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "পাংগাস মাছ",
+        "category": "Fish",
+        "price": 5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "শিং মাছ",
+        "category": "Fish",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "পাবদা",
+        "category": "Fish",
+        "price": 6.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "বাশপাতা",
+        "category": "Fish",
+        "price": 4.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "বাতাসি",
+        "category": "Fish",
+        "price": 3.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "টেংরা 500gm",
+        "category": "Fish",
+        "price": 6.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "টেংরা ছোট",
+        "category": "Fish",
+        "price": 3.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "কাচকি",
+        "category": "Fish",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "রুই মাছ কেজি",
+        "category": "Fish",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চিংড়ি 26/30",
+        "category": "Fish",
+        "price": 12,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চিংড়ি 21/25",
+        "category": "Fish",
+        "price": 12,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চিংড়ি 16/20",
+        "category": "Fish",
+        "price": 12,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চিংড়ি 8/12",
+        "category": "Fish",
+        "price": 12,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চিংড়ি 800gm",
+        "category": "Fish",
+        "price": 12,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "হরিনা চিংড়ি 500gm",
+        "category": "Fish",
+        "price": 5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "হরিনা চিংড়ি 250gm",
+        "category": "Fish",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "রুপচাদা কেজি/প্যাকেট",
+        "category": "Fish",
+        "price": 10,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "পোয়া",
+        "category": "Fish",
+        "price": 5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "পুটি কেজি",
+        "category": "Fish",
+        "price": 5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "বাটা",
+        "category": "Fish",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "কৈই",
+        "category": "Fish",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "মলা",
+        "category": "Fish",
+        "price": 3.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "কাতলা কেজি",
+        "category": "Fish",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "মেনি",
+        "category": "Fish",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "নলা",
+        "category": "Fish",
+        "price": 5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "গুড়া বাইল্যা",
+        "category": "Fish",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "বাইল্যা",
+        "category": "Fish",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "টাকি",
+        "category": "Fish",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "পাতা বাইন",
+        "category": "Fish",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "লইট্যা মাছ",
+        "category": "Fish",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চেপা শুটকি",
+        "category": "Fish",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "তেলাপিয়া",
+        "category": "Fish",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চিড়িং মাছ",
+        "category": "Fish",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "বাছা",
+        "category": "Fish",
+        "price": 5.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "মিক্স মাছ",
+        "category": "Fish",
+        "price": 3.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "গুতুম মাছ",
+        "category": "Fish",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "শুটকি কাচকি",
+        "category": "Fish",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "শুটকি লইট্যা",
+        "category": "Fish",
+        "price": 5.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "শিক কাবাব",
+        "category": "Frozen",
+        "price": 12,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "পোয়া পিঠা",
+        "category": "Frozen",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ভাপা পিঠা",
+        "category": "Frozen",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "হার্ড চিকেন",
+        "category": "Frozen",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "আলুর চপ",
+        "category": "Frozen",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "Eis (ছোট)",
+        "category": "Frozen",
+        "price": 1,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "Magnum Eis",
+        "category": "Frozen",
+        "price": 2,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "শক্ত মুরগি 1200gm",
+        "category": "Frozen",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "শক্ত মুরগি 400gm",
+        "category": "Frozen",
+        "price": 3.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চিতল পিঠা",
+        "category": "Frozen",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "পরটা 20pc Mughol",
+        "category": "Frozen",
+        "price": 7,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "পরটা 20pc Hamza",
+        "category": "Frozen",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "পরটা 30pc",
+        "category": "Frozen",
+        "price": 9,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "পরটা ছোট",
+        "category": "Frozen",
+        "price": 2.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "পরটা 5pc(আলু,ডাল,পেয়াজ)",
+        "category": "Frozen",
+        "price": 2.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "সিম বিচি",
+        "category": "Frozen",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "লতি",
+        "category": "Frozen",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "পটল",
+        "category": "Frozen",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "জলপাই",
+        "category": "Frozen",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "কাঁকরোল",
+        "category": "Frozen",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "সমুচা",
+        "category": "Frozen",
+        "price": 7,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "সিঙ্গারা",
+        "category": "Frozen",
+        "price": 5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "সিঙ্গারা (ছোট)",
+        "category": "Frozen",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ডাল/আলু পুরি",
+        "category": "Frozen",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "তন্দুরি নান",
+        "category": "Frozen",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "জাম",
+        "category": "Frozen",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "খেজুরের গুড়",
+        "category": "Frozen",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "খেজুরের গুড় 500gm",
+        "category": "Frozen",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "লাউ প্যাক",
+        "category": "Frozen",
+        "price": 5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "শাপলা",
+        "category": "Frozen",
+        "price": 2.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "কালাভুনা/রেজবালা/মেজবানি / মাংস / চটপটি/বিফ /বোরহানি/বিরিয়ানি",
+        "category": "Masala",
+        "price": 2,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "হালিম মিক্স রাধুনি",
+        "category": "Masala",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "হালিম মিক্স BD",
+        "category": "Masala",
+        "price": 2,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "মরিচ/ হলুদ/ ধনিয়া/ গরম মসলা 100gm",
+        "category": "Masala",
+        "price": 1.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "মরিচ/হলুদ/জিড়া গুড়া 400gm",
+        "category": "Masala",
+        "price": 4.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "দারচিনি 200gm",
+        "category": "Masala",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "দারচিনি 50gm",
+        "category": "Masala",
+        "price": 2,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ধনিয়া গুড়া",
+        "category": "Masala",
+        "price": 3.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ধনিয়া গুড়া 100gm",
+        "category": "Masala",
+        "price": 1.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "এলাচি",
+        "category": "Masala",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "আদা",
+        "category": "Masala",
+        "price": 3.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "তেজপাতা",
+        "category": "Masala",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "পাচফোরন",
+        "category": "Masala",
+        "price": 2,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "রাধুনি গরু মসলা",
+        "category": "Masala",
+        "price": 2,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "Tandoori Chicken",
+        "category": "Masala",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "Biryani Chicken",
+        "category": "Masala",
+        "price": 2.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "Ginger Garlic Paste",
+        "category": "Masala",
+        "price": 7,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "লং / লবঙ্গ",
+        "category": "Masala",
+        "price": 2.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "গোল মরিচ",
+        "category": "Masala",
+        "price": 2,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "শুকনা মরিচ (100gm)",
+        "category": "Masala",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "তেতুল চাটনী(BD Food)",
+        "category": "Dry Food",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চালের গুড়া 1.5 kg",
+        "category": "Dry Food",
+        "price": 3.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ছোলা (1 kg)",
+        "category": "Dry Food",
+        "price": 5.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ডাল ভাজা",
+        "category": "Dry Food",
+        "price": 1,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "মটর ভাজা",
+        "category": "Dry Food",
+        "price": 1,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "মুড়ির মোয়া",
+        "category": "Dry Food",
+        "price": 1.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "নোনতা/নারকেল বিস্কুট",
+        "category": "Dry Food",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "খিচুড়ি মিক্স",
+        "category": "Dry Food",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "মসুর ডাল (800gm)",
+        "category": "Dry Food",
+        "price": 2.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "মসুর ডাল 1 kg",
+        "category": "Dry Food",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "মসুর ডাল 2 kg",
+        "category": "Dry Food",
+        "price": 5.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "বুটের ডাল",
+        "category": "Dry Food",
+        "price": 5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চা পাতা 1 kg",
+        "category": "Dry Food",
+        "price": 12,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চা পাতা 400gm",
+        "category": "Dry Food",
+        "price": 5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চা পাতা(PG 300 tea bags)",
+        "category": "Dry Food",
+        "price": 14,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চিপস",
+        "category": "Dry Food",
+        "price": 1,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "সরিষার তেল (বড়)",
+        "category": "Dry Food",
+        "price": 7,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "সরিষার তেল (ছোট)",
+        "category": "Dry Food",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চানাচুর 300gm",
+        "category": "Dry Food",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চানাচুর 140gm",
+        "category": "Dry Food",
+        "price": 1.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "মুড়ি 500gm",
+        "category": "Dry Food",
+        "price": 3.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "মুড়ি ছোট",
+        "category": "Dry Food",
+        "price": 2,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ড্রাই কেক",
+        "category": "Dry Food",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "মিস্টি টোস্ট",
+        "category": "Dry Food",
+        "price": 3.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "বনফুল/মুড়ি টোস্ট",
+        "category": "Dry Food",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "টোস্ট",
+        "category": "Dry Food",
+        "price": 3.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "Nido",
+        "category": "Dry Food",
+        "price": 8.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "Tang",
+        "category": "Dry Food",
+        "price": 7,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "বেসন",
+        "category": "Dry Food",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ছোলা(চনাবুট) 2 kg",
+        "category": "Dry Food",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ছোলা 1 kg",
+        "category": "Dry Food",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চটপটি মটর",
+        "category": "Dry Food",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চিড়া",
+        "category": "Dry Food",
+        "price": 2,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "সেমাই",
+        "category": "Dry Food",
+        "price": 2,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "মুগডাল 2 kg",
+        "category": "Dry Food",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চাল (কালিজিরা)",
+        "category": "Dry Food",
+        "price": 6,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চাল (চিনি গুড়া) 1 kg",
+        "category": "Dry Food",
+        "price": 2.5,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চাল (চিনি গুড়া) 5 kg",
+        "category": "Dry Food",
+        "price": 12,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চাল 10 kg",
+        "category": "Dry Food",
+        "price": 25,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চাল 18 kg",
+        "category": "Dry Food",
+        "price": 48,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "চাল 20 kg",
+        "category": "Dry Food",
+        "price": 52,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "খেজুর",
+        "category": "Dry Food",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "Mango Pulp",
+        "category": "Dry Food",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "Rooh Afza",
+        "category": "Dry Food",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "ইসবগুলের ভুষি",
+        "category": "Dry Food",
+        "price": 3,
+        "stock": 50,
+        "status": "Available"
+    },
+    {
+        "name": "কাসুন্দি",
+        "category": "Dry Food",
+        "price": 4,
+        "stock": 50,
+        "status": "Available"
+    }
+]

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout | Bangladesh Asiatische Kultur Zentrum</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-container": "#1a73e8",
+              "on-secondary": "#ffffff",
+              "background": "#f9f9ff",
+              "outline": "#727785",
+              "surface-container-lowest": "#ffffff",
+              "surface-tint": "#005bc0",
+              "primary": "#005bbf",
+              "surface-container-high": "#e6e8f2",
+              "on-tertiary-fixed": "#410001",
+              "tertiary": "#bb1712",
+              "on-tertiary-container": "#ffffff",
+              "tertiary-fixed-dim": "#ffb4a9",
+              "on-tertiary": "#ffffff",
+              "primary-fixed-dim": "#adc7ff",
+              "tertiary-fixed": "#ffdad5",
+              "secondary-fixed": "#ffdfa0",
+              "tertiary-container": "#df3429",
+              "surface-container-low": "#f2f3fd",
+              "on-secondary-container": "#6d5000",
+              "on-error-container": "#93000a",
+              "surface-container-highest": "#e0e2ec",
+              "outline-variant": "#c1c6d6",
+              "on-primary": "#ffffff",
+              "secondary": "#795900",
+              "surface": "#f9f9ff",
+              "surface-variant": "#e0e2ec",
+              "inverse-primary": "#adc7ff",
+              "inverse-surface": "#2d3038",
+              "on-background": "#191c23",
+              "on-surface-variant": "#414754",
+              "error": "#ba1a1a",
+              "on-primary-container": "#ffffff",
+              "on-surface": "#191c23",
+              "error-container": "#ffdad6",
+              "on-secondary-fixed": "#261a00",
+              "inverse-on-surface": "#eff0fa",
+              "surface-container": "#ecedf7",
+              "secondary-fixed-dim": "#fbbc05",
+              "on-secondary-fixed-variant": "#5c4300",
+              "on-error": "#ffffff",
+              "primary-fixed": "#d8e2ff",
+              "on-tertiary-fixed-variant": "#930004",
+              "on-primary-fixed-variant": "#004493",
+              "surface-dim": "#d8d9e3",
+              "on-primary-fixed": "#001a41",
+              "secondary-container": "#febf0d",
+              "surface-bright": "#f9f9ff"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body { font-family: 'Inter', sans-serif; }
+    </style>
+<link rel="stylesheet" href="/css/print.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-fixed-dim">
+<!-- TopAppBar Navigation -->
+<nav class="fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-xl shadow-[0_40px_40px_-15px_rgba(25,28,35,0.06)] h-16 flex justify-between items-center px-8 font-['Inter'] antialiased tracking-tight text-sm">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-slate-900">Bangladesh Asiatische Kultur Zentrum</span>
+<div class="hidden md:flex gap-6">
+<a class="text-slate-500 hover:text-slate-900 transition-all duration-200" href="/index.html">Home</a>
+<a class="text-blue-700 font-semibold border-b-2 border-blue-700 pb-1" href="/cart.html">Cart</a>
+<a class="text-slate-500 hover:text-slate-900 transition-all duration-200" href="/login.html">My Orders</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden sm:block relative">
+<input class="bg-surface-container-low border-none rounded-lg text-xs py-2 px-4 w-64 focus:ring-1 focus:ring-primary" placeholder="Search curated list..." type="text"/>
+</div>
+<button class="active:scale-95 cursor-pointer p-2 hover:bg-slate-100/50 rounded-full">
+<span class="material-symbols-outlined text-slate-700">notifications</span>
+</button>
+<a href="/login.html" id="user-nav-icon" class="active:scale-95 cursor-pointer p-2 hover:bg-slate-100/50 rounded-full flex items-center">
+<span class="material-symbols-outlined text-slate-700">account_circle</span>
+</a>
+</div>
+</nav>
+<main class="pt-24 pb-20 px-4 md:px-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
+<!-- Cart Items Section -->
+<div class="lg:col-span-7 space-y-8">
+<header>
+<h1 class="text-3xl font-extrabold tracking-tight text-on-surface">Review Your Selection</h1>
+<p class="text-on-surface-variant text-sm mt-1">3 items ready for high-performance delivery.</p>
+</header>
+<div id="cart-items-container" class="space-y-4"></div>
+</div>
+<!-- Checkout Form Section -->
+<aside class="lg:col-span-5">
+<div class="sticky top-24 space-y-6">
+<!-- Summary Card -->
+<section class="bg-surface-container-high/50 backdrop-blur-md p-8 rounded-2xl border border-outline-variant/20 shadow-sm">
+<h2 class="text-xl font-bold text-on-surface mb-6">Order Logistics</h2>
+<form class="space-y-4">
+<!-- Delivery Mode Selection -->
+<div class="space-y-2 mb-4" id="delivery-mode-selection">
+    <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Fulfillment Options</label>
+    <div class="grid grid-cols-2 gap-4">
+        <label id="mode-pickup-label" class="cursor-pointer bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-4 flex flex-col gap-2 hover:bg-surface transition-colors">
+            <div class="flex justify-between items-center">
+                <span class="font-bold text-sm text-on-surface">Local Pickup</span>
+                <input type="radio" name="delivery_mode" id="mode-pickup" value="pickup" class="text-primary focus:ring-primary w-4 h-4 cursor-pointer" checked>
+            </div>
+            <span class="text-[10px] text-on-surface-variant">Pickup in-store. Always Free.</span>
+        </label>
+        
+        <label id="mode-delivery-label" class="cursor-pointer bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-4 flex flex-col gap-2 transition-colors opacity-50">
+            <div class="flex justify-between items-center">
+                <span class="font-bold text-sm text-on-surface">Home Delivery</span>
+                <input type="radio" name="delivery_mode" id="mode-delivery" value="delivery" class="text-primary focus:ring-primary w-4 h-4 cursor-not-allowed" disabled>
+            </div>
+            <span id="delivery-eligibility-text" class="text-[10px] text-error font-medium">Requires €30.00 minimum</span>
+        </label>
+    </div>
+</div>
+
+<!-- Fulfillment Date -->
+<div class="space-y-1">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Scheduled Fulfillment Date</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none cursor-pointer" id="fulfillment-date" type="date" required/>
+</div>
+
+<div class="space-y-1">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Full Name</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" id="fname" placeholder="Johnathan Curator" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Phone Number</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" id="phone" placeholder="+31 6 12345678" type="tel"/>
+</div>
+<div class="space-y-1">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Email Address</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" id="email" placeholder="curator@precision.com" type="email"/>
+</div>
+</div>
+<div id="delivery-fields" class="space-y-4">
+<div class="space-y-1">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Delivery Address</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none" id="address" placeholder="Suite 404, Precision Plaza, Innovation District" rows="2"></textarea>
+</div>
+<div class="space-y-1">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Delivery Instructions</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" id="delivery_instructions" placeholder="Leave at the front desk" type="text"/>
+</div>
+</div>
+<div class="pt-6 mt-6 border-t border-outline-variant/20 space-y-3">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Subtotal</span>
+<span id="subtotal-val" class="text-on-surface font-semibold">€0.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span id="logistics-text" class="text-on-surface-variant">Premium Logistics</span>
+<span id="logistics-val" class="text-on-surface font-semibold">€12.50</span>
+</div>
+<div class="flex justify-between text-lg pt-2">
+<span class="font-extrabold text-on-surface">Total</span>
+<span id="total-val" class="font-extrabold text-primary">€0.00</span>
+</div>
+</div>
+<!-- Error State: Checkout Button Disabled -->
+<button id="checkout-btn" class="w-full mt-6 py-4 rounded-xl bg-primary text-white font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">lock</span>
+                            Resolve Cart Issues to Proceed
+                        </button>
+<p class="text-[10px] text-center text-on-surface-variant mt-4 italic">
+                            Secured via 256-bit Precision Encryption.
+                        </p>
+</form>
+</section>
+<!-- Warning Block: Minimum Order -->
+<div id="min-order-warning" class="bg-secondary-container/20 p-4 rounded-xl border border-secondary-container/30 flex gap-3">
+<span class="material-symbols-outlined text-secondary">info</span>
+<div id="min-order-warning-text">
+<p class="text-xs font-bold text-on-secondary-fixed-variant">Minimum Delivery Threshold</p>
+<p class="text-[11px] text-on-secondary-fixed-variant/80">Orders must exceed €30.00 for standard courier dispatch.</p>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Success Modal Simulation (Hidden by default) -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center bg-inverse-surface/40 backdrop-blur-sm hidden">
+<div class="bg-surface-container-lowest max-w-md w-full p-8 rounded-3xl shadow-2xl text-center space-y-6">
+<div class="w-20 h-20 bg-primary-container rounded-full flex items-center justify-center mx-auto">
+<span class="material-symbols-outlined text-on-primary-container text-4xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<h2 class="text-2xl font-black tracking-tight text-on-surface">Order Synchronized</h2>
+<p class="text-on-surface-variant text-sm mt-2">Your requisition is being processed. Order #CUR-99210.</p>
+</div>
+<div class="bg-surface-container p-4 rounded-xl text-left space-y-2">
+<div class="flex justify-between text-xs font-bold">
+<span>INVOICE_GENERATE.PDF</span>
+<span class="text-primary cursor-pointer hover:underline">Download</span>
+</div>
+<div class="w-full bg-outline-variant/30 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-full"></div>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold text-sm tracking-wide">Return to Dashboard</button>
+</div>
+</div>
+<!-- Footer -->
+<footer class="w-full py-12 bg-slate-50 border-t border-slate-100 flex flex-col items-center justify-center gap-4 px-8 font-['Inter'] text-xs text-slate-500">
+<div class="flex gap-8 mb-4">
+<a class="text-slate-500 hover:text-blue-700 transition-colors" href="#">Privacy Policy</a>
+<a class="text-slate-500 hover:text-blue-700 transition-colors" href="#">Terms of Service</a>
+<a class="text-slate-500 hover:text-blue-700 transition-colors" href="#">API Documentation</a>
+<a class="text-slate-500 hover:text-blue-700 transition-colors" href="#">Support</a>
+</div>
+<div class="flex flex-col items-center gap-2">
+<span class="font-bold text-slate-900 text-sm">Bangladesh Asiatische Kultur Zentrum</span>
+<p>© 2024 Bangladesh Asiatische Kultur Zentrum. High-performance utility.</p>
+</div>
+</footer>
+<script src="/js/app.js"></script>
+    <script src="/js/auth.js"></script>
+</body></html>

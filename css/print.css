@@ -1,0 +1,23 @@
+@media print {
+    body {
+        background-color: white !important;
+        color: black !important;
+        font-size: 12pt;
+    }
+    nav, header, footer, .md\:hidden {
+        display: none !important;
+    }
+    main {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    #checkout-btn, #min-order-warning {
+        display: none !important;
+    }
+    .shadow-sm, .shadow-2xl {
+        box-shadow: none !important;
+    }
+    .border {
+        border-color: #eee !important;
+    }
+}
