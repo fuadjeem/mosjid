@@ -16,10 +16,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const mobileFilterBtn = document.getElementById('mobile-filter-btn');
     const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
     if (sidebar) {
-        const toggleMenu = () => sidebar.classList.toggle('-translate-x-full');
+        const toggleMenu = () => {
+            const isHidden = sidebar.classList.toggle('-translate-x-full');
+            if (overlay) {
+                if(isHidden) overlay.classList.add('hidden');
+                else overlay.classList.remove('hidden');
+            }
+        };
         if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMenu);
         if (mobileFilterBtn) mobileFilterBtn.addEventListener('click', toggleMenu);
+        if (overlay) overlay.addEventListener('click', toggleMenu);
     }
     
     updateCartIcon();
@@ -363,7 +371,10 @@ function renderCart(container) {
                 checkoutBtn.disabled = false;
                 checkoutBtn.classList.remove('cursor-not-allowed', 'opacity-50', 'bg-outline');
                 checkoutBtn.classList.add('bg-primary');
-                checkoutBtn.innerText = 'Proceed to Checkout (Pickup)';
+                checkoutBtn.innerText = 'অর্ডার কনফার্ম করুন (পিকআপ)';
+                
+                const fDateLabel = document.getElementById('fulfillment-date-label');
+                if (fDateLabel) fDateLabel.innerText = "পিকআপের তারিখ";
             } else {
                 if (logisticsText) logisticsText.innerText = 'Home Delivery';
                 if (logisticsVal) logisticsVal.innerText = 'Free';
@@ -390,7 +401,10 @@ function renderCart(container) {
                 checkoutBtn.disabled = false;
                 checkoutBtn.classList.remove('cursor-not-allowed', 'opacity-50', 'bg-outline');
                 checkoutBtn.classList.add('bg-primary');
-                checkoutBtn.innerText = 'Proceed to Checkout (Delivery)';
+                checkoutBtn.innerText = 'অর্ডার কনফার্ম করুন (ডেলিভারি)';
+                
+                const fDateLabel = document.getElementById('fulfillment-date-label');
+                if (fDateLabel) fDateLabel.innerText = "ডেলিভারির তারিখ";
             }
             
             document.getElementById('total-val').innerText = '€' + total.toFixed(2);
