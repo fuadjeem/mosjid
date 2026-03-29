@@ -217,9 +217,9 @@ function renderProductGrid(grid, products) {
                 ${statusTag}
             </div>
             <p class="text-xs text-on-surface-variant mb-4 font-medium italic">${p.category}</p>
-            <div class="mt-auto flex items-center justify-between">
-                <span class="text-lg font-extrabold text-on-surface">€${Number(p.price).toFixed(2)}</span>
-                <div class="flex items-center gap-2">
+            <div class="mt-auto flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-lg font-extrabold text-on-surface">€${Number(p.price).toFixed(2)}</span>
                     <div class="flex items-center border border-outline-variant/30 rounded-md bg-surface-container-lowest h-8">
                         <button class="px-2 text-outline hover:text-primary transition-colors focus:outline-none" onclick="document.getElementById('qty-${p.id}').stepDown()" ${btnDisabled}>
                             <span class="material-symbols-outlined text-sm font-bold">remove</span>
@@ -229,8 +229,8 @@ function renderProductGrid(grid, products) {
                             <span class="material-symbols-outlined text-sm font-bold">add</span>
                         </button>
                     </div>
-                    <button class="${btnClass} px-4 py-2 text-white rounded-md text-xs font-bold border-none" ${btnDisabled} onclick="addToCart('${p.id}', '${p.name.replace("'", "\\'")}', ${p.price})">${btnText}</button>
                 </div>
+                <button class="${btnClass} w-full py-2.5 text-white rounded-md text-sm font-bold border-none" ${btnDisabled} onclick="addToCart('${p.id}', '${p.name.replace("'", "\\'")}', ${p.price})">${btnText}</button>
             </div>
         </div>`;
     });
