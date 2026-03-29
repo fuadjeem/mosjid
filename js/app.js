@@ -14,11 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Mobile Menu Toggle
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileFilterBtn = document.getElementById('mobile-filter-btn');
     const sidebar = document.getElementById('sidebar');
-    if (mobileMenuBtn && sidebar) {
-        mobileMenuBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('-translate-x-full');
-        });
+    if (sidebar) {
+        const toggleMenu = () => sidebar.classList.toggle('-translate-x-full');
+        if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMenu);
+        if (mobileFilterBtn) mobileFilterBtn.addEventListener('click', toggleMenu);
     }
     
     updateCartIcon();
