@@ -4,8 +4,8 @@ pages_build_output_dir = "./"
 
 [[kv_namespaces]]
 binding = "STORE_KV"
-id = "00000000000000000000000000000000"
-preview_id = "00000000000000000000000000000000"
+id = "69c75f037d4e41c98ab483ec8c42d2ce"
+preview_id = "mock-id-for-dev"
 
 [vars]
 ADMIN_PASSWORD = "admin"
