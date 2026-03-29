@@ -2,10 +2,11 @@ import urllib.request
 import json
 import time
 
-url = 'http://localhost:8788/api/products'
+url = 'https://bakl1.pages.dev/api/products'
 headers = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer admin-validated-token'
+    'Authorization': 'Bearer admin-validated-token',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 }
 
 print("1. Deleting all existing products...")

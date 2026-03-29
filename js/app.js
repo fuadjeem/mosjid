@@ -464,34 +464,80 @@ function setupCheckout() {
         btn.disabled = true;
         
         try {
-            const res = await fetch('/api/orders', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            });
-            if(res.ok) {
-                cart = [];
-                localStorage.setItem('cart', '[]');
-                
-                // Show modal then print automatically
-                const modal = document.querySelector('.fixed.inset-0.z-\\[100\\]');
-                if (modal) {
-                    modal.classList.remove('hidden');
-                    const orderData = await res.json();
-                    const orderText = modal.querySelector('p');
-                    if (orderText) orderText.innerText = `Your requisition is being processed. Order ${orderData.id}.`;
+            // Validate session
+            let user_id = null;
+            if (window.supabaseClient) {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (session && session.user) {
+                    user_id = session.user.id;
+                } else {
+                    alert("Please log in to complete your checkout.");
+                    window.location.href = '/login.html';
+                    return;
                 }
-                setTimeout(() => {
-                    window.print();
-                    window.location.href = '/index.html';
-                }, 2000);
             } else {
-                alert("Checkout failed. Please try again.");
+                console.error("Supabase client is not loaded.");
+                alert("Critical error: Database connection unavailable.");
                 btn.innerText = "Proceed to Checkout";
                 btn.disabled = false;
+                return;
             }
+
+            const { data: orderData, error: orderError } = await window.supabaseClient
+                .from('orders')
+                .insert([
+                    {
+                        user_id: user_id,
+                        total_amount: parseFloat(payload.total),
+                        status: 'pending_delivery',
+                        delivery_info: {
+                            customer: payload.customer,
+                            email: payload.email,
+                            phone: payload.phone,
+                            date: payload.date,
+                            address: payload.address,
+                            delivery_mode: payload.deliveryMode
+                        }
+                    }
+                ])
+                .select()
+                .single();
+
+            if (orderError) throw orderError;
+
+            // Insert Order Items
+            const itemsToInsert = payload.items.map(item => ({
+                order_id: orderData.id,
+                product_id: item.id.toString(),
+                product_name: item.name,
+                quantity: parseInt(item.qty, 10),
+                price: parseFloat(item.price)
+            }));
+
+            const { error: itemsError } = await window.supabaseClient
+                .from('order_items')
+                .insert(itemsToInsert);
+                
+            if (itemsError) throw itemsError;
+
+            cart = [];
+            localStorage.setItem('cart', '[]');
+            
+            // Show modal then print automatically
+            const modal = document.querySelector('.fixed.inset-0.z-\\[100\\]');
+            if (modal) {
+                modal.classList.remove('hidden');
+                const orderText = modal.querySelector('p');
+                if (orderText) orderText.innerText = `Your requisition is being processed. Order ID: ${orderData.id.split('-')[0]}.`;
+            }
+            setTimeout(() => {
+                window.print();
+                window.location.href = '/index.html';
+            }, 2000);
+
         } catch(e) { 
             console.error(e); 
+            alert("Checkout failed: " + (e.message || "Please try again."));
             btn.innerText = "Proceed to Checkout";
             btn.disabled = false;
         }
