@@ -217,7 +217,7 @@ function renderProductGrid(grid, products) {
                 ${statusTag}
             </div>
             <p class="text-xs text-on-surface-variant mb-4 font-medium italic">${p.category}</p>
-            <div class="mt-auto flex flex-col gap-3">
+            <div class="mt-auto space-y-3">
                 <div class="flex items-center justify-between">
                     <span class="text-lg font-extrabold text-on-surface">€${Number(p.price).toFixed(2)}</span>
                     <div class="flex items-center border border-outline-variant/30 rounded-md bg-surface-container-lowest h-8">
@@ -230,7 +230,9 @@ function renderProductGrid(grid, products) {
                         </button>
                     </div>
                 </div>
-                <button class="${btnClass} w-full py-2.5 text-white rounded-md text-sm font-bold border-none" ${btnDisabled} onclick="addToCart('${p.id}', '${p.name.replace("'", "\\'")}', ${p.price})">${btnText}</button>
+                <div>
+                    <button class="${btnClass} w-full py-3 text-white rounded-lg text-sm font-bold border-none block" ${btnDisabled} onclick="addToCart('${p.id}', '${p.name.replace("'", "\\'")}', ${p.price})">${btnText}</button>
+                </div>
             </div>
         </div>`;
     });
