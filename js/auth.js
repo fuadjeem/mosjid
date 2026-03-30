@@ -167,7 +167,12 @@ window.logOut = async () => {
 window.authGoogle = async () => {
     console.log("Starting Google Auth...");
     try {
-        const { data, error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin + '/index.html'
+            }
+        });
         if(error) alert('Google Sign in failed: ' + error.message);
     } catch (err) {
         alert("Unexpected error with Google Auth: " + err.message);
@@ -178,7 +183,12 @@ window.authGoogle = async () => {
 window.authFacebook = async () => {
     console.log("Starting Facebook Auth...");
     try {
-        const { data, error } = await supabase.auth.signInWithOAuth({ provider: 'facebook' });
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'facebook',
+            options: {
+                redirectTo: window.location.origin + '/index.html'
+            }
+        });
         if(error) alert('Facebook Sign in failed: ' + error.message);
     } catch (err) {
         alert("Unexpected error with Facebook Auth: " + err.message);
