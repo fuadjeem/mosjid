@@ -1,212 +1,265 @@
 <!DOCTYPE html>
 
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Bangladesh Asiatische Kultur Zentrum | High-Performance Catalog</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              "primary-container": "#1a73e8",
-              "on-secondary": "#ffffff",
-              "background": "#f9f9ff",
-              "outline": "#727785",
-              "surface-container-lowest": "#ffffff",
-              "surface-tint": "#005bc0",
-              "primary": "#005bbf",
-              "surface-container-high": "#e6e8f2",
-              "on-tertiary-fixed": "#410001",
-              "tertiary": "#bb1712",
-              "on-tertiary-container": "#ffffff",
-              "tertiary-fixed-dim": "#ffb4a9",
-              "on-tertiary": "#ffffff",
-              "primary-fixed-dim": "#adc7ff",
-              "tertiary-fixed": "#ffdad5",
-              "secondary-fixed": "#ffdfa0",
-              "tertiary-container": "#df3429",
-              "surface-container-low": "#f2f3fd",
-              "on-secondary-container": "#6d5000",
-              "on-error-container": "#93000a",
-              "surface-container-highest": "#e0e2ec",
-              "outline-variant": "#c1c6d6",
-              "on-primary": "#ffffff",
-              "secondary": "#795900",
-              "surface": "#f9f9ff",
-              "surface-variant": "#e0e2ec",
-              "inverse-primary": "#adc7ff",
-              "inverse-surface": "#2d3038",
-              "on-background": "#191c23",
-              "on-surface-variant": "#414754",
-              "error": "#ba1a1a",
-              "on-primary-container": "#ffffff",
-              "on-surface": "#191c23",
-              "error-container": "#ffdad6",
-              "on-secondary-fixed": "#261a00",
-              "inverse-on-surface": "#eff0fa",
-              "surface-container": "#ecedf7",
-              "secondary-fixed-dim": "#fbbc05",
-              "on-secondary-fixed-variant": "#5c4300",
-              "on-error": "#ffffff",
-              "primary-fixed": "#d8e2ff",
-              "on-tertiary-fixed-variant": "#930004",
-              "on-primary-fixed-variant": "#004493",
-              "surface-dim": "#d8d9e3",
-              "on-primary-fixed": "#001a41",
-              "secondary-container": "#febf0d",
-              "surface-bright": "#f9f9ff"
-            },
-            fontFamily: {
-              "headline": ["Inter"],
-              "body": ["Inter"],
-              "label": ["Inter"]
-            },
-            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
-          },
-        },
-      }
-    </script>
-<style>
-        body { font-family: 'Inter', sans-serif; background-color: #f9f9ff; }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .tonal-layering { transition: background-color 0.2s ease; }
-        .no-line-card { border: none !important; }
-        .gradient-button { background: linear-gradient(135deg, #005bbf 0%, #1a73e8 100%); }
-        /* Hide number input spinners */
-        input[type=number]::-webkit-outer-spin-button,
-        input[type=number]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-            appearance: textfield;
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body class="bg-surface text-on-surface antialiased">
-<!-- TopNavBar -->
-<header class="fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-xl shadow-[0_40px_40px_-15px_rgba(25,28,35,0.06)] h-16 flex justify-between items-center px-4 md:px-8">
-<div class="flex items-center gap-3">
-    <button id="mobile-menu-btn" class="md:hidden text-slate-500 hover:text-primary transition-colors focus:outline-none flex items-center">
-        <span class="material-symbols-outlined text-2xl">menu</span>
-    </button>
-    <div class="text-sm sm:text-xl font-bold tracking-tighter text-slate-900 whitespace-nowrap">Bangladeschi Asiatische Kulturzentrum Linz</div>
-</div>
-<nav class="hidden md:flex items-center gap-8 font-['Inter'] antialiased tracking-tight text-sm">
-<a class="text-blue-700 font-semibold border-b-2 border-blue-700 pb-1" href="/index.html">Home</a>
-<a class="text-slate-500 hover:text-slate-900 transition-all active:scale-95 cursor-pointer" href="/news.html">News</a>
-<a class="text-slate-500 hover:text-slate-900 transition-all active:scale-95 cursor-pointer" href="/cart.html">Cart</a>
-<a class="text-slate-500 hover:text-slate-900 transition-all active:scale-95 cursor-pointer" href="/login.html">My Orders</a>
-</nav>
-<div class="flex items-center gap-4">
-<div class="hidden sm:flex items-center gap-2">
-<div class="relative">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
-<input id="search-input" class="pl-10 pr-4 py-1.5 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-primary w-64" placeholder="Search catalog..." type="text"/>
-</div>
-<select id="sort-select" class="py-1.5 px-3 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none text-on-surface cursor-pointer">
-    <option value="default">Relevance</option>
-    <option value="price-asc">Price: Low to High</option>
-    <option value="price-desc">Price: High to Low</option>
-    <option value="name-asc">Name: A to Z</option>
-</select>
-</div>
-<span class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-primary transition-colors">notifications</span>
-<a href="/login.html" id="user-nav-icon"><span class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-primary transition-colors">account_circle</span></a>
-</div>
-</header>
-<div class="flex pt-16 min-h-screen relative">
-<!-- SideNavBar -->
-<div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/50 z-[35]"></div>
-<aside id="sidebar" class="fixed inset-y-0 left-0 top-16 z-40 w-64 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col gap-y-1 border-r border-slate-100 bg-slate-50 py-8 shadow-2xl md:shadow-none h-[calc(100vh-4rem)]">
-<div class="px-6 mb-6">
-<p class="font-['Inter'] text-xs font-medium uppercase tracking-widest text-slate-400">Navigation</p>
-<p class="text-[10px] text-slate-400 opacity-70">Storefront</p>
-</div>
-<a class="flex items-center gap-3 bg-blue-50 text-blue-700 rounded-md mx-2 px-4 py-3 transition-transform duration-200 hover:translate-x-1" href="/index.html">
-<span class="material-symbols-outlined text-xl">home</span>
-<span class="font-['Inter'] text-xs font-medium uppercase tracking-widest">Home</span>
-</a>
-<a class="flex items-center gap-3 text-slate-500 hover:bg-slate-100 rounded-md mx-2 px-4 py-3 transition-transform duration-200 hover:translate-x-1" href="/news.html">
-<span class="material-symbols-outlined text-xl">newspaper</span>
-<span class="font-['Inter'] text-xs font-medium uppercase tracking-widest">News</span>
-</a>
-<a class="flex items-center gap-3 text-slate-500 hover:bg-slate-100 rounded-md mx-2 px-4 py-3 transition-transform duration-200 hover:translate-x-1" href="/cart.html">
-<span class="material-symbols-outlined text-xl">shopping_cart</span>
-<span class="font-['Inter'] text-xs font-medium uppercase tracking-widest">Cart</span>
-</a>
-<div class="px-6 py-4 border-t border-slate-100 mt-4 flex-grow overflow-y-auto">
-<p class="font-['Inter'] text-xs font-medium uppercase tracking-widest text-slate-400 mb-4">Categories</p>
-<div id="sidebar-categories" class="flex flex-col gap-3">
-    <!-- Populated by JS -->
-</div>
+<html class="light" lang="en">
 
-<p class="font-['Inter'] text-xs font-medium uppercase tracking-widest text-slate-400 mt-8 mb-4">Max Price</p>
-<div class="flex flex-col gap-2 pr-2">
-    <input type="range" id="price-slider" min="0" max="100" value="100" class="w-full accent-primary cursor-pointer">
-    <div class="flex justify-between text-xs text-outline font-bold">
-        <span>€0</span>
-        <span id="price-slider-val">€100</span>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Bangladesh Asiatische Kultur Zentrum | High-Performance Catalog</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary-container": "#1a73e8",
+            "on-secondary": "#ffffff",
+            "background": "#f9f9ff",
+            "outline": "#727785",
+            "surface-container-lowest": "#ffffff",
+            "surface-tint": "#005bc0",
+            "primary": "#005bbf",
+            "surface-container-high": "#e6e8f2",
+            "on-tertiary-fixed": "#410001",
+            "tertiary": "#bb1712",
+            "on-tertiary-container": "#ffffff",
+            "tertiary-fixed-dim": "#ffb4a9",
+            "on-tertiary": "#ffffff",
+            "primary-fixed-dim": "#adc7ff",
+            "tertiary-fixed": "#ffdad5",
+            "secondary-fixed": "#ffdfa0",
+            "tertiary-container": "#df3429",
+            "surface-container-low": "#f2f3fd",
+            "on-secondary-container": "#6d5000",
+            "on-error-container": "#93000a",
+            "surface-container-highest": "#e0e2ec",
+            "outline-variant": "#c1c6d6",
+            "on-primary": "#ffffff",
+            "secondary": "#795900",
+            "surface": "#f9f9ff",
+            "surface-variant": "#e0e2ec",
+            "inverse-primary": "#adc7ff",
+            "inverse-surface": "#2d3038",
+            "on-background": "#191c23",
+            "on-surface-variant": "#414754",
+            "error": "#ba1a1a",
+            "on-primary-container": "#ffffff",
+            "on-surface": "#191c23",
+            "error-container": "#ffdad6",
+            "on-secondary-fixed": "#261a00",
+            "inverse-on-surface": "#eff0fa",
+            "surface-container": "#ecedf7",
+            "secondary-fixed-dim": "#fbbc05",
+            "on-secondary-fixed-variant": "#5c4300",
+            "on-error": "#ffffff",
+            "primary-fixed": "#d8e2ff",
+            "on-tertiary-fixed-variant": "#930004",
+            "on-primary-fixed-variant": "#004493",
+            "surface-dim": "#d8d9e3",
+            "on-primary-fixed": "#001a41",
+            "secondary-container": "#febf0d",
+            "surface-bright": "#f9f9ff"
+          },
+          fontFamily: {
+            "headline": ["Inter"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9f9ff;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .tonal-layering {
+      transition: background-color 0.2s ease;
+    }
+
+    .no-line-card {
+      border: none !important;
+    }
+
+    .gradient-button {
+      background: linear-gradient(135deg, #005bbf 0%, #1a73e8 100%);
+    }
+
+    /* Hide number input spinners */
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type=number] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="bg-surface text-on-surface antialiased">
+  <!-- TopNavBar -->
+  <header
+    class="fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-xl shadow-[0_40px_40px_-15px_rgba(25,28,35,0.06)] h-16 flex justify-between items-center px-4 md:px-8">
+    <div class="flex items-center gap-3">
+      <button id="mobile-menu-btn"
+        class="md:hidden text-slate-500 hover:text-primary transition-colors focus:outline-none flex items-center">
+        <span class="material-symbols-outlined text-2xl">menu</span>
+      </button>
+      <div class="text-lg md:text-xl font-bold tracking-tighter text-slate-900 truncate max-w-[200px] sm:max-w-none">
+        Bangladeschi Asiatische Kulturzentrum Linz</div>
     </div>
-</div>
-</div>
-</aside>
-<!-- Main Content -->
-<main class="flex-1 md:ml-64 p-8 bg-surface">
-<!-- Header Section -->
-<div class="mb-12">
-<div id="breadcrumb" class="text-xs font-medium text-outline mb-4">Home <span class="mx-1 text-outline-variant">/</span> All Products</div>
-<h1 class="text-3xl font-extrabold tracking-tighter text-on-surface mb-2">৩০ ইউরোর বেশি অর্ডারে ফ্রি হোম ডেলিভারি</h1>
-<p class="text-on-surface-variant text-sm max-w-2xl">আপনার পছন্দের সকল গ্রোসারি পণ্য এখন অনলাইনে। ৩০ ইউরোর বেশি বাজার করলেই পাচ্ছেন ফ্রি হোম ডেলিভারি সুবিধা (শুধুমাত্র লিন্জ শহরের জন্য)।</p>
-</div>
-<!-- Product Grid -->
-<div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
-</main>
-</div>
-<!-- Footer -->
-<footer class="w-full py-12 bg-slate-50 flex flex-col items-center justify-center gap-4 px-8 border-t border-slate-100 mt-auto">
-<div class="font-bold text-slate-900 text-lg text-center">Bangladeschi Asiatische Kulturzentrum Linz</div>
-<div class="flex flex-wrap justify-center gap-8">
-<a class="text-slate-500 hover:text-blue-700 transition-colors cursor-pointer font-['Inter'] text-xs uppercase tracking-widest" href="#">Privacy Policy</a>
-<a class="text-slate-500 hover:text-blue-700 transition-colors cursor-pointer font-['Inter'] text-xs uppercase tracking-widest" href="#">Terms of Service</a>
-<a class="text-slate-500 hover:text-blue-700 transition-colors cursor-pointer font-['Inter'] text-xs uppercase tracking-widest" href="#">API Documentation</a>
-<a class="text-slate-500 hover:text-blue-700 transition-colors cursor-pointer font-['Inter'] text-xs uppercase tracking-widest" href="#">Support</a>
-</div>
-<div class="text-[10px] text-slate-400 font-['Inter'] uppercase tracking-[0.2em] mt-4">
-            © 2024 Bangladesh Asiatische Kultur Zentrum. High-performance utility.
+    <nav class="hidden md:flex items-center gap-8 font-['Inter'] antialiased tracking-tight text-sm">
+      <a class="text-blue-700 font-semibold border-b-2 border-blue-700 pb-1" href="/index.html">Home</a>
+      <a class="text-slate-500 hover:text-slate-900 transition-all active:scale-95 cursor-pointer"
+        href="/news.html">News</a>
+      <a class="text-slate-500 hover:text-slate-900 transition-all active:scale-95 cursor-pointer"
+        href="/cart.html">Cart</a>
+      <a class="text-slate-500 hover:text-slate-900 transition-all active:scale-95 cursor-pointer" href="/login.html">My
+        Orders</a>
+    </nav>
+    <div class="flex items-center gap-4">
+      <div class="hidden sm:flex items-center gap-2">
+        <div class="relative">
+          <span
+            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+          <input id="search-input"
+            class="pl-10 pr-4 py-1.5 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-primary w-64"
+            placeholder="Search catalog..." type="text" />
         </div>
-</footer>
-<!-- Mobile Navigation Shell -->
-<div class="md:hidden fixed bottom-0 left-0 w-full bg-slate-50/90 backdrop-blur-lg flex justify-around items-center py-4 border-t border-slate-200 z-50">
-<a href="/index.html" class="flex flex-col items-center text-blue-700">
-<span class="material-symbols-outlined">home</span>
-<span class="text-[10px] font-bold uppercase tracking-tighter">Home</span>
-</a>
-<a href="/news.html" class="flex flex-col items-center text-slate-400">
-<span class="material-symbols-outlined">newspaper</span>
-<span class="text-[10px] font-bold uppercase tracking-tighter">News</span>
-</a>
-<button id="mobile-filter-btn" class="flex flex-col items-center text-slate-400">
-<span class="material-symbols-outlined">filter_list</span>
-<span class="text-[10px] font-bold uppercase tracking-tighter">Filters</span>
-</button>
-<a href="/cart.html" class="flex flex-col items-center text-slate-400">
-<span class="material-symbols-outlined">shopping_cart</span>
-<span class="text-[10px] font-bold uppercase tracking-tighter">Cart</span>
-</a>
-<a href="/login.html" class="flex flex-col items-center text-slate-400">
-<span class="material-symbols-outlined">account_circle</span>
-<span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
-</a>
-</div>
-<script src="/js/app.js"></script>
-    <script src="/js/auth.js"></script>
-</body></html>
+        <select id="sort-select"
+          class="py-1.5 px-3 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none text-on-surface cursor-pointer">
+          <option value="default">Relevance</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="name-asc">Name: A to Z</option>
+        </select>
+      </div>
+      <span
+        class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-primary transition-colors">notifications</span>
+      <a href="/login.html" id="user-nav-icon"><span
+          class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-primary transition-colors">account_circle</span></a>
+    </div>
+  </header>
+  <div class="flex pt-16 min-h-screen relative">
+    <!-- SideNavBar -->
+    <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/50 z-[35]"></div>
+    <aside id="sidebar"
+      class="fixed inset-y-0 left-0 top-16 z-40 w-64 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col gap-y-1 border-r border-slate-100 bg-slate-50 py-8 shadow-2xl md:shadow-none h-[calc(100vh-4rem)]">
+      <div class="px-6 mb-6">
+        <p class="font-['Inter'] text-xs font-medium uppercase tracking-widest text-slate-400">Navigation</p>
+        <p class="text-[10px] text-slate-400 opacity-70">Storefront</p>
+      </div>
+      <a class="flex items-center gap-3 bg-blue-50 text-blue-700 rounded-md mx-2 px-4 py-3 transition-transform duration-200 hover:translate-x-1"
+        href="/index.html">
+        <span class="material-symbols-outlined text-xl">home</span>
+        <span class="font-['Inter'] text-xs font-medium uppercase tracking-widest">Home</span>
+      </a>
+      <a class="flex items-center gap-3 text-slate-500 hover:bg-slate-100 rounded-md mx-2 px-4 py-3 transition-transform duration-200 hover:translate-x-1"
+        href="/news.html">
+        <span class="material-symbols-outlined text-xl">newspaper</span>
+        <span class="font-['Inter'] text-xs font-medium uppercase tracking-widest">News</span>
+      </a>
+      <a class="flex items-center gap-3 text-slate-500 hover:bg-slate-100 rounded-md mx-2 px-4 py-3 transition-transform duration-200 hover:translate-x-1"
+        href="/cart.html">
+        <span class="material-symbols-outlined text-xl">shopping_cart</span>
+        <span class="font-['Inter'] text-xs font-medium uppercase tracking-widest">Cart</span>
+      </a>
+      <div class="px-6 py-4 border-t border-slate-100 mt-4 flex-grow overflow-y-auto">
+        <p class="font-['Inter'] text-xs font-medium uppercase tracking-widest text-slate-400 mb-4">Categories</p>
+        <div id="sidebar-categories" class="flex flex-col gap-3">
+          <!-- Populated by JS -->
+        </div>
+
+        <p class="font-['Inter'] text-xs font-medium uppercase tracking-widest text-slate-400 mt-8 mb-4">Max Price</p>
+        <div class="flex flex-col gap-2 pr-2">
+          <input type="range" id="price-slider" min="0" max="100" value="100"
+            class="w-full accent-primary cursor-pointer">
+          <div class="flex justify-between text-xs text-outline font-bold">
+            <span>€0</span>
+            <span id="price-slider-val">€100</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+    <!-- Main Content -->
+    <main class="flex-1 md:ml-64 p-8 bg-surface">
+      <!-- Header Section -->
+      <div class="mb-12">
+        <div id="breadcrumb" class="text-xs font-medium text-outline mb-4">Home <span
+            class="mx-1 text-outline-variant">/</span> All Products</div>
+        <h1 class="text-3xl font-extrabold tracking-tighter text-on-surface mb-2">৩০ ইউরোর বেশি অর্ডারে ফ্রি হোম
+          ডেলিভারি</h1>
+        <p class="text-on-surface-variant text-sm max-w-2xl">আপনার পছন্দের সকল গ্রোসারি পণ্য এখন অনলাইনে। ৩০ ইউরোর বেশি
+          বাজার করলেই পাচ্ছেন ফ্রি হোম ডেলিভারি সুবিধা (শুধুমাত্র লিন্জ শহরের জন্য)।</p>
+      </div>
+      <!-- Product Grid -->
+      <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
+    </main>
+  </div>
+  <!-- Footer -->
+  <footer
+    class="w-full py-12 bg-slate-50 flex flex-col items-center justify-center gap-4 px-8 border-t border-slate-100 mt-auto">
+    <div class="font-bold text-slate-900 text-lg text-center">Bangladeschi Asiatische Kulturzentrum Linz</div>
+    <div class="flex flex-wrap justify-center gap-8">
+      <a class="text-slate-500 hover:text-blue-700 transition-colors cursor-pointer font-['Inter'] text-xs uppercase tracking-widest"
+        href="#">Privacy Policy</a>
+      <a class="text-slate-500 hover:text-blue-700 transition-colors cursor-pointer font-['Inter'] text-xs uppercase tracking-widest"
+        href="#">Terms of Service</a>
+      <a class="text-slate-500 hover:text-blue-700 transition-colors cursor-pointer font-['Inter'] text-xs uppercase tracking-widest"
+        href="#">API Documentation</a>
+      <a class="text-slate-500 hover:text-blue-700 transition-colors cursor-pointer font-['Inter'] text-xs uppercase tracking-widest"
+        href="#">Support</a>
+    </div>
+    <div class="text-[10px] text-slate-400 font-['Inter'] uppercase tracking-[0.2em] mt-4">
+      © 2024 Bangladesh Asiatische Kultur Zentrum. High-performance utility.
+    </div>
+  </footer>
+  <!-- Mobile Navigation Shell -->
+  <div
+    class="md:hidden fixed bottom-0 left-0 w-full bg-slate-50/90 backdrop-blur-lg flex justify-around items-center py-4 border-t border-slate-200 z-50">
+    <a href="/index.html" class="flex flex-col items-center text-blue-700">
+      <span class="material-symbols-outlined">home</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter">Home</span>
+    </a>
+    <a href="/news.html" class="flex flex-col items-center text-slate-400">
+      <span class="material-symbols-outlined">newspaper</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter">News</span>
+    </a>
+    <button id="mobile-filter-btn" class="flex flex-col items-center text-slate-400">
+      <span class="material-symbols-outlined">filter_list</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter">Filters</span>
+    </button>
+    <a href="/cart.html" class="flex flex-col items-center text-slate-400">
+      <span class="material-symbols-outlined">shopping_cart</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter">Cart</span>
+    </a>
+    <a href="/login.html" class="flex flex-col items-center text-slate-400">
+      <span class="material-symbols-outlined">account_circle</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
+    </a>
+  </div>
+  <script src="/js/app.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
+
+</html>

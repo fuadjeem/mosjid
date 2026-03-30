@@ -29,21 +29,24 @@
         <form id="register-form" class="space-y-4">
             <div class="space-y-1">
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Full Name</label>
-                <input id="reg-name" type="text" required class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="Johnathan Curator"/>
+                <input id="reg-name" type="text" required class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="Your Full Name"/>
             </div>
 
             <div class="space-y-1">
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Email Address</label>
-                <input id="reg-email" type="email" required class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="curator@precision.com"/>
+                <input id="reg-email" type="email" required class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="your@email.com"/>
             </div>
 
             <div class="space-y-1">
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Password</label>
-                <input id="reg-password" type="password" required class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="••••••••"/>
+                <input id="reg-password" type="password" required minlength="6" class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="Min. 6 characters"/>
             </div>
 
-            <button type="submit" class="w-full py-3 mt-4 rounded-lg bg-primary text-white font-bold text-sm hover:opacity-90 transition-opacity">
-                Register
+            <!-- Message box - visible below button -->
+            <div id="register-msg" class="hidden text-sm font-medium p-3 rounded-lg text-center"></div>
+
+            <button type="submit" id="register-btn" class="w-full py-3 mt-2 rounded-lg bg-primary text-white font-bold text-sm hover:opacity-90 transition-opacity">
+                Create Account
             </button>
         </form>
 

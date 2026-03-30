@@ -8,7 +8,7 @@ window.supabaseClient = supabase;
 
 // Initialize script immediately instead of waiting for DOMContentLoaded (since script is at bottom of body)
 (async () => {
-    
+
     // UI Helpers
     const showMessage = (formId, msg, isError = false) => {
         let msgBox = document.getElementById(`${formId}-msg`);
@@ -52,7 +52,7 @@ window.supabaseClient = supabase;
             disableForm('login-form', true);
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-            
+
             const { data, error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
@@ -71,27 +71,44 @@ window.supabaseClient = supabase;
     // 2. Register form submission
     const registerForm = document.getElementById('register-form');
     if (registerForm) {
+        const showRegMsg = (msg, isError) => {
+            const box = document.getElementById('register-msg');
+            if (!box) return;
+            box.textContent = msg;
+            box.className = `text-sm font-medium p-3 rounded-lg text-center ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            box.classList.remove('hidden');
+        };
+
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            disableForm('register-form', true);
-            const name = document.getElementById('reg-name').value;
-            const email = document.getElementById('reg-email').value;
+            const btn = document.getElementById('register-btn');
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+
+            const name  = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
             const password = document.getElementById('reg-password').value;
-            
+
+            if (password.length < 6) {
+                showRegMsg('Password must be at least 6 characters.', true);
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+                return;
+            }
+
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
-                options: {
-                    data: { full_name: name }
-                }
+                options: { data: { full_name: name } }
             });
 
-            disableForm('register-form', false);
             if (error) {
-                showMessage('register-form', error.message, true);
+                showRegMsg(error.message, true);
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
             } else {
-                showMessage('register-form', 'Registration successful! Check your email to confirm if required, or sign in.', false);
-                registerForm.reset();
+                showRegMsg('✅ Account created! Redirecting to login...', false);
+                setTimeout(() => { window.location.href = '/login.html'; }, 2000);
             }
         });
     }
@@ -103,7 +120,7 @@ window.supabaseClient = supabase;
             e.preventDefault();
             disableForm('reset-form', true);
             const email = document.getElementById('reset-email').value;
-            
+
             const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
                 redirectTo: window.location.origin + '/reset-password.html' // Update if a specific reset flow page exists
             });
@@ -121,7 +138,7 @@ window.supabaseClient = supabase;
     // 4. Listen to Auth State changes for dynamic UI updates
     supabase.auth.onAuthStateChange((event, session) => {
         console.log("Auth state changed:", event);
-        
+
         const path = window.location.pathname;
         const isAuthPage = path.includes('login.html') || path.includes('register.html') || path.includes('reset-password.html');
 
@@ -167,13 +184,8 @@ window.logOut = async () => {
 window.authGoogle = async () => {
     console.log("Starting Google Auth...");
     try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.origin + '/index.html'
-            }
-        });
-        if(error) alert('Google Sign in failed: ' + error.message);
+        const { data, error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+        if (error) alert('Google Sign in failed: ' + error.message);
     } catch (err) {
         alert("Unexpected error with Google Auth: " + err.message);
         console.error(err);
@@ -183,13 +195,8 @@ window.authGoogle = async () => {
 window.authFacebook = async () => {
     console.log("Starting Facebook Auth...");
     try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'facebook',
-            options: {
-                redirectTo: window.location.origin + '/index.html'
-            }
-        });
-        if(error) alert('Facebook Sign in failed: ' + error.message);
+        const { data, error } = await supabase.auth.signInWithOAuth({ provider: 'facebook' });
+        if (error) alert('Facebook Sign in failed: ' + error.message);
     } catch (err) {
         alert("Unexpected error with Facebook Auth: " + err.message);
         console.error(err);
