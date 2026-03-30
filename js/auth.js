@@ -1,6 +1,6 @@
 // Supabase Authentication
 const SUPABASE_URL = 'https://hqarozktuvzrzhfhhjbd.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_FlEJDB-nQQblE8kwSisw6w_N6XhXYTG';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxYXJvemt0dXZ6cnpoZmhoamJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NjQ3MjgsImV4cCI6MjA5MDM0MDcyOH0.f-JXg-R5cvyxvgNc3NvjO-aNjr706JrKkSqzNB1T6T0';
 
 // --- Init client ---
 let supabase;
