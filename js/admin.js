@@ -14,22 +14,31 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loginBtn) {
         loginBtn.addEventListener('click', async () => {
             const password = document.getElementById('password').value;
-            const email = document.getElementById('admin-email').value; // mainly for logging if needed
+            const email = document.getElementById('admin-email').value;
+            
+            // 1. Check default credentials (User Request)
+            if (email === 'admin@bakl.org' && password === 'admin') {
+                sessionStorage.setItem('adminToken', 'default_admin_stable_token');
+                window.location.href = '/inventory.html';
+                return;
+            }
+
+            // 2. Fallback to Supabase Auth
             try {
-                const res = await fetch('/api/auth', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    sessionStorage.setItem('adminToken', data.token);
+                if (window.supabaseClient) {
+                    const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+                        email: email,
+                        password: password,
+                    });
+                    if (error) throw error;
+                    sessionStorage.setItem('adminToken', data.session.access_token);
                     window.location.href = '/inventory.html';
                 } else {
-                    alert("Authentication failed.");
+                    alert("Supabase not loaded.");
                 }
             } catch (e) {
                 console.error(e);
+                alert("Authentication failed: " + (e.message || "Invalid credentials"));
             }
         });
     }
@@ -59,7 +68,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const ordersTable = document.getElementById('orders-table-body');
     if (ordersTable) {
         loadOrders(ordersTable);
+        setupAdminOrderModal();
     }
+
+    // Initialize Real-time synchronization
+    setupRealtime();
 });
 
 let globalInventory = [];
@@ -67,22 +80,46 @@ let editingProductId = null; // Track if we are editing
 let currentPage = 1;
 const itemsPerPage = 10;
 
+// Admin Manual Order State
+let adminCart = [];
+
+function setupRealtime() {
+    if (!window.supabaseClient) return;
+    
+    const ordersSubscription = window.supabaseClient.channel('orders_realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
+            console.log('Realtime Order Change:', payload);
+            const tbody = document.getElementById('orders-table-body');
+            if (tbody) loadOrders(tbody);
+            
+            // Also refresh inventory if it exists on current page
+            const invTable = document.getElementById('inventory-table-body');
+            if (invTable) loadInventory(invTable);
+        })
+        .subscribe();
+}
 async function loadInventory(tbody) {
     try {
-        const res = await fetch('/api/products');
-        globalInventory = await res.json();
+        if (!window.supabaseClient) return;
+        const { data: products, error } = await window.supabaseClient
+            .from('products')
+            .select('*')
+            .order('name', { ascending: true });
+
+        if (error) throw error;
+        globalInventory = products;
         
-        // Populate Category Filter dynamically based on inventory
+        // Populate Category Filter dynamically
         const catFilter = document.getElementById('category-filter');
         if (catFilter) {
-            const uniqueCats = [...new Set(globalInventory.map(p => p.category))];
-            const currentCat = catFilter.value; // preserve selected if any
+            const uniqueCats = [...new Set(globalInventory.map(p => p.category))].filter(Boolean);
+            const currentCat = catFilter.value;
             catFilter.innerHTML = `<option>All Categories</option>` + uniqueCats.map(c => `<option>${c}</option>`).join('');
             if (uniqueCats.includes(currentCat) || currentCat === 'All Categories') catFilter.value = currentCat;
         }
         
         renderInventory();
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Load Inventory Error:", e); }
 }
 
 function renderInventory() {
@@ -322,17 +359,14 @@ window.toggleStatus = async (id) => {
     renderInventory();
     
     try {
-        await fetch('/api/products', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + sessionStorage.getItem('adminToken')
-            },
-            body: JSON.stringify(updatedProduct)
-        });
+        const { error } = await window.supabaseClient
+            .from('products')
+            .update({ status: newStatus })
+            .eq('id', id);
+        
+        if (error) throw error;
     } catch(e) {
         console.error("Failed to toggle status:", e);
-        // Revert UI on failure
         pInfo.status = newStatus === 'Available' ? 'Unavailable' : 'Available';
         renderInventory();
     }
@@ -341,12 +375,13 @@ window.toggleStatus = async (id) => {
 window.deleteProduct = async (id) => {
     if(!confirm('Are you sure you want to delete this product?')) return;
     try {
-        await fetch(`/api/products?id=${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('adminToken') }
-        });
+        const { error } = await window.supabaseClient
+            .from('products')
+            .delete()
+            .eq('id', id);
+        if (error) throw error;
         loadInventory(document.getElementById('inventory-table-body'));
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Delete Product Error:", e); }
 };
 
 window.editProduct = (id) => {
@@ -415,91 +450,255 @@ function setupInventoryModals() {
             
             try {
                 if (editingProductId) {
-                    // Update
-                    product.id = editingProductId;
-                    const res = await fetch('/api/products', {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + sessionStorage.getItem('adminToken')
-                        },
-                        body: JSON.stringify(product)
-                    });
-                    if (res.ok) {
+                    const { error } = await window.supabaseClient
+                        .from('products')
+                        .update(product)
+                        .eq('id', editingProductId);
+                    
+                    if (!error) {
                         closeMod();
                         loadInventory(document.getElementById('inventory-table-body'));
-                    } else alert("Failed to update product");
+                    } else throw error;
                 } else {
-                    // Create
-                    const res = await fetch('/api/products', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + sessionStorage.getItem('adminToken')
-                        },
-                        body: JSON.stringify(product)
-                    });
-                    if (res.ok) {
+                    product.id = 'prod_' + Date.now();
+                    const { error } = await window.supabaseClient
+                        .from('products')
+                        .insert([product]);
+                    
+                    if (!error) {
                         closeMod();
                         loadInventory(document.getElementById('inventory-table-body'));
-                    } else alert("Failed to save new product");
+                    } else throw error;
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error("Save Product Error:", e);
+                alert("Failed to save product: " + e.message);
+            }
         });
     }
 }
 
 async function loadOrders(tbody) {
     try {
-        const res = await fetch('/api/orders', {
-            headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('adminToken') }
-        });
-        const orders = await res.json();
+        if (!window.supabaseClient) return;
+        const { data: orders, error } = await window.supabaseClient
+            .from('orders')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        
         tbody.innerHTML = '';
         orders.forEach(o => {
+            const di = o.delivery_info || {};
             tbody.innerHTML += `
             <tr class="hover:bg-surface-container-low transition-colors group">
                 <td class="px-6 py-4">
-                    <span class="font-mono text-xs font-semibold text-primary">${o.id}</span>
+                    <span class="font-mono text-xs font-semibold text-primary">${o.id.split('-')[0]}</span>
                 </td>
                 <td class="px-6 py-4">
-                    <span class="text-sm font-medium">${o.customer}</span>
+                    <span class="text-sm font-medium">${di.customer || 'Unknown'}</span>
                 </td>
-                <td class="px-6 py-4 text-sm font-bold">€${Number(o.total).toFixed(2)}</td>
-                <td class="px-6 py-4 text-sm text-on-surface-variant">${new Date(o.date).toLocaleDateString()}</td>
+                <td class="px-6 py-4 text-sm font-bold">€${Number(o.total_amount).toFixed(2)}</td>
+                <td class="px-6 py-4 text-sm text-on-surface-variant">${new Date(o.created_at).toLocaleDateString()}</td>
                 <td class="px-6 py-4">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase ${o.status === 'Pending' ? 'bg-secondary-container text-on-secondary-container' : 'bg-blue-50 text-blue-700'}">${o.status}</span>
+                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase ${o.status.includes('pending') ? 'bg-secondary-container text-on-secondary-container' : 'bg-blue-50 text-blue-700'}">${o.status.replace('_', ' ')}</span>
                 </td>
                 <td class="px-6 py-4 text-right">
-                   <button onclick="markDelivered('${o.id}')" class="text-xs font-bold text-primary hover:underline mr-2">Complete</button>
-                   <button onclick="deleteOrder('${o.id}')" class="text-xs font-bold text-error hover:underline">Delete</button>
+                   <div class="flex justify-end gap-2">
+                       <button onclick="markDelivered('${o.id}')" class="p-2 hover:bg-green-50 rounded-lg text-outline hover:text-green-600 transition-all" title="Mark as Delivered">
+                           <span class="material-symbols-outlined text-sm">check_circle</span>
+                       </button>
+                       <button onclick="deleteOrder('${o.id}')" class="p-2 hover:bg-tertiary-container/10 rounded-lg text-outline hover:text-tertiary transition-all" title="Delete Order">
+                           <span class="material-symbols-outlined text-sm">delete</span>
+                       </button>
+                   </div>
                 </td>
             </tr>`;
         });
-    } catch (e) { console.error(e); }
+
+        // Update Dashboard Stats Card
+        updateOrderDashboardStats(orders);
+
+    } catch (e) { console.error("Load Orders Error:", e); }
 }
+
+function updateOrderDashboardStats(orders) {
+    const revEl = document.getElementById('stat-revenue');
+    const pendEl = document.getElementById('stat-pending');
+    const delivEl = document.getElementById('stat-delivered');
+
+    if (!revEl) return;
+
+    let revenue = 0;
+    let pending = 0;
+    let delivered = 0;
+
+    orders.forEach(o => {
+        revenue += Number(o.total_amount) || 0;
+        const status = (o.status || '').toLowerCase();
+        if (status.includes('pending')) pending++;
+        if (status === 'delivered') delivered++;
+    });
+
+    revEl.innerText = '€' + revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    pendEl.innerText = pending;
+    delivEl.innerText = delivered;
+
+    // Optional: Update sub-labels if they exist
+    const pendSub = pendEl.nextElementSibling;
+    if (pendSub && pendSub.classList.contains('text-xs')) {
+        pendSub.innerHTML = `<span class="material-symbols-outlined text-[14px]">schedule</span> ${pending} active orders`;
+    }
+}
+
+async function setupAdminOrderModal() {
+    const addOrderBtn = document.getElementById('add-order-btn');
+    const modal = document.getElementById('new-order-modal');
+    if (!addOrderBtn || !modal) return;
+
+    // Load products into select
+    const { data: products } = await window.supabaseClient.from('products').select('id, name, price, stock').eq('status', 'Available');
+    const select = document.getElementById('admin-product-select');
+    if (select && products) {
+        select.innerHTML = '<option value="">Select a product...</option>' + 
+            products.map(p => `<option value="${p.id}" data-price="${p.price}" data-name="${p.name}">${p.name} (€${p.price}) - In Stock: ${p.stock}</option>`).join('');
+    }
+
+    addOrderBtn.onclick = () => {
+        adminCart = [];
+        renderAdminCart();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    };
+
+    const closeMod = () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    };
+
+    document.getElementById('close-order-modal').onclick = closeMod;
+    document.getElementById('cancel-order-modal').onclick = closeMod;
+
+    // Add to cart logic
+    document.getElementById('admin-add-to-cart').onclick = () => {
+        const sel = document.getElementById('admin-product-select');
+        const qty = parseInt(document.getElementById('admin-product-qty').value);
+        if (!sel.value || qty < 1) return;
+
+        const opt = sel.options[sel.selectedIndex];
+        const item = {
+            id: sel.value,
+            name: opt.getAttribute('data-name'),
+            price: parseFloat(opt.getAttribute('data-price')),
+            quantity: qty
+        };
+
+        const existing = adminCart.find(i => i.id === item.id);
+        if (existing) existing.quantity += qty;
+        else adminCart.push(item);
+
+        renderAdminCart();
+    };
+
+    // Submit Order
+    document.getElementById('submit-admin-order').onclick = async () => {
+        if (adminCart.length === 0) return alert("Select at least one product.");
+        
+        const name = document.getElementById('admin-customer-name').value;
+        const phone = document.getElementById('admin-customer-phone').value;
+        const email = document.getElementById('admin-customer-email').value;
+        const address = document.getElementById('admin-customer-address').value;
+
+        if (!name || !phone || !email) return alert("Customer name, phone, and email are mandatory.");
+
+        try {
+            const total = adminCart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+            const orderId = 'admin_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+            // 1. Create Order
+            const { data: order, error: orderErr } = await window.supabaseClient.from('orders').insert([{
+                id: orderId,
+                user_id: null, // Admin placed
+                status: 'pending',
+                total_amount: total,
+                delivery_info: { customer: name, phone, email, address }
+            }]).select();
+
+            if (orderErr) throw orderErr;
+
+            // 2. Create Order Items & Update Stock
+            for (const item of adminCart) {
+                await window.supabaseClient.from('order_items').insert([{
+                    order_id: orderId,
+                    product_id: item.id,
+                    quantity: item.quantity,
+                    price_at_time: item.price
+                }]);
+
+                // Decrement stock
+                const { data: p } = await window.supabaseClient.from('products').select('stock').eq('id', item.id).single();
+                if (p) {
+                    await window.supabaseClient.from('products').update({ stock: p.stock - item.quantity }).eq('id', item.id);
+                }
+            }
+
+            alert("Order placed successfully!");
+            closeMod();
+            loadOrders(document.getElementById('orders-table-body'));
+        } catch (e) {
+            console.error(e);
+            alert("Failed to place order: " + e.message);
+        }
+    };
+}
+
+function renderAdminCart() {
+    const tbody = document.getElementById('admin-cart-items');
+    const totalEl = document.getElementById('admin-cart-total');
+    if (!tbody) return;
+
+    tbody.innerHTML = adminCart.map((i, idx) => `
+        <tr class="border-b border-surface-variant/10">
+            <td class="py-2">${i.name}</td>
+            <td class="py-2 text-center">${i.quantity}</td>
+            <td class="py-2 text-right">€${(i.price * i.quantity).toFixed(2)}</td>
+            <td class="py-2 text-right">
+                <button onclick="removeFromAdminCart(${idx})" class="text-error hover:scale-110 transition-transform">
+                    <span class="material-symbols-outlined text-sm">delete</span>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+
+    const total = adminCart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+    totalEl.innerText = '€' + total.toFixed(2);
+}
+
+window.removeFromAdminCart = (idx) => {
+    adminCart.splice(idx, 1);
+    renderAdminCart();
+};
 
 window.markDelivered = async (id) => {
     try {
-        await fetch('/api/orders', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + sessionStorage.getItem('adminToken')
-            },
-            body: JSON.stringify({ id, status: 'Delivered' })
-        });
+        const { error } = await window.supabaseClient
+            .from('orders')
+            .update({ status: 'delivered' })
+            .eq('id', id);
+        if (error) throw error;
         loadOrders(document.getElementById('orders-table-body'));
-    } catch(e) { console.error(e); }
+    } catch(e) { console.error("Mark Delivered Error:", e); }
 };
 
 window.deleteOrder = async (id) => {
     if(!confirm('Delete this order completely?')) return;
     try {
-        await fetch(`/api/orders?id=${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('adminToken') }
-        });
+        const { error } = await window.supabaseClient
+            .from('orders')
+            .delete()
+            .eq('id', id);
+        if (error) throw error;
         loadOrders(document.getElementById('orders-table-body'));
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Delete Order Error:", e); }
 };

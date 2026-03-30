@@ -9,8 +9,9 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 var sbClient = null;
 try {
     if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-        sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('[auth.js] Supabase client initialized via sbClient');
+        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        sbClient = window.supabaseClient; // Alias for backward compatibility
+        console.log('[auth.js] Supabase client initialized via window.supabaseClient');
     } else {
         console.error('[auth.js] window.supabase is UNDEFINED. UMD script not loaded correctly.');
     }

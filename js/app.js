@@ -39,14 +39,23 @@ window.allProducts = [];
 
 async function loadProducts(grid) {
     try {
-        const res = await fetch('/api/products');
-        const products = await res.json();
+        if (!window.supabaseClient) {
+            console.error("Supabase client not initialized.");
+            return;
+        }
+        const { data: products, error } = await window.supabaseClient
+            .from('products')
+            .select('*')
+            .order('name', { ascending: true });
+
+        if (error) throw error;
+
         window.allProducts = products;
         
         setupStorefrontFilters();
         applyFilters();
     } catch (e) {
-        console.error("Failed to load products", e);
+        console.error("Failed to load products from Supabase", e);
         grid.innerHTML = '<p class="text-on-surface-variant">Failed to load product catalog.</p>';
     }
 }
@@ -481,16 +490,12 @@ function setupCheckout() {
         btn.disabled = true;
         
         try {
-            // Validate session
+            // Validate session (Optional for Guest)
             let user_id = null;
             if (window.supabaseClient) {
                 const { data: { session } } = await window.supabaseClient.auth.getSession();
                 if (session && session.user) {
                     user_id = session.user.id;
-                } else {
-                    alert("Please log in to complete your checkout.");
-                    window.location.href = '/login.html';
-                    return;
                 }
             } else {
                 console.error("Supabase client is not loaded.");
@@ -536,6 +541,20 @@ function setupCheckout() {
                 .insert(itemsToInsert);
                 
             if (itemsError) throw itemsError;
+
+            // --- DECREMENT STOCK ---
+            for (const item of cart) {
+                // Fetch current stock to be safe, or just atomic decrement if we had RPC
+                // For now, simple update based on loaded data
+                const prod = window.allProducts.find(p => p.id === item.id);
+                if (prod) {
+                    const newStock = Math.max(0, prod.stock - item.qty);
+                    await window.supabaseClient
+                        .from('products')
+                        .update({ stock: newStock })
+                        .eq('id', item.id);
+                }
+            }
 
             cart = [];
             localStorage.setItem('cart', '[]');
