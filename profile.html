@@ -37,7 +37,7 @@
         }
     </script>
     <style>body { font-family: 'Inter', sans-serif; background-color: #f9f9ff; }</style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body class="bg-surface text-on-surface antialiased min-h-screen">
 
@@ -151,13 +151,13 @@
         }
 
         // Wait for supabase
-        if (typeof supabase === 'undefined' || !supabase) {
+        if (typeof sbClient === 'undefined' || !supabase) {
             loading.classList.add('hidden');
             guest.classList.remove('hidden');
             return;
         }
 
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session } } = await sbClient.auth.getSession();
         loading.classList.add('hidden');
 
         if (!session) {
@@ -185,7 +185,7 @@
             this.disabled = true;
             this.textContent = 'Saving...';
             try {
-                const { error } = await supabase.auth.updateUser({ data: { full_name: newName } });
+                const { error } = await sbClient.auth.updateUser({ data: { full_name: newName } });
                 if (error) { showMsg('profile-msg', error.message, true); }
                 else {
                     showMsg('profile-msg', '✅ Profile updated!', false);
@@ -206,7 +206,7 @@
             this.disabled = true;
             this.textContent = 'Updating...';
             try {
-                const { error } = await supabase.auth.updateUser({ password: pw });
+                const { error } = await sbClient.auth.updateUser({ password: pw });
                 if (error) { showMsg('password-msg', error.message, true); }
                 else {
                     showMsg('password-msg', '✅ Password updated!', false);
@@ -220,7 +220,7 @@
 
         // Log Out
         document.getElementById('logout-btn').addEventListener('click', async function() {
-            await supabase.auth.signOut();
+            await sbClient.auth.signOut();
             window.location.href = '/index.html';
         });
     })();

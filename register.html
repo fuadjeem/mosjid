@@ -11,7 +11,7 @@
         tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary-container": "#1a73e8", "on-secondary": "#ffffff", "background": "#f9f9ff", "outline": "#727785", "surface-container-lowest": "#ffffff", "primary": "#005bbf", "surface-container-high": "#e6e8f2", "surface-container-low": "#f2f3fd", "on-primary": "#ffffff", "surface": "#f9f9ff", "surface-variant": "#e0e2ec", "on-background": "#191c23", "on-surface-variant": "#414754", "on-surface": "#191c23", "surface-container": "#ecedf7", "outline-variant": "#c1c6d6", } } } }
     </script>
     <style>body { font-family: 'Inter', sans-serif; background-color: #f9f9ff; }</style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col items-center justify-center p-4">
 
@@ -70,54 +70,5 @@
     </div>
 
     <script src="/js/auth.js"></script>
-    <script>
-    // Debug: verify auth.js loaded and Supabase initialized
-    console.log('[DEBUG] auth.js loaded. supabase client:', typeof supabase, supabase);
-    console.log('[DEBUG] register-form:', !!document.getElementById('register-form'));
-    
-    // Fallback: if auth.js event listener didn't attach, wire it up directly
-    document.getElementById('register-btn').addEventListener('click', async function(ev) {
-        ev.preventDefault();
-        const btn = this;
-        const name     = document.getElementById('reg-name').value.trim();
-        const email    = document.getElementById('reg-email').value.trim();
-        const password = document.getElementById('reg-password').value;
-        const msgBox   = document.getElementById('register-msg');
-        
-        console.log('[DEBUG] Button clicked. Inputs:', { name, email, passLen: password.length });
-        
-        if (!email || !password) {
-            if (msgBox) { msgBox.textContent = 'Please fill in all fields.'; msgBox.style.cssText = 'display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;background:#fee2e2;color:#b91c1c;'; msgBox.classList.remove('hidden'); }
-            return;
-        }
-        if (password.length < 6) {
-            if (msgBox) { msgBox.textContent = 'Password must be at least 6 characters.'; msgBox.style.cssText = 'display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;background:#fee2e2;color:#b91c1c;'; msgBox.classList.remove('hidden'); }
-            return;
-        }
-
-        btn.disabled = true;
-        btn.textContent = 'Creating account...';
-        
-        try {
-            console.log('[DEBUG] Calling supabase.auth.signUp...');
-            const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
-            console.log('[DEBUG] signUp result:', { data, error });
-            
-            if (error) {
-                if (msgBox) { msgBox.textContent = error.message; msgBox.style.cssText = 'display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;background:#fee2e2;color:#b91c1c;'; msgBox.classList.remove('hidden'); }
-                btn.disabled = false;
-                btn.textContent = 'Create Account';
-            } else {
-                if (msgBox) { msgBox.textContent = '✅ Account created! Redirecting...'; msgBox.style.cssText = 'display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;background:#dcfce7;color:#15803d;'; msgBox.classList.remove('hidden'); }
-                setTimeout(function() { window.location.href = '/index.html'; }, 1500);
-            }
-        } catch (err) {
-            console.error('[DEBUG] Error:', err);
-            if (msgBox) { msgBox.textContent = 'Error: ' + err.message; msgBox.style.cssText = 'display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;background:#fee2e2;color:#b91c1c;'; msgBox.classList.remove('hidden'); }
-            btn.disabled = false;
-            btn.textContent = 'Create Account';
-        }
-    });
-    </script>
 </body>
 </html>

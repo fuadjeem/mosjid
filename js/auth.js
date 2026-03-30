@@ -1,202 +1,188 @@
 // Supabase Authentication
+// Uses the UMD build which exposes window.supabase = { createClient: fn }
 const SUPABASE_URL = 'https://hqarozktuvzrzhfhhjbd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxYXJvemt0dXZ6cnpoZmhoamJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NjQ3MjgsImV4cCI6MjA5MDM0MDcyOH0.f-JXg-R5cvyxvgNc3NvjO-aNjr706JrKkSqzNB1T6T0';
 
-// --- Init client ---
-let supabase;
+// --- Init client with a UNIQUE name (not 'supabase' which conflicts with window.supabase) ---
+var sbClient = null;
 try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    window.supabaseClient = supabase;
+    sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('[auth.js] Supabase client initialized:', !!sbClient, 'auth:', !!sbClient?.auth);
 } catch (e) {
-    console.error('Supabase init failed:', e);
+    console.error('[auth.js] Supabase init FAILED:', e);
+    // Show error on page
+    document.body.insertAdjacentHTML('afterbegin',
+        '<div style="position:fixed;top:0;left:0;right:0;background:red;color:white;padding:10px;text-align:center;z-index:99999;font-size:14px;">Supabase init failed: ' + e.message + '</div>');
 }
 
-// --- Helper: show a message inside a container div ---
+// --- Helper: show a message ---
 function showMsg(containerId, text, isError) {
-    let box = document.getElementById(containerId);
-    if (!box) {
-        // Create one if it doesn't exist
-        box = document.createElement('div');
-        box.id = containerId;
-        document.body.appendChild(box);
-    }
+    var box = document.getElementById(containerId);
+    if (!box) return;
     box.textContent = text;
-    box.style.cssText = `display:block;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;margin-top:12px;${isError ? 'background:#fee2e2;color:#b91c1c;' : 'background:#dcfce7;color:#15803d;'}`;
+    box.style.cssText = 'display:block;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;margin-top:12px;' +
+        (isError ? 'background:#fee2e2;color:#b91c1c;' : 'background:#dcfce7;color:#15803d;');
     box.classList.remove('hidden');
 }
 
 // ===== LOGIN FORM =====
-const loginForm = document.getElementById('login-form');
+var loginForm = document.getElementById('login-form');
 if (loginForm) {
-    // Add a message div after the form
-    const loginMsg = document.createElement('div');
-    loginMsg.id = 'login-msg';
-    loginMsg.style.display = 'none';
-    loginForm.after(loginMsg);
-
-    const loginBtn = loginForm.querySelector('button[type="submit"]');
+    // Create message div
+    var loginMsgDiv = document.createElement('div');
+    loginMsgDiv.id = 'login-msg';
+    loginMsgDiv.style.display = 'none';
+    loginForm.after(loginMsgDiv);
 
     loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         e.stopPropagation();
+        
+        var email    = document.getElementById('login-email').value.trim();
+        var password = document.getElementById('login-password').value;
+        var btn      = loginForm.querySelector('button[type="submit"]');
 
-        const email    = document.getElementById('login-email').value.trim();
-        const password = document.getElementById('login-password').value;
+        if (!email || !password) { showMsg('login-msg', 'Please enter email and password.', true); return; }
+        if (!sbClient || !sbClient.auth) { showMsg('login-msg', 'Authentication service not available. Please refresh.', true); return; }
 
-        if (!email || !password) {
-            showMsg('login-msg', 'Please enter your email and password.', true);
-            return;
-        }
-
-        if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = 'Signing in...'; }
+        if (btn) { btn.disabled = true; btn.textContent = 'Signing in...'; }
 
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) {
-                showMsg('login-msg', error.message, true);
-                if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'Sign In'; }
+            var result = await sbClient.auth.signInWithPassword({ email: email, password: password });
+            if (result.error) {
+                showMsg('login-msg', result.error.message, true);
+                if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
             } else {
-                showMsg('login-msg', '✅ Signed in! Taking you home...', false);
-                setTimeout(() => { window.location.href = '/index.html'; }, 1000);
+                showMsg('login-msg', '✅ Signed in! Redirecting...', false);
+                setTimeout(function() { window.location.href = '/index.html'; }, 1000);
             }
         } catch (err) {
-            showMsg('login-msg', 'Unexpected error: ' + err.message, true);
-            if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'Sign In'; }
+            showMsg('login-msg', 'Error: ' + err.message, true);
+            if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
         }
     });
 }
 
 // ===== REGISTER FORM =====
-const registerForm = document.getElementById('register-form');
+var registerForm = document.getElementById('register-form');
 if (registerForm) {
     registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         e.stopPropagation();
 
-        const name     = document.getElementById('reg-name').value.trim();
-        const email    = document.getElementById('reg-email').value.trim();
-        const password = document.getElementById('reg-password').value;
-        const btn      = document.getElementById('register-btn');
-        const msgBox   = document.getElementById('register-msg');
+        var name     = document.getElementById('reg-name').value.trim();
+        var email    = document.getElementById('reg-email').value.trim();
+        var password = document.getElementById('reg-password').value;
+        var btn      = document.getElementById('register-btn');
 
-        function showRegMsg(text, isError) {
-            if (!msgBox) return;
-            msgBox.textContent = text;
-            msgBox.style.cssText = `display:block;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;${isError ? 'background:#fee2e2;color:#b91c1c;' : 'background:#dcfce7;color:#15803d;'}`;
-            msgBox.classList.remove('hidden');
-        }
-
-        if (!email || !password) { showRegMsg('Please fill in all fields.', true); return; }
-        if (password.length < 6) { showRegMsg('Password must be at least 6 characters.', true); return; }
+        if (!email || !password) { showMsg('register-msg', 'Please fill in all fields.', true); return; }
+        if (password.length < 6) { showMsg('register-msg', 'Password must be at least 6 characters.', true); return; }
+        if (!sbClient || !sbClient.auth) { showMsg('register-msg', 'Authentication service not available. Please refresh.', true); return; }
 
         if (btn) { btn.disabled = true; btn.textContent = 'Creating account...'; }
 
         try {
-            const { data, error } = await supabase.auth.signUp({
-                email,
-                password,
+            var result = await sbClient.auth.signUp({
+                email: email,
+                password: password,
                 options: { data: { full_name: name } }
             });
-
-            if (error) {
-                showRegMsg(error.message, true);
+            if (result.error) {
+                showMsg('register-msg', result.error.message, true);
                 if (btn) { btn.disabled = false; btn.textContent = 'Create Account'; }
             } else {
-                showRegMsg('✅ Account created! You are now logged in. Redirecting...', false);
-                setTimeout(() => { window.location.href = '/index.html'; }, 1500);
+                showMsg('register-msg', '✅ Account created! Redirecting to homepage...', false);
+                setTimeout(function() { window.location.href = '/index.html'; }, 1500);
             }
         } catch (err) {
-            showRegMsg('Unexpected error: ' + err.message, true);
+            showMsg('register-msg', 'Error: ' + err.message, true);
             if (btn) { btn.disabled = false; btn.textContent = 'Create Account'; }
         }
     });
 }
 
 // ===== RESET PASSWORD FORM =====
-const resetForm = document.getElementById('reset-form');
+var resetForm = document.getElementById('reset-form');
 if (resetForm) {
-    const resetBtn = resetForm.querySelector('button[type="submit"]');
-    const resetMsg = document.createElement('div');
-    resetMsg.id = 'reset-msg';
-    resetMsg.style.display = 'none';
-    resetForm.after(resetMsg);
+    var resetMsgDiv = document.createElement('div');
+    resetMsgDiv.id = 'reset-msg';
+    resetMsgDiv.style.display = 'none';
+    resetForm.after(resetMsgDiv);
 
     resetForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        const email = document.getElementById('reset-email').value.trim();
+        var email = document.getElementById('reset-email').value.trim();
+        var btn   = resetForm.querySelector('button[type="submit"]');
         if (!email) { showMsg('reset-msg', 'Please enter your email.', true); return; }
-        if (resetBtn) { resetBtn.disabled = true; resetBtn.textContent = 'Sending...'; }
+        if (!sbClient || !sbClient.auth) { showMsg('reset-msg', 'Authentication service not available.', true); return; }
+        if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
 
         try {
-            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            var result = await sbClient.auth.resetPasswordForEmail(email, {
                 redirectTo: 'https://shop.bakl.org/reset-password.html'
             });
-            if (error) {
-                showMsg('reset-msg', error.message, true);
-                if (resetBtn) { resetBtn.disabled = false; resetBtn.textContent = 'Send Reset Link'; }
+            if (result.error) {
+                showMsg('reset-msg', result.error.message, true);
             } else {
                 showMsg('reset-msg', '✅ Check your email for a password reset link!', false);
-                if (resetBtn) { resetBtn.disabled = false; resetBtn.textContent = 'Send Reset Link'; }
             }
         } catch (err) {
             showMsg('reset-msg', 'Error: ' + err.message, true);
-            if (resetBtn) { resetBtn.disabled = false; resetBtn.textContent = 'Send Reset Link'; }
         }
+        if (btn) { btn.disabled = false; btn.textContent = 'Send Reset Link'; }
     });
 }
 
-// ===== AUTH STATE: redirect logged-in users away from auth pages =====
-if (supabase) {
-    supabase.auth.onAuthStateChange(function(event, session) {
-        console.log('Auth event:', event, !!session);
-        const path = window.location.pathname;
-        const onAuthPage = path.includes('login') || path.includes('register') || path.includes('reset-password');
-        if (session && onAuthPage && event === 'SIGNED_IN') {
-            window.location.href = '/index.html';
-        }
+// ===== AUTH STATE LISTENER =====
+if (sbClient && sbClient.auth) {
+    sbClient.auth.onAuthStateChange(function(event, session) {
+        console.log('[auth.js] Auth event:', event, !!session);
         updateNavigationUI(session);
     });
 
-    // Check immediately on load
-    supabase.auth.getSession().then(({ data: { session } }) => {
-        updateNavigationUI(session);
+    // Check session on load
+    sbClient.auth.getSession().then(function(resp) {
+        updateNavigationUI(resp.data.session);
     });
 }
 
 // ===== NAV UI =====
 function updateNavigationUI(session) {
-    const navLink = document.getElementById('user-nav-icon');
+    var navLink = document.getElementById('user-nav-icon');
     if (!navLink) return;
     if (session) {
-        const name = session.user.user_metadata?.full_name?.split(' ')[0] || 'Account';
-        navLink.onclick = (e) => { e.preventDefault(); window.logOut(); };
-        navLink.innerHTML = `<button class="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-primary transition-colors flex items-center gap-2 border border-slate-200 bg-white px-3 py-1.5 rounded-full"><span class="w-2 h-2 rounded-full bg-green-500"></span>${name} | Log Out</button>`;
+        var name = (session.user.user_metadata && session.user.user_metadata.full_name) || '';
+        var firstName = name ? name.split(' ')[0] : 'Account';
+        navLink.onclick = function(e) { e.preventDefault(); window.logOut(); };
+        navLink.innerHTML = '<button class="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-primary transition-colors flex items-center gap-2 border border-slate-200 bg-white px-3 py-1.5 rounded-full"><span class="w-2 h-2 rounded-full bg-green-500"></span>' + firstName + ' | Log Out</button>';
         navLink.removeAttribute('href');
     } else {
         navLink.onclick = null;
         navLink.href = '/login.html';
-        navLink.innerHTML = `<span class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-primary transition-colors">account_circle</span>`;
+        navLink.innerHTML = '<span class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-primary transition-colors">account_circle</span>';
     }
 }
 
 // ===== GLOBAL FUNCTIONS =====
 window.logOut = async function() {
-    await supabase.auth.signOut();
+    if (sbClient && sbClient.auth) await sbClient.auth.signOut();
     window.location.href = '/index.html';
 };
 
 window.authGoogle = async function() {
-    const { error } = await supabase.auth.signInWithOAuth({
+    if (!sbClient || !sbClient.auth) { alert('Auth not available'); return; }
+    var result = await sbClient.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo: window.location.origin + '/index.html' }
     });
-    if (error) alert('Google sign-in failed: ' + error.message);
+    if (result.error) alert('Google sign-in failed: ' + result.error.message);
 };
 
 window.authFacebook = async function() {
-    const { error } = await supabase.auth.signInWithOAuth({
+    if (!sbClient || !sbClient.auth) { alert('Auth not available'); return; }
+    var result = await sbClient.auth.signInWithOAuth({
         provider: 'facebook',
         options: { redirectTo: window.location.origin + '/index.html' }
     });
-    if (error) alert('Facebook sign-in failed: ' + error.message);
+    if (result.error) alert('Facebook sign-in failed: ' + result.error.message);
 };
