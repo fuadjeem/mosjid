@@ -141,18 +141,39 @@ if (sbClient) {
 }
 
 function updateNavigationUI(session) {
+    // Account Icon Logic
     var navLink = document.getElementById('user-nav-icon');
-    if (!navLink) return;
-    if (session) {
-        var name = (session.user.user_metadata && session.user.user_metadata.full_name) || '';
-        var firstName = name ? name.split(' ')[0] : 'Account';
-        navLink.onclick = function(e) { e.preventDefault(); window.location.href = '/profile.html'; };
-        navLink.innerHTML = '<button class="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-primary transition-colors flex items-center gap-2 border border-slate-200 bg-white px-3 py-1.5 rounded-full"><span class="w-2 h-2 rounded-full bg-green-500"></span>' + firstName + '</button>';
-        navLink.removeAttribute('href');
-    } else {
-        navLink.onclick = null;
-        navLink.href = '/login.html';
-        navLink.innerHTML = '<span class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-primary transition-colors">account_circle</span>';
+    if (navLink) {
+        if (session) {
+            var name = (session.user.user_metadata && session.user.user_metadata.full_name) || '';
+            var firstName = name ? name.split(' ')[0] : 'Account';
+            navLink.onclick = function(e) { e.preventDefault(); window.location.href = '/profile.html'; };
+            navLink.innerHTML = '<button class="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-primary transition-colors flex items-center gap-2 border border-slate-200 bg-white px-3 py-1.5 rounded-full"><span class="w-2 h-2 rounded-full bg-green-500"></span>' + firstName + '</button>';
+            navLink.removeAttribute('href');
+        } else {
+            navLink.onclick = null;
+            navLink.href = '/login.html';
+            navLink.innerHTML = '<span class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-primary transition-colors">account_circle</span>';
+        }
+    }
+
+    // Orders Link Logic
+    var ordersLink = document.getElementById('orders-nav-link');
+    if (ordersLink) {
+        if (session) {
+            ordersLink.href = '/profile.html#orders';
+            ordersLink.onclick = function(e) { 
+                e.preventDefault(); 
+                window.location.href = '/profile.html#orders';
+                // Trigger hashchange event if already on profile page
+                if (window.location.pathname === '/profile.html') {
+                    window.dispatchEvent(new HashChangeEvent('hashchange'));
+                }
+            };
+        } else {
+            ordersLink.href = '/login.html';
+            ordersLink.onclick = null;
+        }
     }
 }
 

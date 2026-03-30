@@ -118,11 +118,13 @@
         </div>
 
         <!-- Order History Card -->
-        <div class="bg-surface-container-lowest rounded-2xl shadow-lg border border-outline-variant/20 p-6 mb-6">
+        <div id="orders" class="bg-surface-container-lowest rounded-2xl shadow-lg border border-outline-variant/20 p-6 mb-6">
             <h2 class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-4">Order History</h2>
-            <div id="order-history" class="text-sm text-on-surface-variant text-center py-6">
-                <span class="material-symbols-outlined text-3xl text-outline-variant">shopping_bag</span>
-                <p class="mt-2">Your order history will appear here.</p>
+            <div id="order-history-list" class="space-y-4">
+                <div class="text-sm text-on-surface-variant text-center py-6">
+                    <div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                    <p>Loading your orders...</p>
+                </div>
             </div>
         </div>
 
@@ -151,7 +153,7 @@
         }
 
         // Wait for supabase
-        if (typeof sbClient === 'undefined' || !supabase) {
+        if (typeof sbClient === 'undefined' || !sbClient) {
             loading.classList.add('hidden');
             guest.classList.remove('hidden');
             return;
@@ -178,6 +180,85 @@
         document.getElementById('profile-joined').textContent = `Member since ${createdAt.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
         document.getElementById('profile-name-input').value = name;
         document.getElementById('profile-email-input').value = email;
+
+        // Initialize Orders
+        loadOrders();
+        handleHash();
+
+        // --- Order Fetching Logic ---
+        async function loadOrders() {
+            const list = document.getElementById('order-history-list');
+            if (!list) return;
+            try {
+                const { data: orders, error } = await sbClient
+                    .from('orders')
+                    .select('*, order_items(*)')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!orders || orders.length === 0) {
+                    list.innerHTML = `
+                        <div class="text-sm text-on-surface-variant text-center py-6">
+                            <span class="material-symbols-outlined text-3xl text-outline-variant">shopping_bag</span>
+                            <p class="mt-2 text-[11px] font-bold uppercase tracking-widest opacity-60">No orders found.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                list.innerHTML = orders.map(order => `
+                    <div class="border border-outline-variant/20 rounded-xl p-4 bg-surface-container-low/30">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-tighter text-primary">Order #${order.id.slice(0,8).toUpperCase()}</p>
+                                <p class="text-[10px] text-on-surface-variant font-medium">${new Date(order.created_at).toLocaleDateString()} at ${new Date(order.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                            </div>
+                            <span class="px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest ${getStatusClass(order.status)}">
+                                ${order.status.replace('_', ' ')}
+                            </span>
+                        </div>
+                        <div class="space-y-1 mb-3">
+                            ${(order.order_items || []).map(item => `
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-on-surface-variant">${item.quantity}x ${item.product_name}</span>
+                                    <span class="font-medium">€${(item.price * item.quantity).toFixed(2)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="pt-2 border-t border-outline-variant/10 flex justify-between items-center text-sm">
+                            <span class="font-bold text-on-surface">Total</span>
+                            <span class="font-black text-primary">€${order.total_amount ? Number(order.total_amount).toFixed(2) : '0.00'}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error('Error loading orders:', err);
+                list.innerHTML = `<p class="text-xs text-red-500 text-center py-4">Failed to load order history: ${err.message}</p>`;
+            }
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'delivered': return 'bg-green-100 text-green-700';
+                case 'cancelled': return 'bg-red-100 text-red-700';
+                case 'out_for_delivery': return 'bg-blue-100 text-blue-700';
+                default: return 'bg-amber-100 text-amber-700'; // pending_delivery
+            }
+        }
+
+        function handleHash() {
+            if (window.location.hash === '#orders') {
+                const el = document.getElementById('orders');
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth' });
+                    el.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
+                    setTimeout(() => el.classList.remove('ring-2', 'ring-primary', 'ring-offset-2'), 2000);
+                }
+            }
+        }
+        window.addEventListener('hashchange', handleHash);
 
         // Save Profile
         document.getElementById('save-profile-btn').addEventListener('click', async function() {
