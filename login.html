@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Login | Bangladesh Asiatische Kultur Zentrum</title>
+    <title>Welcome Back | Bangladesh Asiatische Kultur Zentrum</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -29,9 +29,7 @@
                         "on-surface": "#191c23",
                         "surface-container": "#ecedf7",
                         "outline-variant": "#c1c6d6",
-                    },
-                    fontFamily: { "headline": ["Inter"], "body": ["Inter"] },
-                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                    }
                 }
             }
         }
@@ -50,13 +48,13 @@
     <div class="w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-xl border border-outline-variant/20 p-8">
         <div class="text-center mb-8">
             <h1 class="text-2xl font-extrabold tracking-tight text-on-surface">Welcome Back</h1>
-            <p class="text-sm text-on-surface-variant mt-2">Sign in to manage your high-performance grocery requisition.</p>
+            <p class="text-sm text-on-surface-variant mt-2">Sign in to manage your grocery requisition.</p>
         </div>
 
         <form id="login-form" class="space-y-5" onsubmit="return false">
             <div class="space-y-1">
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Email Address</label>
-                <input id="login-email" type="email" required class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="curator@precision.com"/>
+                <input id="login-email" type="email" required class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="your@email.com"/>
             </div>
 
             <div class="space-y-1">
@@ -67,19 +65,20 @@
                 <input id="login-password" type="password" required class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="••••••••"/>
             </div>
 
-            <button type="submit" class="w-full py-3 rounded-lg bg-primary text-white font-bold text-sm hover:opacity-90 transition-opacity">
+            <button type="submit" id="login-btn" class="w-full py-3 mt-4 rounded-lg bg-primary text-white font-bold text-sm hover:opacity-90 transition-opacity">
                 Sign In
             </button>
         </form>
+        <!-- DEPLOY_MARKER: V3_UMD_SBCLIENT -->
 
         <div class="mt-6 border-t border-outline-variant/20 pt-6">
             <p class="text-[10px] font-bold uppercase tracking-widest text-center text-on-surface-variant mb-4">Or continue with</p>
             <div class="grid grid-cols-2 gap-4">
-                <button type="button" onclick="window.authGoogle()" class="flex items-center justify-center gap-2 py-2 px-4 border border-outline-variant/30 rounded-lg text-sm font-medium hover:bg-surface-container-low transition-colors">
+                <button onclick="window.authGoogle()" class="flex items-center justify-center gap-2 py-2 px-4 border border-outline-variant/30 rounded-lg text-sm font-medium hover:bg-surface-container-low transition-colors">
                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-4 h-4" alt="Google">
                     Google
                 </button>
-                <button type="button" onclick="window.authFacebook()" class="flex items-center justify-center gap-2 py-2 px-4 border border-outline-variant/30 rounded-lg text-sm font-medium hover:bg-surface-container-low transition-colors">
+                <button onclick="window.authFacebook()" class="flex items-center justify-center gap-2 py-2 px-4 border border-outline-variant/30 rounded-lg text-sm font-medium hover:bg-surface-container-low transition-colors">
                     <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" class="w-5 h-5" alt="Facebook">
                     Facebook
                 </button>
@@ -87,7 +86,7 @@
         </div>
 
         <div class="mt-8 text-center text-xs text-on-surface-variant">
-            Don't have an account? <a href="/register.html" class="font-bold text-primary hover:underline">Create an account</a>
+            New here? <a href="/register.html" class="font-bold text-primary hover:underline">Create an account</a>
         </div>
     </div>
 
