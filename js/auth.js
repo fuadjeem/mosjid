@@ -63,7 +63,7 @@ window.supabaseClient = supabase;
                 showMessage('login-form', error.message, true);
             } else {
                 showMessage('login-form', 'Sign in successful! Redirecting...', false);
-                // The onAuthStateChange listener will handle the redirect
+                setTimeout(() => { window.location.href = '/index.html'; }, 1000);
             }
         });
     }
@@ -107,8 +107,8 @@ window.supabaseClient = supabase;
                 btn.disabled = false;
                 btn.textContent = 'Create Account';
             } else {
-                showRegMsg('✅ Account created! Redirecting to login...', false);
-                setTimeout(() => { window.location.href = '/login.html'; }, 2000);
+                showRegMsg('✅ Account created! You are now logged in. Redirecting...', false);
+                setTimeout(() => { window.location.href = '/index.html'; }, 1500);
             }
         });
     }
