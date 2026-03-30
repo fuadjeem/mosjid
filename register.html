@@ -26,7 +26,7 @@
             <p class="text-sm text-on-surface-variant mt-2">Join us for a streamlined grocery experience.</p>
         </div>
 
-        <form id="register-form" class="space-y-4">
+        <form id="register-form" class="space-y-4" onsubmit="return false">
             <div class="space-y-1">
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Full Name</label>
                 <input id="reg-name" type="text" required class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="Your Full Name"/>
@@ -70,5 +70,54 @@
     </div>
 
     <script src="/js/auth.js"></script>
+    <script>
+    // Debug: verify auth.js loaded and Supabase initialized
+    console.log('[DEBUG] auth.js loaded. supabase client:', typeof supabase, supabase);
+    console.log('[DEBUG] register-form:', !!document.getElementById('register-form'));
+    
+    // Fallback: if auth.js event listener didn't attach, wire it up directly
+    document.getElementById('register-btn').addEventListener('click', async function(ev) {
+        ev.preventDefault();
+        const btn = this;
+        const name     = document.getElementById('reg-name').value.trim();
+        const email    = document.getElementById('reg-email').value.trim();
+        const password = document.getElementById('reg-password').value;
+        const msgBox   = document.getElementById('register-msg');
+        
+        console.log('[DEBUG] Button clicked. Inputs:', { name, email, passLen: password.length });
+        
+        if (!email || !password) {
+            if (msgBox) { msgBox.textContent = 'Please fill in all fields.'; msgBox.style.cssText = 'display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;background:#fee2e2;color:#b91c1c;'; msgBox.classList.remove('hidden'); }
+            return;
+        }
+        if (password.length < 6) {
+            if (msgBox) { msgBox.textContent = 'Password must be at least 6 characters.'; msgBox.style.cssText = 'display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;background:#fee2e2;color:#b91c1c;'; msgBox.classList.remove('hidden'); }
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Creating account...';
+        
+        try {
+            console.log('[DEBUG] Calling supabase.auth.signUp...');
+            const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
+            console.log('[DEBUG] signUp result:', { data, error });
+            
+            if (error) {
+                if (msgBox) { msgBox.textContent = error.message; msgBox.style.cssText = 'display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;background:#fee2e2;color:#b91c1c;'; msgBox.classList.remove('hidden'); }
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+            } else {
+                if (msgBox) { msgBox.textContent = '✅ Account created! Redirecting...'; msgBox.style.cssText = 'display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;background:#dcfce7;color:#15803d;'; msgBox.classList.remove('hidden'); }
+                setTimeout(function() { window.location.href = '/index.html'; }, 1500);
+            }
+        } catch (err) {
+            console.error('[DEBUG] Error:', err);
+            if (msgBox) { msgBox.textContent = 'Error: ' + err.message; msgBox.style.cssText = 'display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;background:#fee2e2;color:#b91c1c;'; msgBox.classList.remove('hidden'); }
+            btn.disabled = false;
+            btn.textContent = 'Create Account';
+        }
+    });
+    </script>
 </body>
 </html>

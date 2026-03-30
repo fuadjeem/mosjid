@@ -53,7 +53,7 @@
             <p class="text-sm text-on-surface-variant mt-2">Sign in to manage your high-performance grocery requisition.</p>
         </div>
 
-        <form id="login-form" class="space-y-5">
+        <form id="login-form" class="space-y-5" onsubmit="return false">
             <div class="space-y-1">
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Email Address</label>
                 <input id="login-email" type="email" required class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="curator@precision.com"/>
@@ -92,5 +92,57 @@
     </div>
 
     <script src="/js/auth.js"></script>
+    <script>
+    console.log('[DEBUG] Login page. supabase:', typeof supabase);
+    
+    // Fallback click handler for Sign In button
+    document.querySelector('#login-form button[type="submit"]').addEventListener('click', async function(ev) {
+        ev.preventDefault();
+        const btn = this;
+        const email    = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        
+        // Create or find message div
+        let msgBox = document.getElementById('login-msg');
+        if (!msgBox) {
+            msgBox = document.createElement('div');
+            msgBox.id = 'login-msg';
+            document.getElementById('login-form').after(msgBox);
+        }
+        
+        console.log('[DEBUG] Login clicked:', { email, passLen: password.length });
+        
+        if (!email || !password) {
+            msgBox.textContent = 'Please enter your email and password.';
+            msgBox.style.cssText = 'display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;margin-top:12px;background:#fee2e2;color:#b91c1c;';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Signing in...';
+        
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            console.log('[DEBUG] Login result:', { data, error });
+            
+            if (error) {
+                msgBox.textContent = error.message;
+                msgBox.style.cssText = 'display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;margin-top:12px;background:#fee2e2;color:#b91c1c;';
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            } else {
+                msgBox.textContent = '✅ Signed in! Redirecting...';
+                msgBox.style.cssText = 'display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;margin-top:12px;background:#dcfce7;color:#15803d;';
+                setTimeout(function() { window.location.href = '/index.html'; }, 1000);
+            }
+        } catch (err) {
+            console.error('[DEBUG] Login error:', err);
+            msgBox.textContent = 'Error: ' + err.message;
+            msgBox.style.cssText = 'display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;margin-top:12px;background:#fee2e2;color:#b91c1c;';
+            btn.disabled = false;
+            btn.textContent = 'Sign In';
+        }
+    });
+    </script>
 </body>
 </html>

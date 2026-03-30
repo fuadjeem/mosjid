@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Account | Bangladesh Asiatische Kultur Zentrum</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#1a73e8",
+                        "on-secondary": "#ffffff",
+                        "background": "#f9f9ff",
+                        "outline": "#727785",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#005bbf",
+                        "surface-container-high": "#e6e8f2",
+                        "surface-container-low": "#f2f3fd",
+                        "on-primary": "#ffffff",
+                        "surface": "#f9f9ff",
+                        "surface-variant": "#e0e2ec",
+                        "on-background": "#191c23",
+                        "on-surface-variant": "#414754",
+                        "on-surface": "#191c23",
+                        "surface-container": "#ecedf7",
+                        "outline-variant": "#c1c6d6",
+                    },
+                    fontFamily: { "headline": ["Inter"], "body": ["Inter"] },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                }
+            }
+        }
+    </script>
+    <style>body { font-family: 'Inter', sans-serif; background-color: #f9f9ff; }</style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen">
+
+    <!-- Top Navigation -->
+    <a href="/index.html" class="fixed top-6 left-6 flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer z-50">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        <span class="text-xs font-bold uppercase tracking-widest">Return to Store</span>
+    </a>
+
+    <!-- Loading State -->
+    <div id="profile-loading" class="flex items-center justify-center min-h-screen">
+        <div class="text-center">
+            <div class="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            <p class="text-sm text-on-surface-variant">Loading your account...</p>
+        </div>
+    </div>
+
+    <!-- Not Logged In State -->
+    <div id="profile-guest" class="hidden flex items-center justify-center min-h-screen p-4">
+        <div class="w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-xl border border-outline-variant/20 p-8 text-center">
+            <span class="material-symbols-outlined text-6xl text-outline-variant mb-4">account_circle</span>
+            <h1 class="text-2xl font-extrabold tracking-tight mb-2">Not Signed In</h1>
+            <p class="text-sm text-on-surface-variant mb-6">Please sign in to view your account settings.</p>
+            <a href="/login.html" class="inline-block w-full py-3 rounded-lg bg-primary text-white font-bold text-sm hover:opacity-90 transition-opacity text-center">Sign In</a>
+            <p class="text-xs text-on-surface-variant mt-4">Don't have an account? <a href="/register.html" class="font-bold text-primary hover:underline">Create one</a></p>
+        </div>
+    </div>
+
+    <!-- Logged In State -->
+    <div id="profile-content" class="hidden max-w-2xl mx-auto pt-20 pb-12 px-4">
+        <div class="text-center mb-10">
+            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <span id="profile-avatar" class="text-3xl font-bold text-white">?</span>
+            </div>
+            <h1 id="profile-name" class="text-2xl font-extrabold tracking-tight">Welcome</h1>
+            <p id="profile-email" class="text-sm text-on-surface-variant mt-1">email@example.com</p>
+            <p id="profile-joined" class="text-[10px] uppercase font-bold tracking-widest text-outline mt-2">Member since —</p>
+        </div>
+
+        <!-- Account Info Card -->
+        <div class="bg-surface-container-lowest rounded-2xl shadow-lg border border-outline-variant/20 p-6 mb-6">
+            <h2 class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-4">Account Information</h2>
+            
+            <div id="profile-msg" class="hidden mb-4"></div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1">Full Name</label>
+                    <input id="profile-name-input" type="text" class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"/>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1">Email</label>
+                    <input id="profile-email-input" type="email" disabled class="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg text-sm py-3 px-4 text-on-surface-variant cursor-not-allowed"/>
+                </div>
+            </div>
+            <button id="save-profile-btn" class="mt-5 w-full py-3 rounded-lg bg-primary text-white font-bold text-sm hover:opacity-90 transition-opacity">
+                Save Changes
+            </button>
+        </div>
+
+        <!-- Change Password Card -->
+        <div class="bg-surface-container-lowest rounded-2xl shadow-lg border border-outline-variant/20 p-6 mb-6">
+            <h2 class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-4">Change Password</h2>
+            <div id="password-msg" class="hidden mb-4"></div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1">New Password</label>
+                    <input id="new-password" type="password" placeholder="Min. 6 characters" class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"/>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1">Confirm New Password</label>
+                    <input id="confirm-password" type="password" placeholder="Repeat password" class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm py-3 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"/>
+                </div>
+            </div>
+            <button id="change-password-btn" class="mt-5 w-full py-3 rounded-lg bg-on-surface text-white font-bold text-sm hover:opacity-90 transition-opacity">
+                Update Password
+            </button>
+        </div>
+
+        <!-- Order History Card -->
+        <div class="bg-surface-container-lowest rounded-2xl shadow-lg border border-outline-variant/20 p-6 mb-6">
+            <h2 class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-4">Order History</h2>
+            <div id="order-history" class="text-sm text-on-surface-variant text-center py-6">
+                <span class="material-symbols-outlined text-3xl text-outline-variant">shopping_bag</span>
+                <p class="mt-2">Your order history will appear here.</p>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="border border-red-200 rounded-2xl p-6 mb-6">
+            <h2 class="text-[10px] font-bold uppercase tracking-widest text-red-500 mb-4">Session</h2>
+            <button id="logout-btn" class="w-full py-3 rounded-lg bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 transition-colors border border-red-200">
+                Sign Out
+            </button>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+    (async function() {
+        const loading  = document.getElementById('profile-loading');
+        const guest    = document.getElementById('profile-guest');
+        const content  = document.getElementById('profile-content');
+
+        function showMsg(id, text, isError) {
+            const box = document.getElementById(id);
+            if (!box) return;
+            box.textContent = text;
+            box.style.cssText = `display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;${isError ? 'background:#fee2e2;color:#b91c1c;' : 'background:#dcfce7;color:#15803d;'}`;
+            box.classList.remove('hidden');
+        }
+
+        // Wait for supabase
+        if (typeof supabase === 'undefined' || !supabase) {
+            loading.classList.add('hidden');
+            guest.classList.remove('hidden');
+            return;
+        }
+
+        const { data: { session } } = await supabase.auth.getSession();
+        loading.classList.add('hidden');
+
+        if (!session) {
+            guest.classList.remove('hidden');
+            return;
+        }
+
+        // Logged in — show profile
+        content.classList.remove('hidden');
+        const user = session.user;
+        const name = user.user_metadata?.full_name || '';
+        const email = user.email || '';
+        const createdAt = new Date(user.created_at);
+
+        document.getElementById('profile-avatar').textContent = (name || email).charAt(0).toUpperCase();
+        document.getElementById('profile-name').textContent = name || 'User';
+        document.getElementById('profile-email').textContent = email;
+        document.getElementById('profile-joined').textContent = `Member since ${createdAt.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
+        document.getElementById('profile-name-input').value = name;
+        document.getElementById('profile-email-input').value = email;
+
+        // Save Profile
+        document.getElementById('save-profile-btn').addEventListener('click', async function() {
+            const newName = document.getElementById('profile-name-input').value.trim();
+            this.disabled = true;
+            this.textContent = 'Saving...';
+            try {
+                const { error } = await supabase.auth.updateUser({ data: { full_name: newName } });
+                if (error) { showMsg('profile-msg', error.message, true); }
+                else {
+                    showMsg('profile-msg', '✅ Profile updated!', false);
+                    document.getElementById('profile-name').textContent = newName || 'User';
+                    document.getElementById('profile-avatar').textContent = (newName || email).charAt(0).toUpperCase();
+                }
+            } catch (err) { showMsg('profile-msg', err.message, true); }
+            this.disabled = false;
+            this.textContent = 'Save Changes';
+        });
+
+        // Change Password
+        document.getElementById('change-password-btn').addEventListener('click', async function() {
+            const pw = document.getElementById('new-password').value;
+            const cpw = document.getElementById('confirm-password').value;
+            if (pw.length < 6) { showMsg('password-msg', 'Password must be at least 6 characters.', true); return; }
+            if (pw !== cpw) { showMsg('password-msg', 'Passwords do not match.', true); return; }
+            this.disabled = true;
+            this.textContent = 'Updating...';
+            try {
+                const { error } = await supabase.auth.updateUser({ password: pw });
+                if (error) { showMsg('password-msg', error.message, true); }
+                else {
+                    showMsg('password-msg', '✅ Password updated!', false);
+                    document.getElementById('new-password').value = '';
+                    document.getElementById('confirm-password').value = '';
+                }
+            } catch (err) { showMsg('password-msg', err.message, true); }
+            this.disabled = false;
+            this.textContent = 'Update Password';
+        });
+
+        // Log Out
+        document.getElementById('logout-btn').addEventListener('click', async function() {
+            await supabase.auth.signOut();
+            window.location.href = '/index.html';
+        });
+    })();
+    </script>
+</body>
+</html>
