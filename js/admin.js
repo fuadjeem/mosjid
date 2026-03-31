@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 let globalInventory = [];
+let globalOrders = [];
 let editingProductId = null; // Track if we are editing
 let currentPage = 1;
 const itemsPerPage = 10;
@@ -503,81 +504,93 @@ async function loadOrders(tbody) {
             .order('created_at', { ascending: false });
 
         if (error) throw error;
+        globalOrders = orders || [];
+        renderOrders();
+    } catch (e) {
+        console.error("Load Orders Error:", e);
+    }
+}
+
+function renderOrders() {
+    const tbody = document.getElementById('orders-table-body');
+    if (!tbody) return;
+
+    const summary = document.getElementById('order-pagination-summary');
+    const nav = document.getElementById('pagination-nav');
+    
+    if (summary) summary.innerText = globalOrders.length > 0 ? `1-${globalOrders.length} of ${globalOrders.length}` : `0 of 0`;
+    if (nav) {
+        if (globalOrders.length > 0) nav.classList.remove('hidden');
+        else nav.classList.add('hidden');
+    }
+
+    if (globalOrders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-on-surface-variant">
+            <span class="material-symbols-outlined text-4xl mb-2 opacity-20">inventory_2</span>
+            <p class="text-sm">No orders found.</p>
+        </td></tr>`;
+        updateOrderDashboardStats(globalOrders);
+        return;
+    }
+
+    tbody.innerHTML = '';
+    globalOrders.forEach(o => {
+        const di = o.delivery_info || {};
+        const status = (o.status || '').toLowerCase().trim();
+        const isDelivered = status === 'delivered' || status === 'completed';
         
-        const summary = document.getElementById('order-pagination-summary');
-        const nav = document.getElementById('pagination-nav');
+        // Status badge color
+        let statusClass = 'bg-slate-100 text-slate-600';
+        if (status.includes('pending')) statusClass = 'bg-amber-50 text-amber-700 border border-amber-100';
+        else if (isDelivered) statusClass = 'bg-green-50 text-green-700 border border-green-100';
+        else if (status.includes('cancel')) statusClass = 'bg-red-50 text-red-700 border border-red-100';
         
-        if (summary) summary.innerText = orders.length > 0 ? `1-${orders.length} of ${orders.length}` : `0 of 0`;
-        if (nav) {
-            if (orders.length > 0) nav.classList.remove('hidden');
-            else nav.classList.add('hidden');
-        }
+        // Toggle UI (matching Inventory page)
+        const toggleBg = isDelivered ? 'bg-green-500' : 'bg-slate-200';
+        const toggleTransform = isDelivered ? 'translate-x-[18px]' : 'translate-x-0';
 
-        if (orders.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-on-surface-variant">
-                <span class="material-symbols-outlined text-4xl mb-2 opacity-20">inventory_2</span>
-                <p class="text-sm">No orders found.</p>
-            </td></tr>`;
-            updateOrderDashboardStats(orders);
-            return;
-        }
-
-        tbody.innerHTML = '';
-        orders.forEach(o => {
-            const di = o.delivery_info || {};
-            const status = (o.status || '').toLowerCase().trim();
-            const isDelivered = status === 'delivered' || status === 'completed';
-            
-            // Status badge color
-            let statusClass = 'bg-slate-100 text-slate-600';
-            if (status.includes('pending')) statusClass = 'bg-amber-50 text-amber-700 border border-amber-100';
-            else if (isDelivered) statusClass = 'bg-green-50 text-green-700 border border-green-100';
-            else if (status.includes('cancel')) statusClass = 'bg-red-50 text-red-700 border border-red-100';
-            
-            tbody.innerHTML += `
-            <tr class="hover:bg-slate-50 transition-all group border-b border-slate-50" data-order-id="${o.id}">
-                <td class="px-6 py-4">
-                    <button onclick="viewOrder('${o.id}')" class="font-mono text-xs font-bold text-primary hover:underline flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">open_in_new</span>
-                        #${o.id.split('-')[0]}
-                    </button>
-                </td>
-                <td class="px-6 py-4">
-                    <div class="flex flex-col">
-                        <span class="text-sm font-bold text-slate-900">${di.customer || 'Guest User'}</span>
-                        <span class="text-[10px] text-slate-400 font-medium">${di.phone || 'No phone'}</span>
+        tbody.innerHTML += `
+        <tr class="hover:bg-slate-50 transition-all group border-b border-slate-50" data-order-id="${o.id}">
+            <td class="px-6 py-4">
+                <button onclick="viewOrder('${o.id}')" class="font-mono text-xs font-bold text-primary hover:underline flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+                    #${o.id.split('-')[0]}
+                </button>
+            </td>
+            <td class="px-6 py-4">
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold text-slate-900">${di.customer || 'Guest User'}</span>
+                    <span class="text-[10px] text-slate-400 font-medium">${di.phone || 'No phone'}</span>
+                </div>
+            </td>
+            <td class="px-6 py-4 text-sm font-black text-slate-900">€${Number(o.total_amount).toFixed(2)}</td>
+            <td class="px-6 py-4 text-xs text-slate-500 font-medium">${new Date(o.created_at).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'})}</td>
+            <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                    <div class="relative inline-flex items-center cursor-pointer" onclick="toggleOrderStatus('${o.id}')" title="Toggle Delivery Status">
+                        <div class="w-10 h-5 ${toggleBg} rounded-full transition-colors relative">
+                            <div class="absolute top-[2px] left-[2px] bg-white border border-slate-300 rounded-full h-4 w-4 transition-transform ${toggleTransform}"></div>
+                        </div>
                     </div>
-                </td>
-                <td class="px-6 py-4 text-sm font-black text-slate-900">€${Number(o.total_amount).toFixed(2)}</td>
-                <td class="px-6 py-4 text-xs text-slate-500 font-medium">${new Date(o.created_at).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'})}</td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center gap-3">
-                        <label class="relative inline-flex items-center cursor-pointer group/toggle">
-                            <input type="checkbox" class="sr-only peer" ${isDelivered ? 'checked' : ''} onchange="toggleOrderStatus('${o.id}', this.checked)">
-                            <div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
-                        </label>
-                        <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${statusClass}">
-                            ${(o.status || 'pending').replace('_', ' ')}
-                        </span>
-                    </div>
-                </td>
-                <td class="px-6 py-4 text-right">
-                   <div class="flex justify-end gap-1">
-                       <button onclick="viewOrder('${o.id}')" class="p-2 hover:bg-blue-50 text-slate-400 hover:text-primary rounded-lg transition-all" title="View Detail / Invoice">
-                           <span class="material-symbols-outlined text-sm">visibility</span>
-                       </button>
-                       <button onclick="deleteOrder('${o.id}')" class="p-2 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-lg transition-all" title="Delete Order">
-                           <span class="material-symbols-outlined text-sm">delete</span>
-                       </button>
-                   </div>
-                </td>
-            </tr>`;
-        });
+                    <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${statusClass}">
+                        ${(o.status || 'pending').replace('_', ' ')}
+                    </span>
+                </div>
+            </td>
+            <td class="px-6 py-4 text-right">
+               <div class="flex justify-end gap-1">
+                   <button onclick="viewOrder('${o.id}')" class="p-2 hover:bg-blue-50 text-slate-400 hover:text-primary rounded-lg transition-all" title="View Detail / Invoice">
+                       <span class="material-symbols-outlined text-sm">visibility</span>
+                   </button>
+                   <button onclick="deleteOrder('${o.id}')" class="p-2 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-lg transition-all" title="Delete Order">
+                       <span class="material-symbols-outlined text-sm">delete</span>
+                   </button>
+               </div>
+            </td>
+        </tr>`;
+    });
 
-        // Update Dashboard Stats Card
-        updateOrderDashboardStats(orders);
-
-    } catch (e) { console.error("Load Orders Error:", e); }
+    updateOrderDashboardStats(globalOrders);
 }
 
 function updateOrderDashboardStats(orders) {
@@ -660,20 +673,16 @@ function updateOrderDashboardStats(orders) {
 }
 
 // Order Management Actions
-window.toggleOrderStatus = async (id, isChecked) => {
-    const newStatus = isChecked ? 'delivered' : 'pending_delivery';
-    const row = document.querySelector(`tr[data-order-id="${id}"]`);
-    const badge = row ? row.querySelector('.px-2.5.py-0.5') : null;
+window.toggleOrderStatus = async (id) => {
+    const order = globalOrders.find(o => o.id === id);
+    if (!order) return;
+
+    const oldStatus = order.status;
+    const newStatus = oldStatus === 'delivered' ? 'pending_delivery' : 'delivered';
     
-    // Optimistic UI Update
-    if (badge) {
-        badge.innerText = newStatus.replace('_', ' ');
-        if (isChecked) {
-            badge.className = 'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-green-50 text-green-700 border border-green-100';
-        } else {
-            badge.className = 'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100';
-        }
-    }
+    // Optimistic Update
+    order.status = newStatus;
+    renderOrders();
 
     try {
         const { error } = await window.supabaseClient
@@ -682,16 +691,11 @@ window.toggleOrderStatus = async (id, isChecked) => {
             .eq('id', id);
         
         if (error) throw error;
-        
-        // Update stats without full reload
-        const { data: allOrders } = await window.supabaseClient.from('orders').select('status, total_amount');
-        if (allOrders) updateOrderDashboardStats(allOrders);
-
     } catch(e) { 
         console.error("Toggle Order Status Error:", e);
         alert('Failed to update status on server. Reverting...');
-        // Revert UI by reloading fully
-        loadOrders(document.getElementById('orders-table-body'));
+        order.status = oldStatus;
+        renderOrders();
     }
 };
 
