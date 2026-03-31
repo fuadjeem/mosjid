@@ -70,6 +70,24 @@
         </div>
     </div>
 
+    <script>
+        // Prefill from URL parameters
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const email = urlParams.get('email');
+            const name = urlParams.get('name');
+            
+            if (email) {
+                const emailInput = document.getElementById('reg-email');
+                if (emailInput) emailInput.value = email;
+            }
+            if (name) {
+                const nameInput = document.getElementById('reg-name');
+                if (nameInput) nameInput.value = name;
+            }
+        });
+    </script>
+
     <script src="/js/auth.js"></script>
     <script src="/js/auth.js"></script>
 </body>

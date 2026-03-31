@@ -1,18 +1,26 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     
     // Auth Check
-    const token = sessionStorage.getItem('adminToken');
-    const isLoginPage = window.location.pathname.includes('admin');
+    const isLoginPage = window.location.pathname.includes('admin.html') || window.location.pathname.endsWith('/admin');
     
-    console.log('[Admin] Path:', window.location.pathname, 'IsLogin:', isLoginPage, 'HasToken:', !!token);
+    // Check Supabase Session directly
+    if (!window.supabaseClient) {
+        console.error('[Admin] Supabase client not initialized!');
+        return;
+    }
+
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    const isAdmin = session && session.user && session.user.email === 'admin@bakl.org';
+
+    console.log('[Admin] Path:', window.location.pathname, 'IsLogin:', isLoginPage, 'IsAdmin:', !!isAdmin);
     
-    if (!token && !isLoginPage) {
-        console.warn('[Admin] No token found, redirecting to login...');
+    if (!isAdmin && !isLoginPage) {
+        console.warn('[Admin] No active admin session, redirecting to login...');
         window.location.href = '/admin.html';
         return;
     }
     
-    if (token && isLoginPage) {
+    if (isAdmin && isLoginPage) {
         console.log('[Admin] Already authenticated, redirecting to inventory...');
         window.location.href = '/inventory.html';
         return;
@@ -20,43 +28,52 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Login Submission
     const loginForm = document.querySelector('form');
+    const errorContainer = document.getElementById('error-msg');
+
     if (loginForm && isLoginPage) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const password = document.getElementById('password').value;
             const email = document.getElementById('admin-email').value;
+            const loginBtn = document.getElementById('login-btn');
+
+            if (errorContainer) errorContainer.classList.add('hidden');
+            if (loginBtn) {
+                loginBtn.disabled = true;
+                loginBtn.dataset.originalHtml = loginBtn.innerHTML;
+                loginBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">sync</span> Authenticating...';
+            }
             
             console.log('[Admin] Attempting login for:', email);
             
-            try {
-                if (window.supabaseClient) {
-                    const { data, error } = await window.supabaseClient.auth.signInWithPassword({
-                        email: email,
-                        password: password,
-                    });
-                    
-                    if (error) throw error;
-                    
-                    console.log('[Admin] Supabase login success');
-                    sessionStorage.setItem('adminToken', data.session.access_token);
-                    window.location.href = '/inventory.html';
+            const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                console.error('[Admin] Login Error:', error);
+                if (errorContainer) {
+                    errorContainer.textContent = error.message === 'Invalid login credentials' 
+                        ? 'Invalid Administrator email or Access Key.'
+                        : error.message;
+                    errorContainer.classList.remove('hidden');
                 } else {
-                    alert("Supabase not loaded. Please refresh.");
+                    alert('Login failed: ' + error.message);
                 }
-            } catch (e) {
-                console.error('[Admin] Login Error:', e);
-                // Hint for the user if they were using the bypass
-                const msg = e.message || "Invalid credentials";
-                alert("Authentication failed: " + msg);
+                
+                if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = loginBtn.dataset.originalHtml;
+                }
+            } else if (data.session) {
+                console.log('[Admin] Login success!');
+                // Wait briefly for persistence
+                setTimeout(() => {
+                    window.location.href = '/inventory.html';
+                }, 100);
             }
         });
-
-        const loginBtn = document.getElementById('login-btn');
-        if (loginBtn) {
-            loginBtn.addEventListener('click', () => {
-                loginForm.dispatchEvent(new Event('submit'));
-            });
-        }
     }
 
     // Inventory View
@@ -88,13 +105,130 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize Real-time synchronization
     setupRealtime();
+
+    // Initialize Admin Context
+    if (window.supabaseClient) {
+        setupAdminProfile();
+        setupImageUploadHooks();
+    }
 });
+
+async function setupImageUploadHooks() {
+    const prodFile = document.getElementById('prod-image-file');
+    if (prodFile) {
+        prodFile.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const urlInput = document.getElementById('prod-imageurl');
+            const status = document.getElementById('upload-status');
+            
+            await handleImageUpload(file, urlInput, status);
+        });
+    }
+}
+
+/**
+ * Handle File Upload to Supabase Storage
+ */
+async function handleImageUpload(file, urlInput, statusElement) {
+    if (!window.supabaseClient) return;
+    
+    try {
+        if (statusElement) {
+            statusElement.innerText = "Uploading to Supabase...";
+            statusElement.classList.remove('hidden');
+        }
+        
+        // Use a unique name
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+        const filePath = `public/${fileName}`;
+
+        const { error: uploadError } = await window.supabaseClient.storage
+            .from('images')
+            .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = window.supabaseClient.storage
+            .from('images')
+            .getPublicUrl(filePath);
+
+        if (urlInput) {
+            urlInput.value = publicUrl;
+            // Visual feedback
+            urlInput.classList.add('ring-2', 'ring-green-500/20');
+            setTimeout(() => urlInput.classList.remove('ring-2', 'ring-green-500/20'), 2000);
+        }
+        
+        if (statusElement) {
+            statusElement.innerText = "✅ Upload complete!";
+            setTimeout(() => statusElement.classList.add('hidden'), 3000);
+        }
+    } catch (error) {
+        console.error('Upload error:', error);
+        if (statusElement) {
+            statusElement.innerText = "❌ Upload failed: " + error.message;
+            statusElement.classList.add('text-red-600');
+            setTimeout(() => {
+                statusElement.classList.add('hidden');
+                statusElement.classList.remove('text-red-600');
+            }, 5000);
+        }
+    }
+}
 
 let globalInventory = [];
 let globalOrders = [];
 let editingProductId = null; // Track if we are editing
 let currentPage = 1;
 const itemsPerPage = 10;
+
+async function setupAdminProfile() {
+    const profileBtn = document.getElementById('admin-profile-btn');
+    if (!profileBtn) return;
+
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    const adminEmail = session?.user?.email || 'Administrator';
+
+    // Create dropdown element
+    const dropdown = document.createElement('div');
+    dropdown.id = 'admin-profile-dropdown';
+    dropdown.className = 'hidden absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-slate-100 py-4 z-[100] animate-in fade-in slide-in-from-top-2 duration-200';
+    dropdown.innerHTML = `
+        <div class="px-4 pb-3 border-b border-slate-50">
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Authenticated Admin</p>
+            <p class="text-xs font-bold text-slate-900 truncate">${adminEmail}</p>
+        </div>
+        <div class="pt-2">
+            <button onclick="logoutAdmin()" class="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors">
+                <span class="material-symbols-outlined text-sm">logout</span>
+                Secure Logout
+            </button>
+        </div>
+    `;
+    profileBtn.parentElement.appendChild(dropdown);
+
+    profileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', () => dropdown.classList.add('hidden'));
+    dropdown.addEventListener('click', (e) => e.stopPropagation());
+}
+
+/**
+ * Log out Administrative Session
+ */
+window.logoutAdmin = async function() {
+    console.log('[Admin] Logging out...');
+    if (window.supabaseClient) {
+        await window.supabaseClient.auth.signOut();
+    }
+    window.location.href = '/admin.html';
+};
 
 
 

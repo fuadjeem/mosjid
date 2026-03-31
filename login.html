@@ -86,10 +86,35 @@
             </div>
         </div>
 
-        <div class="mt-8 text-center text-xs text-on-surface-variant">
-            New here? <a href="/register.html" class="font-bold text-primary hover:underline">Create an account</a>
+        <div class="mt-8 text-center text-xs text-on-surface-variant" id="register-container">
+            New here? <a href="/register.html" id="register-link" class="font-bold text-primary hover:underline">Create an account</a>
         </div>
     </div>
+
+    <script>
+        // Prefill from URL parameters
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const email = urlParams.get('email');
+            const name = urlParams.get('name');
+            
+            if (email) {
+                const emailInput = document.getElementById('login-email');
+                if (emailInput) emailInput.value = email;
+            }
+            
+            // Pass parameters to registration link
+            if (email || name) {
+                const regLink = document.getElementById('register-link');
+                if (regLink) {
+                    const params = new URLSearchParams();
+                    if (email) params.set('email', email);
+                    if (name) params.set('name', name);
+                    regLink.href = `/register.html?${params.toString()}`;
+                }
+            }
+        });
+    </script>
 
     <script src="/js/auth.js"></script>
 </body>

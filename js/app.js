@@ -31,7 +31,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     updateCartIcon();
+    checkAdminStatus();
 });
+
+async function checkAdminStatus() {
+    if (!window.supabaseClient) return;
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    if (session && session.user && session.user.email === 'admin@bakl.org') {
+        const nav = document.querySelector('header nav');
+        if (nav && !document.getElementById('admin-back-link')) {
+            const adminLink = document.createElement('a');
+            adminLink.id = 'admin-back-link';
+            adminLink.href = '/inventory.html';
+            adminLink.className = 'text-primary font-black border-2 border-primary/20 bg-primary/5 px-3 py-1 rounded-full hover:bg-primary/10 transition-all active:scale-95 text-xs uppercase tracking-widest';
+            adminLink.innerText = 'Admin Dashboard';
+            nav.appendChild(adminLink);
+        }
+        
+        // Hide cart elements for Admin
+        const cartIcon = document.querySelector('header .material-symbols-outlined[onclick="toggleCart()"]');
+        if (cartIcon) cartIcon.parentElement.classList.add('hidden');
+        
+        const mobileCart = document.querySelector('footer a[href="/cart.html"]');
+        if (mobileCart) mobileCart.classList.add('hidden');
+        
+        // Mobile menu injection
+        const mobileNav = document.querySelector('.md\\:hidden.fixed.bottom-0');
+        if (mobileNav && !document.getElementById('admin-back-link-mobile')) {
+             const adminLinkMob = document.createElement('a');
+             adminLinkMob.id = 'admin-back-link-mobile';
+             adminLinkMob.href = '/inventory.html';
+             adminLinkMob.className = 'flex flex-col items-center text-primary font-bold animate-pulse';
+             adminLinkMob.innerHTML = `
+                <span class="material-symbols-outlined">dashboard_customize</span>
+                <span class="text-[10px] uppercase tracking-tighter">Admin</span>
+             `;
+             mobileNav.appendChild(adminLinkMob);
+        }
+    }
+}
 
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
@@ -457,12 +495,18 @@ function setupCheckout() {
     btn.addEventListener('click', async (e) => {
         e.preventDefault();
         
-        // Frontend Auth Verification
         if (window.supabaseClient) {
             const { data: { session } } = await window.supabaseClient.auth.getSession();
             if (!session) {
+                const fname = document.getElementById('fname')?.value || '';
+                const email = document.getElementById('email')?.value || '';
                 alert("You must be logged in to place an order. Redirecting to login side...");
-                window.location.href = '/login.html';
+                const params = new URLSearchParams({
+                    redirect: 'cart',
+                    email: email,
+                    name: fname
+                });
+                window.location.href = `/login.html?${params.toString()}`;
                 return;
             }
         }

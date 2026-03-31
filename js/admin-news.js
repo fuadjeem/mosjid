@@ -1,18 +1,23 @@
 let allNews = [];
 
-document.addEventListener('DOMContentLoaded', () => {
-    const token = sessionStorage.getItem('adminToken');
-    if (!token) {
+document.addEventListener('DOMContentLoaded', async () => {
+    if (!window.supabaseClient) return;
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    const isAdmin = session && session.user && session.user.email === 'admin@bakl.org';
+    
+    if (!isAdmin) {
         window.location.href = '/admin.html';
         return;
     }
     
+    setupNewsImageUpload();
     loadNews();
     
     document.getElementById('add-news-btn').addEventListener('click', () => {
         document.getElementById('news-id').value = '';
         document.getElementById('news-title').value = '';
         document.getElementById('news-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('news-imageurl').value = '';
         document.getElementById('news-content').value = '';
         document.getElementById('modal-title').innerText = 'Add Announcement';
         document.getElementById('add-news-modal').classList.remove('hidden');
@@ -28,6 +33,25 @@ document.addEventListener('DOMContentLoaded', () => {
     
     document.getElementById('save-news-btn').addEventListener('click', saveNews);
 });
+
+async function setupNewsImageUpload() {
+    const newsFileInput = document.getElementById('news-image-file');
+    if (newsFileInput) {
+        newsFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const urlInput = document.getElementById('news-imageurl');
+            const status = document.getElementById('news-upload-status');
+            
+            if (typeof handleImageUpload === 'function') {
+                await handleImageUpload(file, urlInput, status);
+            } else {
+                console.error("handleImageUpload helper not found");
+            }
+        });
+    }
+}
 
 async function loadNews() {
     try {
@@ -74,6 +98,7 @@ function editNews(id) {
     document.getElementById('news-id').value = news.id;
     document.getElementById('news-title').value = news.title;
     document.getElementById('news-date').value = news.date;
+    document.getElementById('news-imageurl').value = news.image_url || '';
     document.getElementById('news-content').value = news.content;
     document.getElementById('modal-title').innerText = 'Edit Announcement';
     document.getElementById('add-news-modal').classList.remove('hidden');
@@ -83,6 +108,7 @@ async function saveNews() {
     const id = document.getElementById('news-id').value;
     const title = document.getElementById('news-title').value;
     const date = document.getElementById('news-date').value;
+    const imageUrl = document.getElementById('news-imageurl').value;
     const content = document.getElementById('news-content').value;
     
     if (!title || !date || !content) {
@@ -90,8 +116,11 @@ async function saveNews() {
         return;
     }
     
-    const token = sessionStorage.getItem('adminToken');
-    const payload = { title, date, content };
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    const token = session?.access_token;
+    if (!token) { alert("Session expired. Please login again."); return; }
+    
+    const payload = { title, date, content, image_url: imageUrl || null };
     let method = 'POST';
     if (id) {
         payload.id = id;
@@ -123,7 +152,9 @@ async function saveNews() {
 async function deleteNews(id) {
     if (!confirm('Are you sure you want to delete this announcement?')) return;
     
-    const token = sessionStorage.getItem('adminToken');
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    const token = session?.access_token;
+    if (!token) return;
     try {
         const res = await fetch('/api/news?id=' + encodeURIComponent(id), {
             method: 'DELETE',
