@@ -85,10 +85,12 @@ function setupRealtime() {
     if (!window.supabaseClient) return;
     
     const ordersSubscription = window.supabaseClient.channel('orders_realtime')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, async (payload) => {
             console.log('Realtime Order Change:', payload);
             const tbody = document.getElementById('orders-table-body');
-            if (tbody) loadOrders(tbody);
+            if (tbody) {
+                await loadOrders(tbody);
+            }
             
             // Also refresh inventory if it exists on current page
             const invTable = document.getElementById('inventory-table-body');
@@ -489,8 +491,23 @@ async function loadOrders(tbody) {
         tbody.innerHTML = '';
         orders.forEach(o => {
             const di = o.delivery_info || {};
+            const status = (o.status || '').toLowerCase().trim();
+            const isDelivered = status === 'delivered' || status === 'completed';
+            const isPending = status.includes('pending');
+            
+            // Status badge color
+            let statusClass = 'bg-surface-container text-on-surface-variant';
+            if (isPending) statusClass = 'bg-secondary-container text-on-secondary-container';
+            else if (isDelivered) statusClass = 'bg-green-50 text-green-700';
+            
+            // Toggle button: show undo icon if delivered, check icon if not
+            const toggleIcon = isDelivered ? 'undo' : 'check_circle';
+            const toggleTitle = isDelivered ? 'Revert to Pending' : 'Mark as Delivered';
+            const toggleHover = isDelivered ? 'hover:bg-amber-50 hover:text-amber-600' : 'hover:bg-green-50 hover:text-green-600';
+            const toggleColor = isDelivered ? 'text-green-600' : 'text-outline';
+            
             tbody.innerHTML += `
-            <tr class="hover:bg-surface-container-low transition-colors group">
+            <tr class="hover:bg-surface-container-low transition-colors group" data-order-id="${o.id}">
                 <td class="px-6 py-4">
                     <span class="font-mono text-xs font-semibold text-primary">${o.id.split('-')[0]}</span>
                 </td>
@@ -500,12 +517,12 @@ async function loadOrders(tbody) {
                 <td class="px-6 py-4 text-sm font-bold">€${Number(o.total_amount).toFixed(2)}</td>
                 <td class="px-6 py-4 text-sm text-on-surface-variant">${new Date(o.created_at).toLocaleDateString()}</td>
                 <td class="px-6 py-4">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase ${o.status.includes('pending') ? 'bg-secondary-container text-on-secondary-container' : 'bg-blue-50 text-blue-700'}">${o.status.replace('_', ' ')}</span>
+                    <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase ${statusClass}">${(o.status || '').replace('_', ' ')}</span>
                 </td>
                 <td class="px-6 py-4 text-right">
                    <div class="flex justify-end gap-2">
-                       <button onclick="markDelivered('${o.id}')" class="p-2 hover:bg-green-50 rounded-lg text-outline hover:text-green-600 transition-all" title="Mark as Delivered">
-                           <span class="material-symbols-outlined text-sm">check_circle</span>
+                       <button onclick="markDelivered('${o.id}', '${o.status}')" class="mark-delivered-btn p-2 ${toggleHover} rounded-lg ${toggleColor} transition-all" title="${toggleTitle}">
+                           <span class="material-symbols-outlined text-sm">${toggleIcon}</span>
                        </button>
                        <button onclick="deleteOrder('${o.id}')" class="p-2 hover:bg-tertiary-container/10 rounded-lg text-outline hover:text-tertiary transition-all" title="Delete Order">
                            <span class="material-symbols-outlined text-sm">delete</span>
@@ -557,25 +574,45 @@ function updateOrderDashboardStats(orders) {
 
 
 
-window.markDelivered = async (id) => {
+window.markDelivered = async (id, currentStatus) => {
+    const isDelivered = (currentStatus || '').toLowerCase().trim() === 'delivered';
+    const newStatus = isDelivered ? 'pending' : 'delivered';
+    const action = isDelivered ? 'revert to Pending' : 'mark as Delivered';
+    
+    if (!confirm(`Are you sure you want to ${action} this order?`)) return;
+    
     try {
         const { error } = await window.supabaseClient
             .from('orders')
-            .update({ status: 'delivered' })
+            .update({ status: newStatus })
             .eq('id', id);
         if (error) throw error;
-        loadOrders(document.getElementById('orders-table-body'));
-    } catch(e) { console.error("Mark Delivered Error:", e); }
+        
+        // Show brief visual feedback
+        const btn = document.querySelector(`[data-order-id="${id}"] .mark-delivered-btn`);
+        if (btn) {
+            btn.classList.add('text-green-600', 'scale-110');
+            setTimeout(() => btn.classList.remove('scale-110'), 300);
+        }
+        
+        await loadOrders(document.getElementById('orders-table-body'));
+    } catch(e) { 
+        console.error("Mark Delivered Error:", e);
+        alert('Failed to update order status. Please try again.');
+    }
 };
 
 window.deleteOrder = async (id) => {
-    if(!confirm('Delete this order completely?')) return;
+    if(!confirm('Delete this order completely? This cannot be undone.')) return;
     try {
         const { error } = await window.supabaseClient
             .from('orders')
             .delete()
             .eq('id', id);
         if (error) throw error;
-        loadOrders(document.getElementById('orders-table-body'));
-    } catch (e) { console.error("Delete Order Error:", e); }
+        await loadOrders(document.getElementById('orders-table-body'));
+    } catch (e) { 
+        console.error("Delete Order Error:", e);
+        alert('Failed to delete order. Please try again.');
+    }
 };
