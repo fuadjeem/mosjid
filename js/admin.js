@@ -68,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const ordersTable = document.getElementById('orders-table-body');
     if (ordersTable) {
         loadOrders(ordersTable);
-        setupAdminOrderModal();
     }
 
     // Initialize Real-time synchronization
@@ -80,8 +79,7 @@ let editingProductId = null; // Track if we are editing
 let currentPage = 1;
 const itemsPerPage = 10;
 
-// Admin Manual Order State
-let adminCart = [];
+
 
 function setupRealtime() {
     if (!window.supabaseClient) return;
@@ -536,14 +534,19 @@ function updateOrderDashboardStats(orders) {
 
     orders.forEach(o => {
         revenue += Number(o.total_amount) || 0;
-        const status = (o.status || '').toLowerCase();
-        if (status.includes('pending')) pending++;
-        if (status === 'delivered') delivered++;
+        // Normalize status to lowercase trimmed string
+        const status = (o.status || '').toLowerCase().trim();
+        
+        if (status.includes('pending')) {
+            pending++;
+        } else if (status === 'delivered' || status === 'completed') {
+            delivered++;
+        }
     });
 
-    revEl.innerText = '€' + revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    pendEl.innerText = pending;
-    delivEl.innerText = delivered;
+    if (revEl) revEl.innerText = '€' + revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (pendEl) pendEl.innerText = pending;
+    if (delivEl) delivEl.innerText = delivered;
 
     // Optional: Update sub-labels if they exist
     const pendSub = pendEl.nextElementSibling;
@@ -552,133 +555,7 @@ function updateOrderDashboardStats(orders) {
     }
 }
 
-async function setupAdminOrderModal() {
-    const addOrderBtn = document.getElementById('add-order-btn');
-    const modal = document.getElementById('new-order-modal');
-    if (!addOrderBtn || !modal) return;
 
-    // Load products into select
-    const { data: products } = await window.supabaseClient.from('products').select('id, name, price, stock').eq('status', 'Available');
-    const select = document.getElementById('admin-product-select');
-    if (select && products) {
-        select.innerHTML = '<option value="">Select a product...</option>' + 
-            products.map(p => `<option value="${p.id}" data-price="${p.price}" data-name="${p.name}">${p.name} (€${p.price}) - In Stock: ${p.stock}</option>`).join('');
-    }
-
-    addOrderBtn.onclick = () => {
-        adminCart = [];
-        renderAdminCart();
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    };
-
-    const closeMod = () => {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    };
-
-    document.getElementById('close-order-modal').onclick = closeMod;
-    document.getElementById('cancel-order-modal').onclick = closeMod;
-
-    // Add to cart logic
-    document.getElementById('admin-add-to-cart').onclick = () => {
-        const sel = document.getElementById('admin-product-select');
-        const qty = parseInt(document.getElementById('admin-product-qty').value);
-        if (!sel.value || qty < 1) return;
-
-        const opt = sel.options[sel.selectedIndex];
-        const item = {
-            id: sel.value,
-            name: opt.getAttribute('data-name'),
-            price: parseFloat(opt.getAttribute('data-price')),
-            quantity: qty
-        };
-
-        const existing = adminCart.find(i => i.id === item.id);
-        if (existing) existing.quantity += qty;
-        else adminCart.push(item);
-
-        renderAdminCart();
-    };
-
-    // Submit Order
-    document.getElementById('submit-admin-order').onclick = async () => {
-        if (adminCart.length === 0) return alert("Select at least one product.");
-        
-        const name = document.getElementById('admin-customer-name').value;
-        const phone = document.getElementById('admin-customer-phone').value;
-        const email = document.getElementById('admin-customer-email').value;
-        const address = document.getElementById('admin-customer-address').value;
-
-        if (!name || !phone || !email) return alert("Customer name, phone, and email are mandatory.");
-
-        try {
-            const total = adminCart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-            const orderId = 'admin_' + Math.random().toString(36).substr(2, 9).toUpperCase();
-
-            // 1. Create Order
-            const { data: order, error: orderErr } = await window.supabaseClient.from('orders').insert([{
-                id: orderId,
-                user_id: null, // Admin placed
-                status: 'pending',
-                total_amount: total,
-                delivery_info: { customer: name, phone, email, address }
-            }]).select();
-
-            if (orderErr) throw orderErr;
-
-            // 2. Create Order Items & Update Stock
-            for (const item of adminCart) {
-                await window.supabaseClient.from('order_items').insert([{
-                    order_id: orderId,
-                    product_id: item.id,
-                    quantity: item.quantity,
-                    price_at_time: item.price
-                }]);
-
-                // Decrement stock
-                const { data: p } = await window.supabaseClient.from('products').select('stock').eq('id', item.id).single();
-                if (p) {
-                    await window.supabaseClient.from('products').update({ stock: p.stock - item.quantity }).eq('id', item.id);
-                }
-            }
-
-            alert("Order placed successfully!");
-            closeMod();
-            loadOrders(document.getElementById('orders-table-body'));
-        } catch (e) {
-            console.error(e);
-            alert("Failed to place order: " + e.message);
-        }
-    };
-}
-
-function renderAdminCart() {
-    const tbody = document.getElementById('admin-cart-items');
-    const totalEl = document.getElementById('admin-cart-total');
-    if (!tbody) return;
-
-    tbody.innerHTML = adminCart.map((i, idx) => `
-        <tr class="border-b border-surface-variant/10">
-            <td class="py-2">${i.name}</td>
-            <td class="py-2 text-center">${i.quantity}</td>
-            <td class="py-2 text-right">€${(i.price * i.quantity).toFixed(2)}</td>
-            <td class="py-2 text-right">
-                <button onclick="removeFromAdminCart(${idx})" class="text-error hover:scale-110 transition-transform">
-                    <span class="material-symbols-outlined text-sm">delete</span>
-                </button>
-            </td>
-        </tr>
-    `).join('');
-
-    const total = adminCart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-    totalEl.innerText = '€' + total.toFixed(2);
-}
-
-window.removeFromAdminCart = (idx) => {
-    adminCart.splice(idx, 1);
-    renderAdminCart();
-};
 
 window.markDelivered = async (id) => {
     try {
