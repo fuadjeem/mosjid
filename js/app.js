@@ -250,8 +250,8 @@ function renderProductGrid(grid, products) {
             statusTag = `<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Warning</span>`;
         }
         
-        const imgBlock = p.imageUrl ? 
-            `<img src="${p.imageUrl}" alt="${p.name}" class="w-full h-full object-cover">` : 
+        const imgBlock = p.image_url ? 
+            `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover">` : 
             `<span class="material-symbols-outlined text-4xl text-outline border border-dashed border-outline-variant/50 p-6 rounded-lg bg-surface">image</span>`;
 
         grid.innerHTML += `

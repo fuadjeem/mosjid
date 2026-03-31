@@ -548,7 +548,7 @@ window.editProduct = (id) => {
     document.getElementById('prod-price').value = pInfo.price;
     document.getElementById('prod-stock').value = pInfo.stock;
     document.getElementById('prod-expiry').value = pInfo.expiry || '';
-    document.getElementById('prod-imageurl').value = pInfo.imageUrl || '';
+    document.getElementById('prod-imageurl').value = pInfo.image_url || '';
     document.getElementById('prod-status').checked = (pInfo.status === 'Available');
     
     editingProductId = id; // Set edit tracking ID
@@ -595,7 +595,7 @@ function setupInventoryModals() {
                 price: document.getElementById('prod-price').value,
                 stock: document.getElementById('prod-stock').value,
                 expiry: document.getElementById('prod-expiry').value,
-                imageUrl: document.getElementById('prod-imageurl').value,
+                image_url: document.getElementById('prod-imageurl').value,
                 status: document.getElementById('prod-status').checked ? 'Available' : 'Unavailable'
             };
             
