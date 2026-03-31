@@ -347,7 +347,7 @@ function renderInventory() {
         const toggleTransform = isAvail ? 'translate-x-full border-white' : 'translate-x-0';
         
         const toggleMarkup = `
-            <div class="relative inline-flex items-center cursor-pointer ml-3 mt-1" onclick="toggleStatus('${p.id}')" title="Enable/Disable Availability">
+            <div class="relative inline-flex items-center cursor-pointer ml-3 mt-1" onclick="event.stopPropagation(); toggleStatus('${p.id}')" title="Enable/Disable Availability">
                 <div class="w-8 h-4 ${toggleBg} rounded-full transition-colors relative">
                     <div class="absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-3 w-3 transition-transform ${toggleTransform}"></div>
                 </div>
@@ -381,10 +381,10 @@ function renderInventory() {
             </td>
             <td class="px-6 py-4 text-right">
                 <div class="flex justify-end gap-1 group-hover:opacity-100 transition-opacity">
-                    <button onclick="editProduct('${p.id}')" class="p-2 hover:bg-surface-container rounded-lg text-outline hover:text-primary transition-all" title="Edit / Restock">
+                    <button onclick="event.stopPropagation(); editProduct('${p.id}')" class="p-2 hover:bg-surface-container rounded-lg text-outline hover:text-primary transition-all" title="Edit / Restock">
                         <span class="material-symbols-outlined text-lg">edit</span>
                     </button>
-                    <button onclick="deleteProduct('${p.id}')" class="p-2 hover:bg-tertiary-container/10 rounded-lg text-outline hover:text-tertiary transition-all" title="Delete">
+                    <button onclick="event.stopPropagation(); deleteProduct(event, '${p.id}')" class="p-2 hover:bg-tertiary-container/10 rounded-lg text-outline hover:text-tertiary transition-all" title="Delete">
                         <span class="material-symbols-outlined text-lg">delete</span>
                     </button>
                 </div>
@@ -523,7 +523,11 @@ window.toggleStatus = async (id) => {
     }
 };
 
-window.deleteProduct = async (id) => {
+window.deleteProduct = async (event, id) => {
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
     if(!confirm('Are you sure you want to delete this product?')) return;
     try {
         const { error } = await window.supabaseClient
