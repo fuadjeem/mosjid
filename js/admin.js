@@ -491,8 +491,11 @@ async function loadOrders(tbody) {
         const summary = document.getElementById('order-pagination-summary');
         const nav = document.getElementById('pagination-nav');
         
-        if (summary) summary.innerText = `${orders.length} of ${orders.length}`;
-        if (nav) nav.style.display = orders.length > 0 ? 'flex' : 'none';
+        if (summary) summary.innerText = orders.length > 0 ? `1-${orders.length} of ${orders.length}` : `0 of 0`;
+        if (nav) {
+            if (orders.length > 0) nav.classList.remove('hidden');
+            else nav.classList.add('hidden');
+        }
 
         if (orders.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-on-surface-variant">
