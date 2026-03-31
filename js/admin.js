@@ -26,39 +26,33 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('password').value;
             const email = document.getElementById('admin-email').value;
             
-            console.log('[Admin] Login Attempt:', email);
+            console.log('[Admin] Attempting login for:', email);
             
-            // 1. Check default credentials
-            if (email === 'admin@bakl.org' && password === 'admin') {
-                console.log('[Admin] Default login success');
-                sessionStorage.setItem('adminToken', 'default_admin_stable_token');
-                window.location.href = '/inventory.html';
-                return;
-            }
-
-            // 2. Fallback to Supabase Auth
             try {
                 if (window.supabaseClient) {
                     const { data, error } = await window.supabaseClient.auth.signInWithPassword({
                         email: email,
                         password: password,
                     });
+                    
                     if (error) throw error;
+                    
                     console.log('[Admin] Supabase login success');
                     sessionStorage.setItem('adminToken', data.session.access_token);
                     window.location.href = '/inventory.html';
                 } else {
-                    alert("Supabase not loaded properly. Please refresh the page.");
+                    alert("Supabase not loaded. Please refresh.");
                 }
             } catch (e) {
                 console.error('[Admin] Login Error:', e);
-                alert("Authentication failed: " + (e.message || "Invalid credentials"));
+                // Hint for the user if they were using the bypass
+                const msg = e.message || "Invalid credentials";
+                alert("Authentication failed: " + msg);
             }
         });
 
-        // Also handle the button click if it's not a submit button (currently it's type="button")
         const loginBtn = document.getElementById('login-btn');
-        if (loginBtn && loginBtn.type !== 'submit') {
+        if (loginBtn) {
             loginBtn.addEventListener('click', () => {
                 loginForm.dispatchEvent(new Event('submit'));
             });
