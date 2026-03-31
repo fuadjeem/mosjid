@@ -596,12 +596,29 @@ function updateOrderDashboardStats(orders) {
     let deliveredCount = 0;
     let cancelledCount = 0;
 
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+    let currentMonthRevenue = 0;
+    let previousMonthRevenue = 0;
+
     orders.forEach(o => {
         const amt = Number(o.total_amount) || 0;
         const status = (o.status || '').toLowerCase().trim();
+        const date = new Date(o.created_at);
         
         if (status !== 'cancelled') {
             totalRevenue += amt;
+            
+            // Monthly calculation
+            if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+                currentMonthRevenue += amt;
+            } else if (date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear) {
+                previousMonthRevenue += amt;
+            }
         }
 
         if (status.includes('pending')) {
@@ -614,15 +631,21 @@ function updateOrderDashboardStats(orders) {
     });
 
     // Update Main Numbers
-    if (revEl) revEl.innerText = '€' + totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (revEl) revEl.innerText = '€' + totalRevenue.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     if (pendEl) pendEl.innerText = pendingCount;
     if (delivEl) delivEl.innerText = deliveredCount;
 
     // Update Subtexts with Dynamic Logic
     if (revGrowthEl) {
-        // Mock growth for aesthetic, or calculate based on date if we had previous month data
-        // For now, let's just make it look "live"
-        revGrowthEl.innerHTML = `<span class="text-green-500 font-bold">↑ +12.5%</span> <span class="text-slate-400">vs last month</span>`;
+        if (previousMonthRevenue > 0) {
+            const growth = ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue * 100);
+            const trend = growth >= 0 ? '+' : '';
+            const color = growth >= 0 ? 'text-green-500' : 'text-rose-500';
+            const icon = growth >= 0 ? '↑' : '↓';
+            revGrowthEl.innerHTML = `<span class="${color} font-bold">${icon} ${trend}${growth.toFixed(1)}%</span> <span class="text-slate-400">vs last month</span>`;
+        } else {
+            revGrowthEl.innerHTML = `<span class="text-blue-500 font-bold">New</span> <span class="text-slate-400">€${currentMonthRevenue.toFixed(0)} this month</span>`;
+        }
     }
 
     if (pendSubtextEl) {
@@ -631,7 +654,7 @@ function updateOrderDashboardStats(orders) {
 
     if (delivRateEl) {
         const totalProcessed = deliveredCount + cancelledCount;
-        const rate = totalProcessed === 0 ? 100 : ((deliveredCount / totalProcessed) * 100).toFixed(1);
+        const rate = totalProcessed === 0 ? 100.0 : ((deliveredCount / totalProcessed) * 100).toFixed(1);
         delivRateEl.innerHTML = `<span class="text-primary font-bold">${rate}%</span> Success rate <span class="text-slate-400">(delivered/total)</span>`;
     }
 }
