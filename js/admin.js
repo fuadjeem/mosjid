@@ -645,11 +645,19 @@ function updateOrderDashboardStats(orders) {
 // Order Management Actions
 window.toggleOrderStatus = async (id, isChecked) => {
     const newStatus = isChecked ? 'delivered' : 'pending_delivery';
-    const action = isChecked ? 'mark as Delivered' : 'revert to Pending';
+    const row = document.querySelector(`tr[data-order-id="${id}"]`);
+    const badge = row ? row.querySelector('.px-2.5.py-0.5') : null;
     
-    // We don't necessarily need a confirm for a toggle but it's safer
-    // The user said "turn on/off to mark as delivered/pending"
-    
+    // Optimistic UI Update
+    if (badge) {
+        badge.innerText = newStatus.replace('_', ' ');
+        if (isChecked) {
+            badge.className = 'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-green-50 text-green-700 border border-green-100';
+        } else {
+            badge.className = 'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100';
+        }
+    }
+
     try {
         const { error } = await window.supabaseClient
             .from('orders')
@@ -658,12 +666,14 @@ window.toggleOrderStatus = async (id, isChecked) => {
         
         if (error) throw error;
         
-        // Refresh local view
-        await loadOrders(document.getElementById('orders-table-body'));
+        // Update stats without full reload
+        const { data: allOrders } = await window.supabaseClient.from('orders').select('status, total_amount');
+        if (allOrders) updateOrderDashboardStats(allOrders);
+
     } catch(e) { 
         console.error("Toggle Order Status Error:", e);
-        alert('Failed to update status.');
-        // Revert UI by reloading
+        alert('Failed to update status on server. Reverting...');
+        // Revert UI by reloading fully
         loadOrders(document.getElementById('orders-table-body'));
     }
 };
@@ -673,14 +683,12 @@ window.viewOrder = async (id) => {
     if (!modal) return;
 
     try {
-        // 1. Show modal immediately with loading state
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         
         document.getElementById('modal-order-id').innerText = '#' + id.split('-')[0];
         document.getElementById('modal-order-items').innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-slate-400">Loading order items...</td></tr>';
 
-        // 2. Fetch Order Details & Items
         const { data: order, error: oError } = await window.supabaseClient
             .from('orders')
             .select('*')
@@ -694,7 +702,6 @@ window.viewOrder = async (id) => {
 
         if (oError || iError) throw (oError || iError);
 
-        // 3. Populate Modal
         const di = order.delivery_info || {};
         document.getElementById('modal-order-date').innerText = 'Placed on ' + new Date(order.created_at).toLocaleString();
         document.getElementById('modal-customer-name').innerText = di.customer || 'Guest User';
@@ -717,9 +724,8 @@ window.viewOrder = async (id) => {
                 `;
             });
         } else {
-            itemsBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-slate-400 italic">No item details found for this order.</td></tr>';
+            itemsBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-slate-400 italic">No item details found.</td></tr>';
         }
-
     } catch (e) {
         console.error("View Order Error:", e);
         alert("Failed to load order details.");
@@ -740,48 +746,57 @@ window.printInvoice = () => {
 };
 
 window.exportOrdersToCSV = async () => {
+    const btn = document.getElementById('export-csv-btn');
+    const originalText = btn ? btn.innerHTML : '';
+    
     try {
+        if (btn) btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span> Exporting...';
+        
         const { data: orders, error } = await window.supabaseClient
             .from('orders')
             .select('*')
             .order('created_at', { ascending: false });
 
         if (error) throw error;
-        if (!orders || orders.length === 0) return alert("No orders to export.");
+        if (!orders || orders.length === 0) {
+            alert("No orders to export.");
+            return;
+        }
 
-        // Define headers
         const headers = ["Order ID", "Date", "Customer", "Phone", "Address", "Total Amount", "Status"];
-        
-        // Map data rows
         const rows = orders.map(o => {
             const di = o.delivery_info || {};
             return [
-                o.id,
-                new Date(o.created_at).toISOString(),
-                di.customer || '',
-                di.phone || '',
-                (di.address || '').replace(/,/g, ' '), // sanitize commas
+                `"${o.id}"`,
+                `"${new Date(o.created_at).toLocaleString()}"`,
+                `"${(di.customer || 'Guest').replace(/"/g, '""')}"`,
+                `"${(di.phone || '').replace(/"/g, '""')}"`,
+                `"${(di.address || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,
                 o.total_amount,
-                o.status
+                `"${o.status}"`
             ];
         });
 
-        // Combine
-        const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
-        
-        // Create download
+        const csvContent = "\uFEFF" + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `BAKL_Orders_Export_${new Date().toISOString().split('T')[0]}.csv`);
+        
+        link.href = url;
+        link.setAttribute("download", `Orders_Export_${new Date().toISOString().split('T')[0]}.csv`);
         document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
         
+        setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }, 100);
+
     } catch (e) {
         console.error("CSV Export Error:", e);
-        alert("Failed to export CSV.");
+        alert("Failed to export CSV: " + e.message);
+    } finally {
+        if (btn) btn.innerHTML = originalText;
     }
 };
 
