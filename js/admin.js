@@ -4,20 +4,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const token = sessionStorage.getItem('adminToken');
     const isLoginPage = window.location.pathname.includes('admin');
     
+    console.log('[Admin] Path:', window.location.pathname, 'IsLogin:', isLoginPage, 'HasToken:', !!token);
+    
     if (!token && !isLoginPage) {
-        window.location.href = '/admin';
+        console.warn('[Admin] No token found, redirecting to login...');
+        window.location.href = '/admin.html';
+        return;
+    }
+    
+    if (token && isLoginPage) {
+        console.log('[Admin] Already authenticated, redirecting to inventory...');
+        window.location.href = '/inventory.html';
         return;
     }
     
     // Login Submission
-    const loginBtn = document.getElementById('login-btn');
-    if (loginBtn) {
-        loginBtn.addEventListener('click', async () => {
+    const loginForm = document.querySelector('form');
+    if (loginForm && isLoginPage) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
             const password = document.getElementById('password').value;
             const email = document.getElementById('admin-email').value;
             
-            // 1. Check default credentials (User Request)
+            console.log('[Admin] Login Attempt:', email);
+            
+            // 1. Check default credentials
             if (email === 'admin@bakl.org' && password === 'admin') {
+                console.log('[Admin] Default login success');
                 sessionStorage.setItem('adminToken', 'default_admin_stable_token');
                 window.location.href = '/inventory.html';
                 return;
@@ -31,16 +44,25 @@ document.addEventListener('DOMContentLoaded', () => {
                         password: password,
                     });
                     if (error) throw error;
+                    console.log('[Admin] Supabase login success');
                     sessionStorage.setItem('adminToken', data.session.access_token);
                     window.location.href = '/inventory.html';
                 } else {
-                    alert("Supabase not loaded.");
+                    alert("Supabase not loaded properly. Please refresh the page.");
                 }
             } catch (e) {
-                console.error(e);
+                console.error('[Admin] Login Error:', e);
                 alert("Authentication failed: " + (e.message || "Invalid credentials"));
             }
         });
+
+        // Also handle the button click if it's not a submit button (currently it's type="button")
+        const loginBtn = document.getElementById('login-btn');
+        if (loginBtn && loginBtn.type !== 'submit') {
+            loginBtn.addEventListener('click', () => {
+                loginForm.dispatchEvent(new Event('submit'));
+            });
+        }
     }
 
     // Inventory View
