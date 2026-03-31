@@ -488,6 +488,21 @@ async function loadOrders(tbody) {
 
         if (error) throw error;
         
+        const summary = document.getElementById('order-pagination-summary');
+        const nav = document.getElementById('pagination-nav');
+        
+        if (summary) summary.innerText = `${orders.length} of ${orders.length}`;
+        if (nav) nav.style.display = orders.length > 0 ? 'flex' : 'none';
+
+        if (orders.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-on-surface-variant">
+                <span class="material-symbols-outlined text-4xl mb-2 opacity-20">inventory_2</span>
+                <p class="text-sm">No orders found.</p>
+            </td></tr>`;
+            updateOrderDashboardStats(orders);
+            return;
+        }
+
         tbody.innerHTML = '';
         orders.forEach(o => {
             const di = o.delivery_info || {};

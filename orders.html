@@ -195,7 +195,7 @@
 </div>
 <div class="flex items-center gap-4 text-sm text-on-surface-variant">
 <span class="material-symbols-outlined cursor-pointer hover:text-on-surface">filter_list</span>
-<span>Showing 1-10 of 254 orders</span>
+<span>Showing <span id="order-pagination-summary">0 of 0</span> orders</span>
 </div>
 </div>
 <!-- Professional Data Grid -->
@@ -214,7 +214,7 @@
 <tbody id="orders-table-body" class="divide-y divide-surface-container-low"></tbody>
 </table>
 <!-- Pagination -->
-<div class="p-6 flex items-center justify-between bg-surface-container-low/30">
+<div id="pagination-nav" class="p-6 flex items-center justify-between bg-surface-container-low/30">
 <button class="px-4 py-2 text-sm font-medium text-on-surface-variant hover:text-on-surface disabled:opacity-50" disabled="">Previous</button>
 <div class="flex items-center gap-2">
 <button class="w-8 h-8 flex items-center justify-center rounded-md bg-primary text-white text-xs font-bold">1</button>
