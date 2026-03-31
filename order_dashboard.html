@@ -3,7 +3,7 @@
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Bangladesh Asiatische Kultur Zentrum | Order Management</title>
+<title>Bangladeschi Asiatische Kulturzentrum linz | Order Management</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -79,13 +79,77 @@
             vertical-align: middle;
         }
         body { font-family: 'Inter', sans-serif; }
+        
+        /* Toggle Switch Styles */
+        .switch {
+          position: relative;
+          display: inline-block;
+          width: 40px;
+          height: 20px;
+        }
+        .switch input { 
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+        .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          -webkit-transition: .4s;
+          transition: .4s;
+          border-radius: 20px;
+        }
+        .slider:before {
+          position: absolute;
+          content: "";
+          height: 14px;
+          width: 14px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          -webkit-transition: .4s;
+          transition: .4s;
+          border-radius: 50%;
+        }
+        input:checked + .slider {
+          background-color: #005bbf;
+        }
+        input:focus + .slider {
+          box-shadow: 0 0 1px #005bbf;
+        }
+        input:checked + .slider:before {
+          -webkit-transform: translateX(20px);
+          -ms-transform: translateX(20px);
+          transform: translateX(20px);
+        }
+
+        /* Print Specific Styles */
+        @media print {
+            body * { visibility: hidden; }
+            #invoice-print-area, #invoice-print-area * { visibility: visible; }
+            #invoice-print-area { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%;
+                background: white;
+                color: black;
+                padding: 40px;
+            }
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body class="bg-surface text-on-surface antialiased">
 <!-- Top Navigation Shell -->
 <header class="fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-xl shadow-[0_40px_40px_-15px_rgba(25,28,35,0.06)] flex justify-between items-center px-8 h-16 w-full mx-auto">
 <div class="flex items-center gap-8">
-<span class="text-xl font-bold tracking-tighter text-slate-900">Bangladesh Asiatische Kultur Zentrum</span>
+<span class="text-xl font-bold tracking-tighter text-slate-900">Bangladeschi Asiatische Kulturzentrum linz</span>
 <nav class="hidden md:flex gap-6 items-center font-['Inter'] antialiased tracking-tight text-sm">
 <a class="text-slate-500 hover:text-slate-900 transition-all duration-200 active:scale-95 cursor-pointer" href="/index.html">Home</a>
 <a class="text-slate-500 hover:text-slate-900 transition-all duration-200 active:scale-95 cursor-pointer" href="/cart.html">Cart</a>
@@ -135,7 +199,7 @@
 <p class="text-on-surface-variant max-w-2xl">Monitor and manage incoming fulfillment requests. Use precision filters to sort by status or financial performance.</p>
 </div>
 <div class="flex gap-3">
-<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-high text-on-surface font-medium rounded-lg hover:bg-surface-container-highest transition-colors">
+<button id="export-csv-btn" onclick="exportOrdersToCSV()" class="flex items-center gap-2 px-4 py-2 bg-surface-container-high text-on-surface font-medium rounded-lg hover:bg-surface-container-highest transition-colors">
 <span class="material-symbols-outlined text-sm">download</span> Export CSV
                     </button>
 </div>
@@ -146,9 +210,9 @@
 <div>
 <p class="text-sm font-medium text-on-surface-variant mb-1">Total Revenue</p>
 <h3 id="stat-revenue" class="text-2xl font-bold">€0.00</h3>
-<p class="text-xs text-green-600 mt-2 flex items-center gap-1 font-semibold">
-<span class="material-symbols-outlined text-[14px]">trending_up</span> +12.5% from last month
-                        </p>
+<p id="stat-revenue-growth" class="text-xs text-green-600 mt-2 flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +0.0% from last month
+</p>
 </div>
 <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">payments</span>
@@ -158,9 +222,9 @@
 <div>
 <p class="text-sm font-medium text-on-surface-variant mb-1">Pending Orders</p>
 <h3 id="stat-pending" class="text-2xl font-bold">0</h3>
-<p class="text-xs text-secondary mt-2 flex items-center gap-1 font-semibold">
-<span class="material-symbols-outlined text-[14px]">schedule</span> 8 urgent requests
-                        </p>
+<p id="stat-pending-subtext" class="text-xs text-on-surface-variant mt-2 flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 0 active orders
+</p>
 </div>
 <div class="w-12 h-12 bg-secondary-container/20 rounded-full flex items-center justify-center text-secondary">
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pending_actions</span>
@@ -170,9 +234,9 @@
 <div>
 <p class="text-sm font-medium text-on-surface-variant mb-1">Delivered (30d)</p>
 <h3 id="stat-delivered" class="text-2xl font-bold">0</h3>
-<p class="text-xs text-blue-600 mt-2 flex items-center gap-1 font-semibold">
-<span class="material-symbols-outlined text-[14px]">check_circle</span> 98.2% Success rate
-                        </p>
+<p id="stat-delivered-rate" class="text-xs text-primary mt-2 flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> 0.0% Success rate
+</p>
 </div>
 <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-700">
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
@@ -262,8 +326,8 @@
 </div>
 <!-- Footer -->
 <footer class="w-full py-12 flex flex-col items-center justify-center gap-4 px-8 border-t border-slate-100 font-['Inter'] text-xs text-slate-500 bg-slate-50">
-<span class="font-bold text-slate-900">Bangladesh Asiatische Kultur Zentrum</span>
-<p>© 2024 Bangladesh Asiatische Kultur Zentrum. High-performance utility.</p>
+<span class="font-bold text-slate-900">Bangladeschi Asiatische Kulturzentrum linz</span>
+<p>© 2024 Bangladeschi Asiatische Kulturzentrum linz. High-performance utility.</p>
 <div class="flex gap-6 mt-2">
 <a class="hover:text-blue-700 transition-colors cursor-pointer" href="#">Privacy Policy</a>
 <a class="hover:text-blue-700 transition-colors cursor-pointer" href="#">Terms of Service</a>
@@ -331,6 +395,113 @@
 </div>
 </div>
 </div>
+
+<!-- Order Detail Modal -->
+<div id="order-detail-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-all duration-300">
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <!-- Modal Header -->
+        <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">receipt_long</span>
+                    Order Details: <span id="modal-order-id" class="font-mono text-primary">#---</span>
+                </h2>
+                <p id="modal-order-date" class="text-xs text-slate-500 mt-1">Placed on --/--/----</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="closeOrderModal()" class="p-2 hover:bg-slate-200 rounded-full transition-all text-slate-500">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Modal Content (Scrollable) -->
+        <div class="flex-1 overflow-y-auto p-8" id="invoice-print-area">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <!-- Customer Info -->
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Customer Information</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-slate-400 text-lg">person</span>
+                            <div>
+                                <p class="text-xs text-slate-500">Name</p>
+                                <p id="modal-customer-name" class="text-sm font-semibold">---</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-slate-400 text-lg">call</span>
+                            <div>
+                                <p class="text-xs text-slate-500">Phone</p>
+                                <p id="modal-customer-phone" class="text-sm">---</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Delivery info -->
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Delivery Address</h3>
+                    <div class="flex items-start gap-3">
+                        <span class="material-symbols-outlined text-slate-400 text-lg">location_on</span>
+                        <div>
+                            <p id="modal-customer-address" class="text-sm leading-relaxed text-slate-700 font-medium">---</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Items Table -->
+            <div class="mb-10">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 px-1">Purchased Items</h3>
+                <div class="overflow-hidden border border-slate-100 rounded-xl">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-slate-500 font-bold text-[10px] uppercase tracking-wider">
+                            <tr>
+                                <th class="px-6 py-4">Product Name</th>
+                                <th class="px-6 py-4 text-center">Qty</th>
+                                <th class="px-6 py-4 text-right">Price</th>
+                                <th class="px-6 py-4 text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modal-order-items" class="divide-y divide-slate-100">
+                            <!-- Items populated via JS -->
+                        </tbody>
+                        <tfoot class="bg-slate-50/50">
+                            <tr>
+                                <td colspan="3" class="px-6 py-4 text-right font-bold text-slate-900">Total Amount</td>
+                                <td id="modal-order-total" class="px-6 py-4 text-right font-black text-primary text-lg">€0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Footer/Note for Invoice -->
+            <div class="text-center pt-8 border-t border-slate-100 opacity-50">
+                <p class="text-[10px] font-bold uppercase tracking-tighter mb-1">Bangladeschi Asiatische Kulturzentrum linz</p>
+                <p class="text-[9px]">Thank you for your purchase. This is an official invoice.</p>
+            </div>
+        </div>
+        
+        <!-- Modal Action Footer -->
+        <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 no-print">
+            <button onclick="closeOrderModal()" class="px-6 py-2.5 text-slate-600 font-bold text-sm hover:bg-slate-200 rounded-xl transition-all">Close</button>
+            <button onclick="printInvoice()" class="px-6 py-2.5 bg-primary text-white font-bold text-sm rounded-xl shadow-xl shadow-primary/20 hover:opacity-90 transition-opacity flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">print</span>
+                Print Invoice
+            </button>
+        </div>
+    </div>
+</div>
+
+<footer class="md:pl-64 py-8 px-8 border-t border-slate-100 text-center bg-slate-50/50 no-print">
+    <p class="text-slate-400 text-xs font-medium">© <span id="current-year">2024</span> <span class="text-slate-600">Bangladeschi Asiatische Kulturzentrum linz</span>. Precision Administration Interface.</p>
+</footer>
+
+<script>
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+</script>
 
 <script src="js/auth.js"></script>
 <script src="js/admin.js"></script>
