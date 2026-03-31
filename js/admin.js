@@ -1,3 +1,9 @@
+// Global State
+let globalInventory = [];
+let editingProductId = null;
+let currentPage = 1;
+const itemsPerPage = 10;
+
 document.addEventListener('DOMContentLoaded', async () => {
     
     // Auth Check
@@ -179,11 +185,7 @@ async function handleImageUpload(file, urlInput, statusElement) {
     }
 }
 
-let globalInventory = [];
 let globalOrders = [];
-let editingProductId = null; // Track if we are editing
-let currentPage = 1;
-const itemsPerPage = 10;
 
 async function setupAdminProfile() {
     const profileBtn = document.getElementById('admin-profile-btn');
