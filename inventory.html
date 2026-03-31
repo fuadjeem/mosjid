@@ -428,12 +428,16 @@
           <label class="text-sm font-bold text-on-surface">Available for Sale</label>
         </div>
       </div>
-      <div class="px-6 py-4 bg-surface-container border-t border-surface-container-high flex justify-end gap-3">
-        <button id="cancel-modal-btn"
-          class="px-5 py-2.5 rounded-xl font-bold text-sm text-on-surface hover:bg-surface-container-high transition-colors">Cancel</button>
-        <button id="save-product-btn"
-          class="px-5 py-2.5 rounded-xl font-bold text-sm text-white bg-primary hover:bg-primary/90 transition-colors shadow-sm">Save
-          Product</button>
+      <div class="px-6 py-4 bg-surface-container border-t border-surface-container-high flex justify-between gap-3">
+        <button id="delete-product-modal-btn"
+          class="hidden px-5 py-2.5 rounded-xl font-bold text-sm text-error hover:bg-error/10 transition-colors">Delete Product</button>
+        <div class="flex gap-3 ml-auto">
+          <button id="cancel-modal-btn"
+            class="px-5 py-2.5 rounded-xl font-bold text-sm text-on-surface hover:bg-surface-container-high transition-colors">Cancel</button>
+          <button id="save-product-btn"
+            class="px-5 py-2.5 rounded-xl font-bold text-sm text-white bg-primary hover:bg-primary/90 transition-colors shadow-sm">Save
+            Product</button>
+        </div>
       </div>
     </div>
   </div>

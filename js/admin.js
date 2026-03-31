@@ -536,6 +536,10 @@ window.deleteProduct = async (event, id) => {
             .eq('id', id);
         if (error) throw error;
         loadInventory(document.getElementById('inventory-table-body'));
+        
+        // Close modal if open
+        const modal = document.getElementById('add-product-modal');
+        if (modal) modal.classList.add('hidden');
     } catch (e) { console.error("Delete Product Error:", e); }
 };
 
@@ -544,8 +548,12 @@ window.editProduct = (id) => {
     if (!pInfo) return;
     
     const modal = document.getElementById('add-product-modal');
-    modal.querySelector('h2').innerText = "Edit Product";
+    document.getElementById('modal-title').innerText = "Edit / Restock Product";
     document.getElementById('save-product-btn').innerText = "Update Product";
+    
+    // Show Delete button in modal
+    const modalDeleteBtn = document.getElementById('delete-product-modal-btn');
+    if (modalDeleteBtn) modalDeleteBtn.classList.remove('hidden');
     
     document.getElementById('prod-name').value = pInfo.name;
     document.getElementById('prod-cat').value = pInfo.category;
@@ -581,6 +589,10 @@ function setupInventoryModals() {
             document.getElementById('prod-imageurl').value = '';
             document.getElementById('prod-status').checked = true;
             
+            // Hide Delete button in modal (since adding new)
+            const modalDeleteBtn = document.getElementById('delete-product-modal-btn');
+            if (modalDeleteBtn) modalDeleteBtn.classList.add('hidden');
+            
             modal.classList.remove('hidden');
         });
         
@@ -609,27 +621,33 @@ function setupInventoryModals() {
                         .from('products')
                         .update(product)
                         .eq('id', editingProductId);
-                    
-                    if (!error) {
-                        closeMod();
-                        loadInventory(document.getElementById('inventory-table-body'));
-                    } else throw error;
+                    if (error) throw error;
                 } else {
-                    product.id = 'prod_' + Date.now();
                     const { error } = await window.supabaseClient
                         .from('products')
-                        .insert([product]);
-                    
-                    if (!error) {
-                        closeMod();
-                        loadInventory(document.getElementById('inventory-table-body'));
-                    } else throw error;
+                        .insert([{
+                             id: 'P_' + Date.now(),
+                             ...product
+                        }]);
+                    if (error) throw error;
                 }
+                closeMod();
+                loadInventory(document.getElementById('inventory-table-body'));
             } catch (e) { 
-                console.error("Save Product Error:", e);
-                alert("Failed to save product: " + e.message);
+                console.error("Save Error:", e); 
+                alert("Failed to save: " + e.message);
             }
         });
+
+        // Delete button in modal listener
+        const modalDeleteBtn = document.getElementById('delete-product-modal-btn');
+        if (modalDeleteBtn) {
+            modalDeleteBtn.addEventListener('click', async () => {
+                if (editingProductId) {
+                    await deleteProduct(null, editingProductId);
+                }
+            });
+        }
     }
 }
 
