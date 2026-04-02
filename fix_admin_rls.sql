@@ -13,23 +13,23 @@ ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
 
 -- 3. Define Admin Authorization Policies
 -- We check the user's email from the JWT against our admin list.
--- Admin Emails: 'admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com'
+-- Admin Emails: 'admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com'
 
 -- PRODUCTS Table
 CREATE POLICY "Admins can manage products" 
 ON public.products 
 FOR ALL 
 TO authenticated 
-USING (auth.jwt() ->> 'email' IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com'))
-WITH CHECK (auth.jwt() ->> 'email' IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com'));
+USING (auth.jwt() ->> 'email' IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com'))
+WITH CHECK (auth.jwt() ->> 'email' IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com'));
 
 -- ORDERS Table
 CREATE POLICY "Admins can view and update all orders" 
 ON public.orders 
 FOR ALL 
 TO authenticated 
-USING (auth.jwt() ->> 'email' IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com'))
-WITH CHECK (auth.jwt() ->> 'email' IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com'));
+USING (auth.jwt() ->> 'email' IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com'))
+WITH CHECK (auth.jwt() ->> 'email' IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com'));
 
 -- ORDER_ITEMS Table
 CREATE POLICY "Admins can view all order items" 
@@ -37,7 +37,7 @@ ON public.order_items
 FOR ALL 
 TO authenticated 
 USING (
-    auth.jwt() ->> 'email' IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com') 
+    auth.jwt() ->> 'email' IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com') 
     OR EXISTS (
         SELECT 1 FROM public.orders 
         WHERE orders.id = order_items.order_id 

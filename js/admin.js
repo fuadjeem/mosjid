@@ -8,7 +8,7 @@
     let editingProductId = null;
     let currentPage = 1;
     const itemsPerPage = 10;
-    const ADMIN_EMAILS = ['admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com'];
+    const ADMIN_EMAILS = ['admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com'];
 
     // Wait for Supabase to be ready
     function initAdmin() {

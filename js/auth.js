@@ -7,7 +7,7 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxYXJvemt0dXZ6cnpoZmhoamJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NjQ3MjgsImV4cCI6MjA5MDM0MDcyOH0.f-JXg-R5cvyxvgNc3NvjO-aNjr706JrKkSqzNB1T6T0';
 
     var sbClient = null;
-    const ADMIN_EMAILS = ['admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com'];
+    const ADMIN_EMAILS = ['admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com'];
 
     function initSupabase() {
         try {
