@@ -3,10 +3,12 @@ let allNews = [];
 document.addEventListener('DOMContentLoaded', async () => {
     if (!window.supabaseClient) return;
     const { data: { session } } = await window.supabaseClient.auth.getSession();
-    const isAdmin = session && session.user && session.user.email === 'admin@bakl.org';
+    const adminWhitelist = ['admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com'];
+    const userEmail = session?.user?.email?.toLowerCase().trim();
+    const isAdmin = userEmail && adminWhitelist.includes(userEmail);
     
     if (!isAdmin) {
-        window.location.href = '/admin.html';
+        window.location.href = 'admin.html';
         return;
     }
     
