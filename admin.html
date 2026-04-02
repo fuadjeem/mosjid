@@ -3,11 +3,12 @@
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
+    <script src="js/config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" integrity="sha384-0VpB0wAYDdhWCEv3+IjT0Z9Kgpvszkf70RFX3ro7l4QR5nywxsMaOpmvZKsfRF8I" crossorigin="anonymous"></script>
     <script id="tailwind-config">
       tailwind.config = {
         darkMode: "class",
@@ -78,12 +79,14 @@
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body class="bg-surface text-on-surface min-h-screen flex flex-col">
 <header class="fixed top-0 w-full h-16 flex items-center justify-between px-8 bg-surface-container-lowest/80 backdrop-blur-xl z-50">
 <div class="flex items-center gap-4">
-<span class="text-xl font-extrabold tracking-tighter text-on-surface">Bangladeschi Asiatische Kulturzentrum linz</span>
+<div class="flex flex-col min-w-0">
+  <div class="text-xl font-black tracking-tighter text-on-surface leading-none">BAK Linz</div>
+  <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest truncate">Bangladesh Asiatische Kulturzentrum Linz</div>
+</div>
 <span class="bg-inverse-surface text-inverse-on-surface text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">Admin Mode</span>
 </div>
 <div class="flex items-center gap-4">
@@ -94,7 +97,12 @@
 <main class="flex-grow flex items-center justify-center p-6 bg-surface-container-low">
 <div class="w-full max-auto flex items-center justify-center">
 <div class="w-full max-w-md">
-<div class="bg-surface-container-lowest p-10 rounded-xl shadow-[0_40px_40px_-15px_rgba(25,28,35,0.06)] flex flex-col gap-8">
+    <div class="flex flex-col items-center mb-10 gap-2">
+        <div class="text-4xl font-black tracking-tighter text-blue-700 leading-none">BAK Linz</div>
+        <div class="text-xs font-bold text-slate-500 uppercase tracking-[0.3em] text-center">Bangladesh Asiatische Kulturzentrum Linz</div>
+    </div>
+
+    <div class="bg-surface-container-lowest p-10 rounded-xl shadow-[0_40px_40px_-15px_rgba(25,28,35,0.06)] flex flex-col gap-8">
 <div class="space-y-2">
 <h1 class="text-3xl font-bold tracking-tight text-on-surface">Admin Login</h1>
 <p class="text-on-surface-variant text-sm font-medium">Enter your credentials to access the management console.</p>

@@ -50,6 +50,13 @@ window.allProducts = [];
 window.filteredProducts = [];
 window.visibleCount = 20;
 
+    function escapeHTML(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
 async function loadLatestNews() {
     const container = document.getElementById('latest-news-container');
     if (!container || !window.supabaseClient) return;
@@ -67,7 +74,7 @@ async function loadLatestNews() {
             return;
         }
 
-        const hasImage = !!news.image_url;
+        const safeTitle = escapeHTML(news.title);
         container.innerHTML = `
             <div class="group relative bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden max-w-full" onclick="window.location.href='news.html'">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 min-w-0">
@@ -76,7 +83,7 @@ async function loadLatestNews() {
                             <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse shrink-0"></span>
                             <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 truncate">সর্বশেষ সংবাদ</span>
                         </div>
-                        <h2 class="text-base sm:text-lg font-black text-slate-900 group-hover:text-primary transition-colors truncate">${news.title}</h2>
+                        <h2 class="text-base sm:text-lg font-black text-slate-900 group-hover:text-primary transition-colors truncate">${safeTitle}</h2>
                     </div>
                     <a href="news.html" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-xs hover:bg-primary transition-all shrink-0 sm:w-auto w-full">
                         আরও পড়ুন
@@ -144,12 +151,15 @@ function setupStorefrontFilters() {
             <div class="h-px bg-slate-200 my-2 w-full"></div>
         `;
         
-        html += uniqueCategories.map(cat => `
+        html += uniqueCategories.map(cat => {
+            const safeCat = escapeHTML(cat);
+            return `
             <label class="flex items-center gap-2 cursor-pointer group">
-                <input type="checkbox" value="${cat}" class="category-cb rounded-sm border-outline text-primary focus:ring-primary-container" checked>
-                <span class="text-xs text-on-surface-variant group-hover:text-on-surface transition-colors">${cat}</span>
+                <input type="checkbox" value="${safeCat}" class="category-cb rounded-sm border-outline text-primary focus:ring-primary-container" checked>
+                <span class="text-xs text-on-surface-variant group-hover:text-on-surface transition-colors">${safeCat}</span>
             </label>
-        `).join('');
+            `;
+        }).join('');
         
         categoriesContainer.innerHTML = html;
         
@@ -239,11 +249,11 @@ function applyFilters() {
     const breadcrumb = document.getElementById('breadcrumb');
     if (breadcrumb) {
         let path = "Home";
-        if (activeCats.length === 1) path += ` <span class="mx-1 text-outline-variant">/</span> ${activeCats[0]}`;
+        if (activeCats.length === 1) path += ` <span class="mx-1 text-outline-variant">/</span> ${escapeHTML(activeCats[0])}`;
         else if (activeCats.length > 1 && activeCats.length < cbs.length) path += ` <span class="mx-1 text-outline-variant">/</span> Mixed Categories`;
         else path += ` <span class="mx-1 text-outline-variant">/</span> All Categories`;
         
-        if (term) path += ` <span class="mx-1 text-outline-variant">/</span> Search: "${term}"`;
+        if (term) path += ` <span class="mx-1 text-outline-variant">/</span> Search: "${escapeHTML(term)}"`;
         breadcrumb.innerHTML = path;
     }
     
@@ -263,6 +273,11 @@ function renderProductGrid(grid, products) {
     const showItems = products.slice(0, window.visibleCount);
     
     const html = showItems.map(p => {
+        const safeName = escapeHTML(p.name);
+        const safeCat = escapeHTML(p.category);
+        const safeId = escapeHTML(p.id);
+        const safeImgUrl = escapeHTML(p.image_url);
+        
         // Expiry logic: <= 7 days yellow, expired red
         const expiryDate = new Date(p.expiry);
         const today = new Date();
@@ -285,8 +300,8 @@ function renderProductGrid(grid, products) {
             statusTag = `<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Warning</span>`;
         }
         
-        const imgBlock = p.image_url ? 
-            `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" loading="lazy">` : 
+        const imgBlock = safeImgUrl ? 
+            `<img src="${safeImgUrl}" alt="${safeName}" class="w-full h-full object-cover" loading="lazy">` : 
             `<span class="material-symbols-outlined text-4xl text-outline border border-dashed border-outline-variant/50 p-6 rounded-lg bg-surface">image</span>`;
 
         return `
@@ -295,25 +310,25 @@ function renderProductGrid(grid, products) {
                 ${imgBlock}
             </div>
             <div class="flex justify-between items-start mb-2">
-                <h3 class="font-bold text-on-surface title-md">${p.name}</h3>
+                <h3 class="font-bold text-on-surface title-md">${safeName}</h3>
                 ${statusTag}
             </div>
-            <p class="text-xs text-on-surface-variant mb-4 font-medium italic">${p.category}</p>
+            <p class="text-xs text-on-surface-variant mb-4 font-medium italic">${safeCat}</p>
             <div class="mt-auto space-y-3">
                 <div class="flex items-center justify-between">
                     <span class="text-lg font-extrabold text-on-surface">€${Number(p.price).toFixed(2)}</span>
                     <div class="flex items-center border border-outline-variant/30 rounded-md bg-surface-container-lowest h-8">
-                        <button class="px-2 text-outline hover:text-primary transition-colors focus:outline-none" onclick="document.getElementById('qty-${p.id}').stepDown()" ${btnDisabled}>
+                        <button class="px-2 text-outline hover:text-primary transition-colors focus:outline-none" onclick="document.getElementById('qty-${safeId}').stepDown()" ${btnDisabled}>
                             <span class="material-symbols-outlined text-sm font-bold">remove</span>
                         </button>
-                        <input type="number" id="qty-${p.id}" value="1" min="1" class="w-8 text-center text-xs font-bold bg-transparent border-none p-0 focus:ring-0" ${btnDisabled}>
-                        <button class="px-2 text-outline hover:text-primary transition-colors focus:outline-none" onclick="document.getElementById('qty-${p.id}').stepUp()" ${btnDisabled}>
+                        <input type="number" id="qty-${safeId}" value="1" min="1" class="w-8 text-center text-xs font-bold bg-transparent border-none p-0 focus:ring-0" ${btnDisabled}>
+                        <button class="px-2 text-outline hover:text-primary transition-colors focus:outline-none" onclick="document.getElementById('qty-${safeId}').stepUp()" ${btnDisabled}>
                             <span class="material-symbols-outlined text-sm font-bold">add</span>
                         </button>
                     </div>
                 </div>
                 <div>
-                    <button class="${btnClass} w-full py-3 text-white rounded-lg text-sm font-bold border-none block" ${btnDisabled} onclick="addToCart('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price})">${btnText}</button>
+                    <button class="${btnClass} w-full py-3 text-white rounded-lg text-sm font-bold border-none block" ${btnDisabled} onclick="addToCart('${safeId}', '${safeName.replace(/'/g, "\\'")}', ${p.price})">${btnText}</button>
                 </div>
             </div>
         </div>`;
@@ -367,21 +382,24 @@ function renderCart(container) {
     cart.forEach(item => {
         const itemTotal = item.price * item.qty;
         total += itemTotal;
+        const safeName = escapeHTML(item.name);
+        const safeId = escapeHTML(item.id);
+        
         container.innerHTML += `
         <div class="bg-surface-container-lowest p-5 rounded-xl flex gap-6 items-center hover:bg-surface-bright transition-colors mb-4 border border-outline-variant/10">
             <div class="flex-grow">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h3 class="text-lg font-bold text-on-surface leading-none">${item.name}</h3>
+                        <h3 class="text-lg font-bold text-on-surface leading-none">${safeName}</h3>
                     </div>
                     <span class="text-lg font-bold text-on-surface">€${itemTotal.toFixed(2)}</span>
                 </div>
                 <div class="flex items-center gap-4 mt-4">
                     <div class="flex items-center bg-surface-container rounded-full px-2 py-1 gap-2 border border-outline-variant/20">
                         <span class="pl-2 text-xs font-bold">Qty:</span>
-                        <input type="number" min="1" value="${item.qty}" onchange="updateCartQty('${item.id}', this.value)" class="w-12 h-6 text-center text-xs font-bold bg-transparent border-none focus:ring-0 outline-none p-0 inline-block">
+                        <input type="number" min="1" value="${item.qty}" onchange="updateCartQty('${safeId}', this.value)" class="w-12 h-6 text-center text-xs font-bold bg-transparent border-none focus:ring-0 outline-none p-0 inline-block">
                     </div>
-                    <button onclick="removeFromCart('${item.id}')" class="text-xs font-medium text-error hover:underline flex items-center gap-1">
+                    <button onclick="removeFromCart('${safeId}')" class="text-xs font-medium text-error hover:underline flex items-center gap-1">
                         <span class="material-symbols-outlined text-sm">delete</span> Remove
                     </button>
                 </div>

@@ -6,13 +6,14 @@
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>Product Inventory Manager | Bangladeschi Asiatische Kulturzentrum linz</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
+  <script src="js/config.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap"
     rel="stylesheet" />
   <link
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
     rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" integrity="sha384-0VpB0wAYDdhWCEv3+IjT0Z9Kgpvszkf70RFX3ro7l4QR5nywxsMaOpmvZKsfRF8I" crossorigin="anonymous"></script>
   <script src="js/auth.js"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -113,7 +114,10 @@
   <header
     class="fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-xl shadow-[0_40px_40px_-15px_rgba(25,28,35,0.06)] flex justify-between items-center px-8 h-16 w-full mx-auto">
     <div class="flex items-center gap-3 md:gap-8">
-      <span class="text-lg md:text-xl font-bold tracking-tighter text-slate-900 truncate max-w-[200px] sm:max-w-none">Admin Panel</span>
+      <div class="flex flex-col min-w-0">
+        <div class="text-xl font-black tracking-tighter text-slate-900 leading-none">BAK Linz</div>
+        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest truncate">Bangladesh Asiatische Kulturzentrum Linz</div>
+      </div>
       <nav class="hidden md:flex gap-6 items-center font-['Inter'] antialiased tracking-tight text-sm">
         <a class="text-slate-500 hover:text-slate-900 transition-all duration-200" href="index.html">Home</a>
         <a class="text-blue-700 font-semibold border-b-2 border-blue-700 pb-1" href="inventory.html">Products</a>
@@ -367,9 +371,9 @@
       <a class="hover:text-blue-700 transition-colors" href="#">Support</a>
     </div>
     <div class="flex items-center gap-2">
-      <span class="font-bold text-slate-900">Bangladeschi Asiatische Kulturzentrum linz</span>
+      <span class="font-bold text-slate-900">BAK Linz</span>
       <span class="opacity-50">|</span>
-      <span>© 2024 Bangladeschi Asiatische Kulturzentrum linz. High-performance utility.</span>
+      <span>© 2024 Bangladesh Asiatische Kulturzentrum Linz. High-performance utility.</span>
     </div>
   </footer>
 

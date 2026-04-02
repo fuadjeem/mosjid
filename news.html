@@ -6,7 +6,8 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Bangladeschi Asiatische Kulturzentrum linz | High-Performance Catalog</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
+    <script src="js/config.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap"
         rel="stylesheet" />
     <link
@@ -113,7 +114,7 @@
             appearance: textfield;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" integrity="sha384-0VpB0wAYDdhWCEv3+IjT0Z9Kgpvszkf70RFX3ro7l4QR5nywxsMaOpmvZKsfRF8I" crossorigin="anonymous"></script>
 </head>
 
 <body class="bg-surface text-on-surface antialiased">
@@ -125,9 +126,10 @@
                 class="md:hidden text-slate-500 hover:text-primary transition-colors focus:outline-none flex items-center">
                 <span class="material-symbols-outlined text-2xl">menu</span>
             </button>
-            <div
-                class="text-lg md:text-xl font-bold tracking-tighter text-slate-900 truncate max-w-[200px] sm:max-w-none">
-                Bangladeschi Asiatische Kulturzentrum Linz</div>
+            <div class="flex flex-col min-w-0">
+                <div class="text-xl font-black tracking-tighter text-slate-900 leading-none">BAK Linz</div>
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest truncate">Bangladesh Asiatische Kulturzentrum Linz</div>
+            </div>
         </div>
         <nav class="hidden md:flex items-center gap-8 font-['Inter'] antialiased tracking-tight text-sm">
             <a class="text-slate-500 hover:text-slate-900 transition-all active:scale-95 cursor-pointer"
@@ -249,8 +251,8 @@
                                         <span class="px-3 py-1 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-full">New Update</span>
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${new Date(hero.date).toLocaleDateString()}</span>
                                     </div>
-                                    <h2 class="text-2xl md:text-4xl font-black text-slate-900 tracking-tight mb-4 leading-tight">${hero.title}</h2>
-                                    <p class="text-slate-600 text-base leading-relaxed mb-8">${hero.content}</p>
+                                    <h2 class="text-2xl md:text-4xl font-black text-slate-900 tracking-tight mb-4 leading-tight">${escapeHTML(hero.title)}</h2>
+                                    <p class="text-slate-600 text-base leading-relaxed mb-8">${escapeHTML(hero.content)}</p>
                                     <div class="flex items-center gap-4 py-6 border-t border-slate-100">
                                         <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
                                             <span class="material-symbols-outlined text-slate-500">person</span>
@@ -279,8 +281,8 @@
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${new Date(news.date).toLocaleDateString()}</span>
                             </div>
-                            <h3 class="text-lg font-black text-slate-900 tracking-tight mb-2 line-clamp-2">${news.title}</h3>
-                            <p class="text-on-surface-variant text-sm line-clamp-3 leading-relaxed">${news.content}</p>
+                            <h3 class="text-lg font-black text-slate-900 tracking-tight mb-2 line-clamp-2">${escapeHTML(news.title)}</h3>
+                            <p class="text-on-surface-variant text-sm line-clamp-3 leading-relaxed">${escapeHTML(news.content)}</p>
                         </div>
                     `).join('');
                 } else {

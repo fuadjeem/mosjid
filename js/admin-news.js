@@ -3,9 +3,18 @@ let allNews = [];
 document.addEventListener('DOMContentLoaded', async () => {
     if (!window.supabaseClient) return;
     const { data: { session } } = await window.supabaseClient.auth.getSession();
-    const adminWhitelist = ['admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com'];
-    const userEmail = session?.user?.email?.toLowerCase().trim();
-    const isAdmin = userEmail && adminWhitelist.includes(userEmail);
+    
+    // Wait for auth.js to finish admin check if it hasn't already
+    let isAdmin = window.userIsAdmin;
+    if (session && !isAdmin) {
+        // Re-verify if auth.js hasn't set it yet
+        const { data } = await window.supabaseClient
+            .from('admin_users')
+            .select('email')
+            .eq('email', session.user.email.toLowerCase().trim())
+            .maybeSingle();
+        isAdmin = !!data;
+    }
     
     if (!isAdmin) {
         window.location.href = 'admin.html';
@@ -108,7 +117,7 @@ function renderNews(newsList) {
         
         const imageHtml = news.image_url ? `
             <div class="w-full h-32 overflow-hidden bg-slate-100">
-                <img src="${news.image_url}" class="w-full h-full object-cover transition-transform group-hover:scale-105" alt="${news.title}">
+                <img src="${news.image_url}" class="w-full h-full object-cover transition-transform group-hover:scale-105" alt="${escapeHTML(news.title)}">
             </div>
         ` : `
             <div class="w-full h-24 bg-slate-50 flex items-center justify-center text-slate-300">
@@ -120,10 +129,10 @@ function renderNews(newsList) {
             ${imageHtml}
             <div class="p-6 flex flex-col gap-3">
                 <div class="flex justify-between items-start gap-4">
-                    <h3 class="font-bold text-sm text-on-surface tracking-tight line-clamp-1">${news.title}</h3>
+                    <h3 class="font-bold text-sm text-on-surface tracking-tight line-clamp-1">${escapeHTML(news.title)}</h3>
                     <span class="text-[9px] font-bold px-2 py-1 rounded bg-surface-container-high text-on-surface-variant whitespace-nowrap">${new Date(news.date).toLocaleDateString()}</span>
                 </div>
-                <p class="text-xs text-on-surface-variant flex-grow line-clamp-2 leading-relaxed">${news.content}</p>
+                <p class="text-xs text-on-surface-variant flex-grow line-clamp-2 leading-relaxed">${escapeHTML(news.content)}</p>
                 <div class="flex gap-2 pt-3 border-t border-surface-container-high mt-1">
                     <button class="text-[10px] font-bold text-primary hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors border border-primary/10" onclick="editNews('${news.id}')">Edit</button>
                     <button class="text-[10px] font-bold text-error hover:bg-error/10 px-3 py-1.5 rounded-lg transition-colors border border-error/10" onclick="deleteNews('${news.id}')">Delete</button>

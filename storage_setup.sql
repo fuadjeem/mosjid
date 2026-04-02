@@ -25,7 +25,7 @@ ON storage.objects FOR INSERT
 TO authenticated
 WITH CHECK (
     bucket_id = 'product-images' 
-    AND (auth.jwt() ->> 'email') IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com')
+    AND (auth.jwt() ->> 'email') IN (SELECT email FROM public.admin_users)
 );
 
 -- Allow Admins to update images (UPDATE)
@@ -34,11 +34,11 @@ ON storage.objects FOR UPDATE
 TO authenticated
 USING (
     bucket_id = 'product-images' 
-    AND (auth.jwt() ->> 'email') IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com')
+    AND (auth.jwt() ->> 'email') IN (SELECT email FROM public.admin_users)
 )
 WITH CHECK (
     bucket_id = 'product-images' 
-    AND (auth.jwt() ->> 'email') IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com')
+    AND (auth.jwt() ->> 'email') IN (SELECT email FROM public.admin_users)
 );
 
 -- Allow Admins to delete images (DELETE)
@@ -47,5 +47,5 @@ ON storage.objects FOR DELETE
 TO authenticated
 USING (
     bucket_id = 'product-images' 
-    AND (auth.jwt() ->> 'email') IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com')
+    AND (auth.jwt() ->> 'email') IN (SELECT email FROM public.admin_users)
 );

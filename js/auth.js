@@ -7,7 +7,6 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxYXJvemt0dXZ6cnpoZmhoamJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NjQ3MjgsImV4cCI6MjA5MDM0MDcyOH0.f-JXg-R5cvyxvgNc3NvjO-aNjr706JrKkSqzNB1T6T0';
 
     var sbClient = null;
-    const ADMIN_EMAILS = ['admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com'];
 
     function initSupabase() {
         try {
@@ -56,7 +55,9 @@
         // 🔑 ON AUTH STATE CHANGE
         sbClient.auth.onAuthStateChange(function(event, session) {
             console.log('[AUTH] State changed:', event);
-            updateNavigationUI(session);
+            updateAdminState(session).then(() => {
+                updateNavigationUI(session);
+            });
             
             // Handle Recovery Switch
             if (event === 'PASSWORD_RECOVERY') {
@@ -88,8 +89,44 @@
         
         // Initial Nav Check
         sbClient.auth.getSession().then(function(resp) {
-            updateNavigationUI(resp.data.session);
+            updateAdminState(resp.data.session).then(() => {
+                updateNavigationUI(resp.data.session);
+            });
         });
+    }
+
+    // New: Admin State Management
+    window.userIsAdmin = false;
+
+    async function updateAdminState(session) {
+        if (!session || !session.user) {
+            window.userIsAdmin = false;
+            sessionStorage.removeItem('mosjid_is_admin');
+            return;
+        }
+
+        const email = session.user.email.toLowerCase().trim();
+        
+        // Check cache first
+        const cached = sessionStorage.getItem('mosjid_is_admin');
+        if (cached !== null) {
+            window.userIsAdmin = cached === 'true';
+            return;
+        }
+
+        try {
+            const { data, error } = await sbClient
+                .from('admin_users')
+                .select('email')
+                .eq('email', email)
+                .maybeSingle();
+            
+            window.userIsAdmin = !!data;
+            sessionStorage.setItem('mosjid_is_admin', window.userIsAdmin);
+        } catch (err) {
+            console.error('[AUTH] Admin check error:', err);
+            window.userIsAdmin = false;
+        }
     }
 
     function attachFormHandlers() {
@@ -222,10 +259,13 @@
     function updateNavigationUI(session) {
         if (typeof document === 'undefined') return;
         const navLink = document.getElementById('user-nav-icon');
+        const escape = window.escapeHTML || (s => s);
+
         if (navLink) {
             if (session) {
                 const name = (session.user.user_metadata && session.user.user_metadata.full_name) || 'Account';
-                navLink.innerHTML = `<button class="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-primary flex items-center gap-2 border border-slate-200 bg-white px-3 py-1.5 rounded-full"><span class="w-2 h-2 rounded-full bg-green-500"></span>${name.split(' ')[0]}</button>`;
+                const safeName = escape(name.split(' ')[0]);
+                navLink.innerHTML = `<button class="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-primary flex items-center gap-2 border border-slate-200 bg-white px-3 py-1.5 rounded-full"><span class="w-2 h-2 rounded-full bg-green-500"></span>${safeName}</button>`;
                 navLink.href = 'javascript:void(0)';
                 navLink.onclick = (e) => { e.preventDefault(); window.location.href = 'profile.html'; };
             } else {
@@ -260,8 +300,7 @@
         // Admin Link Logic - Targeting all instances to prevent duplication ghosting
         const adminDesktopLinks = document.querySelectorAll('#admin-nav-link');
         const adminMobileLinks = document.querySelectorAll('#mobile-admin-item');
-        const userEmail = session?.user?.email?.toLowerCase().trim();
-        const isAdmin = userEmail && ADMIN_EMAILS.includes(userEmail);
+        const isAdmin = window.userIsAdmin;
         
         adminDesktopLinks.forEach(link => {
             if (isAdmin) link.classList.remove('hidden');

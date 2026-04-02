@@ -17,22 +17,8 @@ ON public.news FOR SELECT
 USING (true);
 
 -- 4. Allow specific admins to insert, update, delete
--- Note: Replace with actual email checks or user roles
 CREATE POLICY "Admins can manage news" 
 ON public.news FOR ALL
-USING (
-    auth.jwt() ->> 'email' IN (
-        'admin@bakl.org', 
-        'fuadxeem@gmail.com', 
-        'fuad.bioinfo@icloud.com', 
-        'ahsan.tazbir@gmail.com'
-    )
-)
-WITH CHECK (
-    auth.jwt() ->> 'email' IN (
-        'admin@bakl.org', 
-        'fuadxeem@gmail.com', 
-        'fuad.bioinfo@icloud.com', 
-        'ahsan.tazbir@gmail.com'
-    )
-);
+TO authenticated
+USING (auth.jwt() ->> 'email' IN (SELECT email FROM public.admin_users))
+WITH CHECK (auth.jwt() ->> 'email' IN (SELECT email FROM public.admin_users));

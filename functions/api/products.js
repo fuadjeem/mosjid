@@ -1,3 +1,5 @@
+import { validateAdmin } from "./_utils.js";
+
 export async function onRequestGet({ env }) {
   const data = await env.STORE_KV.get('products', { type: 'json' });
   return new Response(JSON.stringify(data || []), {
@@ -6,7 +8,7 @@ export async function onRequestGet({ env }) {
 }
 
 export async function onRequestPost({ request, env }) {
-  if (request.headers.get("Authorization") !== "Bearer admin-validated-token") {
+  if (!(await validateAdmin(request, env))) {
     return new Response("Unauthorized", { status: 401 });
   }
   
@@ -19,7 +21,7 @@ export async function onRequestPost({ request, env }) {
 }
 
 export async function onRequestPut({ request, env }) {
-  if (request.headers.get("Authorization") !== "Bearer admin-validated-token") return new Response("Unauthorized", { status: 401 });
+  if (!(await validateAdmin(request, env))) return new Response("Unauthorized", { status: 401 });
   const updatedProduct = await request.json();
   const data = await env.STORE_KV.get('products', { type: 'json' }) || [];
   const idx = data.findIndex(p => p.id === updatedProduct.id);
@@ -32,7 +34,7 @@ export async function onRequestPut({ request, env }) {
 }
 
 export async function onRequestDelete({ request, env }) {
-  if (request.headers.get("Authorization") !== "Bearer admin-validated-token") return new Response("Unauthorized", { status: 401 });
+  if (!(await validateAdmin(request, env))) return new Response("Unauthorized", { status: 401 });
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   const data = await env.STORE_KV.get('products', { type: 'json' }) || [];

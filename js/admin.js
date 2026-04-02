@@ -8,7 +8,14 @@
     let editingProductId = null;
     let currentPage = 1;
     const itemsPerPage = 10;
-    const ADMIN_EMAILS = ['admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com'];
+    // Admin list is now database-driven via 'admin_users' table.
+
+    function escapeHTML(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
 
     // Wait for Supabase to be ready
     function initAdmin() {
@@ -38,10 +45,20 @@
         const isLoginPage = path.includes('admin.html') || path.endsWith('/admin');
 
         const { data: { session } } = await window.supabaseClient.auth.getSession();
-        const userEmail = session?.user?.email?.toLowerCase().trim();
-        const isAdmin = userEmail && ADMIN_EMAILS.includes(userEmail);
+        
+        // Wait for auth.js to finish admin check if it hasn't already
+        let isAdmin = window.userIsAdmin;
+        if (session && !isAdmin) {
+            // Re-verify if auth.js hasn't set it yet
+            const { data } = await window.supabaseClient
+                .from('admin_users')
+                .select('email')
+                .eq('email', session.user.email.toLowerCase().trim())
+                .maybeSingle();
+            isAdmin = !!data;
+        }
 
-        console.log('[Admin] Auth Status:', { path, email: userEmail, isAdmin: !!isAdmin });
+        console.log('[Admin] Auth session check...');
 
         if (!isAdmin && !isLoginPage) {
             console.warn('[Admin] Unauthorized access, redirecting...');
@@ -139,7 +156,7 @@
             if (catFilter) {
                 const cats = [...new Set(data.map(p => p.category))].filter(Boolean);
                 const current = catFilter.value;
-                catFilter.innerHTML = `<option>All Categories</option>` + cats.map(c => `<option>${c}</option>`).join('');
+                catFilter.innerHTML = `<option>All Categories</option>` + cats.map(c => `<option>${escapeHTML(c)}</option>`).join('');
                 if (cats.includes(current) || current === 'All Categories') catFilter.value = current;
             }
             renderInventory();
@@ -180,15 +197,20 @@
             if (daysDiff < 0) statusMarkup = `<div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-slate-400"></div><span class="text-xs font-semibold text-slate-400">Expired</span></div>`;
             else if (daysDiff <= 7) statusMarkup = `<div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-amber-500"></div><span class="text-xs font-semibold text-amber-600">Expiring Soon</span></div>`;
 
-            const isAvail = p.status === 'Available';
+            const safeName = escapeHTML(p.name);
+            const safeId = escapeHTML(p.id);
+            const shortId = escapeHTML(p.id.split('_').pop());
+            const safeCat = escapeHTML(p.category);
+            const safeExpiry = escapeHTML(p.expiry || 'N/A');
+
             tbody.innerHTML += `
                 <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-4 font-mono text-[10px] text-slate-400">#${p.id.split('_').pop()}</td>
+                    <td class="px-6 py-4 font-mono text-[10px] text-slate-400">#${shortId}</td>
                     <td class="px-6 py-4">
-                        <p class="text-sm font-bold text-slate-900">${p.name}</p>
-                        <p class="text-[10px] text-slate-400">Exp: ${p.expiry || 'N/A'}</p>
+                        <p class="text-sm font-bold text-slate-900">${safeName}</p>
+                        <p class="text-[10px] text-slate-400">Exp: ${safeExpiry}</p>
                     </td>
-                    <td class="px-6 py-4"><span class="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded-full uppercase">${p.category}</span></td>
+                    <td class="px-6 py-4"><span class="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded-full uppercase">${safeCat}</span></td>
                     <td class="px-6 py-4 text-center font-bold">€${Number(p.price).toFixed(2)}</td>
                     <td class="px-6 py-4 text-center">
                         <span class="${p.stock < 10 ? 'text-amber-600 font-bold' : ''}">${p.stock}</span>
@@ -196,8 +218,8 @@
                     <td class="px-6 py-4">${statusMarkup}</td>
                     <td class="px-6 py-4 text-right">
                         <div class="flex justify-end gap-2">
-                            <button onclick="editProduct('${p.id}')" class="p-1.5 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-md transition-all"><span class="material-symbols-outlined text-lg">edit</span></button>
-                            <button onclick="deleteProduct(null, '${p.id}')" class="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-md transition-all"><span class="material-symbols-outlined text-lg">delete</span></button>
+                            <button onclick="editProduct('${safeId}')" class="p-1.5 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-md transition-all"><span class="material-symbols-outlined text-lg">edit</span></button>
+                            <button onclick="deleteProduct(null, '${safeId}')" class="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-md transition-all"><span class="material-symbols-outlined text-lg">delete</span></button>
                         </div>
                     </td>
                 </tr>
@@ -326,13 +348,19 @@
         if (data) {
             tbody.innerHTML = data.map(o => {
                 const status = o.status || 'pending_delivery';
+                const safeId = escapeHTML(o.id);
+                const shortId = escapeHTML((o.id || '').split('-')[0]);
+                const safeCustomer = escapeHTML(o.delivery_info?.customer || 'Guest');
+                const safeTotal = Number(o.total_amount || 0).toFixed(2);
+                const safeDate = o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A';
+                
                 return `
-                <tr class="hover:bg-slate-50 border-b border-slate-50 cursor-pointer" onclick="viewOrder('${o.id}')" role="button" tabindex="0">
-                    <td class="px-6 py-4 text-primary font-bold">#${(o.id || '').split('-')[0]}</td>
-                    <td class="px-6 py-4 font-bold text-slate-900">${o.delivery_info?.customer || 'Guest'}</td>
-                    <td class="px-6 py-4 font-black text-slate-900">€${Number(o.total_amount || 0).toFixed(2)}</td>
-                    <td class="px-6 py-4 text-xs text-slate-500">${o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A'}</td>
-                    <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${status.toLowerCase() === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}">${status}</span></td>
+                <tr class="hover:bg-slate-50 border-b border-slate-50 cursor-pointer" onclick="viewOrder('${safeId}')" role="button" tabindex="0">
+                    <td class="px-6 py-4 text-primary font-bold">#${shortId}</td>
+                    <td class="px-6 py-4 font-bold text-slate-900">${safeCustomer}</td>
+                    <td class="px-6 py-4 font-black text-slate-900">€${safeTotal}</td>
+                    <td class="px-6 py-4 text-xs text-slate-500">${escapeHTML(safeDate)}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${status.toLowerCase() === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}">${escapeHTML(status)}</span></td>
                     <td class="px-6 py-4 text-right">
                         <button class="p-2 text-slate-400 hover:text-primary transition-colors">
                             <span class="material-symbols-outlined text-sm">visibility</span>
@@ -438,17 +466,24 @@
             if (items.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-slate-400">No items found.</td></tr>';
             } else {
-                tbody.innerHTML = items.map(item => `
+                tbody.innerHTML = items.map(item => {
+                    const safeProductName = escapeHTML(item.product_name);
+                    const safeProductId = escapeHTML(item.product_id);
+                    const safeQty = item.quantity;
+                    const safePrice = Number(item.price).toFixed(2);
+                    const safeSubtotal = (item.price * item.quantity).toFixed(2);
+                    
+                    return `
                     <tr>
                         <td class="px-6 py-4">
-                            <p class="text-sm font-bold text-slate-900">${item.product_name}</p>
-                            <p class="text-[10px] text-slate-400">ID: ${item.product_id}</p>
+                            <p class="text-sm font-bold text-slate-900">${safeProductName}</p>
+                            <p class="text-[10px] text-slate-400">ID: ${safeProductId}</p>
                         </td>
-                        <td class="px-6 py-4 text-center font-bold text-slate-600">${item.quantity}</td>
-                        <td class="px-6 py-4 text-right text-slate-400">€${Number(item.price).toFixed(2)}</td>
-                        <td class="px-6 py-4 text-right font-black text-slate-900">€${(item.price * item.quantity).toFixed(2)}</td>
+                        <td class="px-6 py-4 text-center font-bold text-slate-600">${safeQty}</td>
+                        <td class="px-6 py-4 text-right text-slate-400">€${safePrice}</td>
+                        <td class="px-6 py-4 text-right font-black text-slate-900">€${safeSubtotal}</td>
                     </tr>
-                `).join('');
+                `;}).join('');
             }
 
         } catch (err) {
