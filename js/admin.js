@@ -385,6 +385,114 @@
         }
     }
 
+    // --- Order Detail Logic ---
+    window.currentOrderId = null;
+
+    window.viewOrder = async (id) => {
+        window.currentOrderId = id;
+        const modal = document.getElementById('order-detail-modal');
+        if (!modal) return;
+
+        // Reset & Show Loading
+        document.getElementById('modal-order-id').innerText = '#' + id.split('-')[0];
+        document.getElementById('modal-order-items').innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-slate-400">Loading items...</td></tr>';
+        modal.classList.remove('hidden');
+        modal.classList.add('modal-active');
+
+        try {
+            // Fetch Order Details
+            const { data: order, error: orderErr } = await window.supabaseClient.from('orders').select('*').eq('id', id).single();
+            if (orderErr) throw orderErr;
+
+            // Populate Info
+            document.getElementById('modal-order-date').innerText = 'Placed on ' + new Date(order.created_at).toLocaleString();
+            document.getElementById('modal-customer-name').innerText = order.delivery_info?.customer || 'N/A';
+            document.getElementById('modal-customer-phone').innerText = order.delivery_info?.phone || 'N/A';
+            document.getElementById('modal-customer-address').innerText = order.delivery_info?.address || 'N/A';
+            document.getElementById('modal-order-total').innerText = '€' + Number(order.total_amount).toFixed(2);
+
+            // Handle "Delivered" button visibility
+            const deliveredBtn = document.getElementById('modal-delivered-btn');
+            if (deliveredBtn) {
+                if (order.status.toLowerCase() !== 'delivered') {
+                    deliveredBtn.classList.remove('hidden');
+                } else {
+                    deliveredBtn.classList.add('hidden');
+                }
+            }
+
+            // Fetch Order Items
+            const { data: items, error: itemsErr } = await window.supabaseClient.from('order_items').select('*').eq('order_id', id);
+            if (itemsErr) throw itemsErr;
+
+            // Populate Items Table
+            const tbody = document.getElementById('modal-order-items');
+            if (items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-slate-400">No items found.</td></tr>';
+            } else {
+                tbody.innerHTML = items.map(item => `
+                    <tr>
+                        <td class="px-6 py-4">
+                            <p class="text-sm font-bold text-slate-900">${item.product_name}</p>
+                            <p class="text-[10px] text-slate-400">ID: ${item.product_id}</p>
+                        </td>
+                        <td class="px-6 py-4 text-center font-bold text-slate-600">${item.quantity}</td>
+                        <td class="px-6 py-4 text-right text-slate-400">€${Number(item.price).toFixed(2)}</td>
+                        <td class="px-6 py-4 text-right font-black text-slate-900">€${(item.price * item.quantity).toFixed(2)}</td>
+                    </tr>
+                `).join('');
+            }
+
+        } catch (err) {
+            console.error("[Admin] View Order Fail:", err);
+            alert("❌ Failed to load order details: " + err.message);
+            closeOrderModal();
+        }
+    };
+
+    window.closeOrderModal = () => {
+        const modal = document.getElementById('order-detail-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('modal-active');
+        }
+        window.currentOrderId = null;
+    };
+
+    window.markAsDelivered = async (id) => {
+        if (!id) return;
+        if (!confirm('Confirm delivery for this order?')) return;
+
+        const btn = document.getElementById('modal-delivered-btn');
+        const originalText = btn.innerHTML;
+        
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">sync</span> Processing...';
+
+            const { error } = await window.supabaseClient.from('orders').update({ status: 'Delivered' }).eq('id', id);
+            if (error) throw error;
+
+            alert("✅ Order marked as Delivered.");
+            closeOrderModal();
+            
+            // Refresh Orders Table if on orders page
+            const ordersTbody = document.getElementById('orders-table-body');
+            if (ordersTbody) loadOrders(ordersTbody);
+
+        } catch (err) {
+            console.error("[Admin] Update Status Fail:", err);
+            alert("❌ Failed to update status: " + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    };
+
+    window.printInvoice = () => {
+        window.print();
+    };
+
     // Kickoff
     initAdmin();
 })();

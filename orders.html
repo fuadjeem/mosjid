@@ -529,7 +529,7 @@
                 <div class="mb-10">
                     <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 px-1">Purchased Items
                     </h3>
-                    <div class="overflow-hidden border border-slate-100 rounded-xl">
+                    <div class="overflow-x-auto border border-slate-100 rounded-xl">
                         <table class="w-full text-left">
                             <thead class="bg-slate-50 text-slate-500 font-bold text-[10px] uppercase tracking-wider">
                                 <tr>
@@ -563,11 +563,13 @@
             </div>
 
             <!-- Modal Action Footer -->
-            <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 no-print">
-                <button onclick="closeOrderModal()"
-                    class="px-6 py-2.5 text-slate-600 font-bold text-sm hover:bg-slate-200 rounded-xl transition-all">Close</button>
-                <button onclick="printInvoice()"
-                    class="px-6 py-2.5 bg-primary text-white font-bold text-sm rounded-xl shadow-xl shadow-primary/20 hover:opacity-90 transition-opacity flex items-center gap-2">
+            <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-wrap justify-end gap-3 no-print">
+                <button id="modal-delivered-btn" onclick="markAsDelivered(currentOrderId)" class="hidden px-6 py-2.5 bg-green-600 text-white font-bold text-sm rounded-xl shadow-xl shadow-green-900/20 hover:bg-green-700 transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">check_circle</span>
+                    Mark as Delivered
+                </button>
+                <button onclick="closeOrderModal()" class="px-6 py-2.5 text-slate-600 font-bold text-sm hover:bg-slate-200 rounded-xl transition-all">Close</button>
+                <button onclick="printInvoice()" class="px-6 py-2.5 bg-primary text-white font-bold text-sm rounded-xl shadow-xl shadow-primary/20 hover:opacity-90 transition-opacity flex items-center gap-2">
                     <span class="material-symbols-outlined text-sm">print</span>
                     Print Invoice
                 </button>
