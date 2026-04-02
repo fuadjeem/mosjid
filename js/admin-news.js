@@ -57,12 +57,18 @@ async function setupNewsImageUpload() {
 
 async function loadNews() {
     try {
-        const res = await fetch('/api/news');
-        allNews = await res.json();
+        const { data, error } = await window.supabaseClient
+            .from('news')
+            .select('*')
+            .order('date', { ascending: false });
+            
+        if (error) throw error;
+        
+        allNews = data || [];
         renderNews(allNews);
     } catch (e) {
         console.error("Failed to load news", e);
-        document.getElementById('news-grid').innerHTML = '<p class="col-span-full">Failed to load news</p>';
+        document.getElementById('news-grid').innerHTML = '<p class="col-span-full text-center text-error py-12">Failed to load news from Supabase.</p>';
     }
 }
 
@@ -118,57 +124,50 @@ async function saveNews() {
         return;
     }
     
-    const { data: { session } } = await window.supabaseClient.auth.getSession();
-    const token = session?.access_token;
-    if (!token) { alert("Session expired. Please login again."); return; }
-    
-    const payload = { title, date, content, image_url: imageUrl || null };
-    let method = 'POST';
+    const payload = { 
+        title, 
+        date, 
+        content, 
+        image_url: imageUrl || null 
+    };
+
     if (id) {
         payload.id = id;
-        method = 'PUT';
     }
     
     try {
-        const res = await fetch('/api/news', {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify(payload)
-        });
-        
-        if (res.ok) {
-            document.getElementById('add-news-modal').classList.add('hidden');
-            loadNews();
-        } else {
-            console.error("Save failed");
-            alert("Failed to save announcement.");
+        const { data, error } = await window.supabaseClient
+            .from('news')
+            .upsert(payload);
+            
+        if (error) {
+            console.error("Supabase Save Error:", error);
+            throw error;
         }
+        
+        document.getElementById('add-news-modal').classList.add('hidden');
+        loadNews();
+        alert(id ? "Announcement updated!" : "Announcement added!");
     } catch(e) {
         console.error(e);
+        alert("Failed to save announcement: " + (e.message || "Unknown error"));
     }
 }
 
 async function deleteNews(id) {
     if (!confirm('Are you sure you want to delete this announcement?')) return;
     
-    const { data: { session } } = await window.supabaseClient.auth.getSession();
-    const token = session?.access_token;
-    if (!token) return;
     try {
-        const res = await fetch('/api/news?id=' + encodeURIComponent(id), {
-            method: 'DELETE',
-            headers: { 'Authorization': 'Bearer ' + token }
-        });
+        const { error } = await window.supabaseClient
+            .from('news')
+            .delete()
+            .eq('id', id);
+            
+        if (error) throw error;
         
-        if (res.ok) {
-            loadNews();
-        } else {
-            alert('Failed to delete.');
-        }
+        loadNews();
     } catch(e) {
         console.error(e);
+        alert('Failed to delete: ' + (e.message || "Unknown error"));
     }
 }
