@@ -27,7 +27,15 @@
             const isCallback = window.location.hash.includes('access_token=') || 
                                window.location.hash.includes('type=recovery');
             if (hasSession || isCallback) {
-                document.getElementById('auth-sync-overlay').style.display = 'flex';
+                const overlay = document.getElementById('auth-sync-overlay');
+                overlay.style.display = 'flex';
+                // Safety Timeout: If redirect doesn't happen in 3s, show the form
+                setTimeout(() => {
+                    if (overlay.style.display === 'flex') {
+                        overlay.style.display = 'none';
+                        console.warn('[AUTH] Sync timeout - showing form.');
+                    }
+                }, 3000);
             }
         })();
     </script>

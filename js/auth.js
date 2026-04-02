@@ -7,16 +7,64 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 // --- Init client with a UNIQUE name ---
 var sbClient = null;
-try {
-    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        sbClient = window.supabaseClient; // Alias for backward compatibility
-        console.log('[auth.js] Supabase client initialized via window.supabaseClient');
-    } else {
-        console.error('[auth.js] window.supabase is UNDEFINED. UMD script not loaded correctly.');
+function initSupabase() {
+    try {
+        if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+            if (!window.supabaseClient) {
+                window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+            sbClient = window.supabaseClient;
+            console.log('[auth.js] Supabase client initialized (V6_STABLE)');
+            setupAuthListeners();
+            return true;
+        }
+    } catch (e) {
+        console.error('[auth.js] Supabase init error:', e);
     }
-} catch (e) {
-    console.error('[auth.js] Supabase init FAILED:', e);
+    return false;
+}
+
+// Retry initialization if script isn't ready
+if (!initSupabase()) {
+    var retryCount = 0;
+    var retryInterval = setInterval(function() {
+        retryCount++;
+        if (initSupabase() || retryCount > 50) {
+            clearInterval(retryInterval);
+            if (retryCount > 50) console.error('[auth.js] Supabase failed to load after 5s');
+        }
+    }, 100);
+}
+
+function setupAuthListeners() {
+    if (!sbClient) return;
+
+    sbClient.auth.onAuthStateChange(function(event, session) {
+        console.log('[AUTH] State changed:', event);
+        updateNavigationUI(session);
+        
+        // Auto-redirect if on login/register page and signed in
+        const path = window.location.pathname.toLowerCase();
+        const isAuthPage = path.includes('login') || path.includes('register');
+        
+            if (session && isAuthPage) {
+                console.log('[AUTH] Redirecting to index (onAuthStateChange)...');
+                window.location.replace(window.location.origin + '/index.html');
+            }
+        });
+    
+        sbClient.auth.getSession().then(function(resp) {
+            var session = resp.data.session;
+            updateNavigationUI(session);
+            
+            const path = window.location.pathname.toLowerCase();
+            const isAuthPage = path.includes('login') || path.includes('register');
+            
+            if (session && isAuthPage) {
+                console.log('[AUTH] Redirecting to index (getSession)...');
+                window.location.replace(window.location.origin + '/index.html');
+            }
+        });
 }
 
 // --- Helper: show a message ---
@@ -131,36 +179,9 @@ if (resetForm) {
     });
 }
 
-// ===== NAV UI UPDATER =====
-if (sbClient) {
-    sbClient.auth.onAuthStateChange(function(event, session) {
-        updateNavigationUI(session);
-        
-        // Auto-redirect if on login/register page and signed in
-        const path = window.location.pathname;
-        const isAuthPage = path.includes('login') || path.includes('register');
-        
-        if (session && isAuthPage) {
-            console.log('[AUTH] User already signed in. Redirecting to home...');
-            window.location.href = '/index.html';
-        }
-    });
-
-    sbClient.auth.getSession().then(function(resp) {
-        var session = resp.data.session;
-        updateNavigationUI(session);
-        
-        const path = window.location.pathname;
-        const isAuthPage = path.includes('login') || path.includes('register');
-        
-        // Initial check for session on login/register pages
-        if (session && isAuthPage) {
-            window.location.href = '/index.html';
-        }
-    });
-}
-
+// ===== NAV UI UPDATER (MOVED TO setupAuthListeners) =====
 function updateNavigationUI(session) {
+    if (typeof document === 'undefined') return;
     // Desktop Account Icon Logic
     var navLink = document.getElementById('user-nav-icon');
     if (navLink) {
