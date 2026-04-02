@@ -248,14 +248,13 @@
         // Orders Link Logic
         const ordersLink = document.getElementById('orders-nav-link');
         const mobileOrders = document.getElementById('mobile-orders-item');
+        
         if (ordersLink) {
-            if (session) {
-                ordersLink.href = 'orders.html';
-                ordersLink.onclick = null;
-            } else {
-                ordersLink.href = 'login.html';
-                ordersLink.onclick = null;
-            }
+            ordersLink.href = session ? 'profile.html#orders' : 'login.html';
+        }
+        
+        if (mobileOrders) {
+            mobileOrders.href = session ? 'profile.html#orders' : 'login.html';
         }
         
         // Admin Link Logic
