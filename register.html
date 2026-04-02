@@ -14,6 +14,20 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col items-center justify-center p-4">
+    <!-- Instant Auth Check: Hide UI if already logged in or coming back from OAuth -->
+    <script>
+        (function() {
+            const hasSession = localStorage.getItem('supabase.auth.token') || 
+                               localStorage.getItem('sb-hqarozktuvzrzhfhhjbd-auth-token');
+            const isCallback = window.location.hash.includes('access_token=') || 
+                               window.location.hash.includes('type=recovery');
+            if (hasSession || isCallback) {
+                document.write('<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#f9f9ff;display:flex;align-items:center;justify-center:center;z-index:9999;font-family:Inter,sans-serif;font-weight:600;color:#005bbf;flex-direction:column;gap:15px;display:flex;"><div style="width:40px;height:40px;border:4px solid #ecedf7;border-top:4px solid #005bbf;border-radius:50%;animation:spin 1s linear infinite;"></div><p>Synchronizing Session...</p></div><style>@keyframes spin {0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}</style>');
+                document.documentElement.style.display = 'none';
+                setTimeout(() => { document.documentElement.style.display = 'block'; }, 100);
+            }
+        })();
+    </script>
 
     <a href="/login.html" class="absolute top-8 left-8 flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
         <span class="material-symbols-outlined text-sm">arrow_back</span>
