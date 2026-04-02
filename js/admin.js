@@ -324,16 +324,23 @@
         if (!tbody) return;
         const { data, error } = await window.supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
         if (data) {
-            tbody.innerHTML = data.map(o => `
-                <tr class="hover:bg-slate-50 border-b border-slate-50">
-                    <td class="px-6 py-4"><button onclick="viewOrder('${o.id}')" class="text-primary font-bold">#${o.id.split('-')[0]}</button></td>
-                    <td class="px-6 py-4 font-bold">${o.delivery_info?.customer || 'Guest'}</td>
-                    <td class="px-6 py-4 font-black">€${Number(o.total_amount).toFixed(2)}</td>
-                    <td class="px-6 py-4 text-xs">${new Date(o.created_at).toLocaleDateString()}</td>
-                    <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-slate-100">${o.status}</span></td>
-                    <td class="px-6 py-4 text-right"><button onclick="viewOrder('${o.id}')" class="p-2 text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-sm">visibility</span></button></td>
+            tbody.innerHTML = data.map(o => {
+                const status = o.status || 'pending_delivery';
+                return `
+                <tr class="hover:bg-slate-50 border-b border-slate-50 cursor-pointer" onclick="viewOrder('${o.id}')" role="button" tabindex="0">
+                    <td class="px-6 py-4 text-primary font-bold">#${(o.id || '').split('-')[0]}</td>
+                    <td class="px-6 py-4 font-bold text-slate-900">${o.delivery_info?.customer || 'Guest'}</td>
+                    <td class="px-6 py-4 font-black text-slate-900">€${Number(o.total_amount || 0).toFixed(2)}</td>
+                    <td class="px-6 py-4 text-xs text-slate-500">${o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A'}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${status.toLowerCase() === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}">${status}</span></td>
+                    <td class="px-6 py-4 text-right">
+                        <button class="p-2 text-slate-400 hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined text-sm">visibility</span>
+                        </button>
+                    </td>
                 </tr>
-            `).join('');
+                `;
+            }).join('');
             updateOrderDashboardStats(data);
         }
     }
@@ -414,7 +421,8 @@
             // Handle "Delivered" button visibility
             const deliveredBtn = document.getElementById('modal-delivered-btn');
             if (deliveredBtn) {
-                if (order.status.toLowerCase() !== 'delivered') {
+                const currentStatus = (order.status || '').toLowerCase();
+                if (currentStatus !== 'delivered') {
                     deliveredBtn.classList.remove('hidden');
                 } else {
                     deliveredBtn.classList.add('hidden');
