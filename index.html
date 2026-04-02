@@ -215,7 +215,16 @@
           বাজার করলেই পাচ্ছেন ফ্রি হোম ডেলিভারি সুবিধা (শুধুমাত্র লিন্জ শহরের জন্য)।</p>
       </div>
       <!-- Product Grid -->
-      <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
+      <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <!-- Initially empty or populated by skeletons -->
+      </div>
+      <!-- Load More Button -->
+      <div id="load-more-container" class="mt-12 flex justify-center hidden">
+        <button id="load-more-btn" class="px-8 py-3 bg-white border border-outline-variant/30 text-primary font-bold rounded-full shadow-sm hover:shadow-md hover:bg-slate-50 transition-all active:scale-95 flex items-center gap-2">
+          <span>Load More Products</span>
+          <span class="material-symbols-outlined text-sm">expand_more</span>
+        </button>
+      </div>
     </main>
   </div>
   <!-- Footer -->

@@ -31,12 +31,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     updateCartIcon();
+    
+    // 3. Load More setup
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', () => {
+            window.visibleCount += 20;
+            renderProductGrid(productGrid, window.filteredProducts || window.allProducts);
+        });
+    }
 });
 
 
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
 window.allProducts = [];
+window.filteredProducts = [];
+window.visibleCount = 20;
+
+function renderSkeletons(grid) {
+    const skeleton = `
+        <div class="bg-surface-container-lowest rounded-xl p-6 flex flex-col shadow-sm border border-transparent animate-pulse">
+            <div class="w-full h-40 bg-surface-container-high rounded-md mb-4"></div>
+            <div class="h-4 bg-surface-container-high rounded w-3/4 mb-2"></div>
+            <div class="h-3 bg-surface-container-low rounded w-1/2 mb-4"></div>
+            <div class="mt-auto h-10 bg-surface-container-high rounded-lg"></div>
+        </div>
+    `;
+    grid.innerHTML = Array(8).fill(skeleton).join('');
+}
 
 async function loadProducts(grid) {
     try {
@@ -44,6 +67,9 @@ async function loadProducts(grid) {
             console.error("Supabase client not initialized.");
             return;
         }
+        
+        renderSkeletons(grid);
+
         const { data: products, error } = await window.supabaseClient
             .from('products')
             .select('*')
@@ -159,8 +185,7 @@ function applyFilters() {
         
         return true;
     });
-    
-    // Sort
+       // Sort
     const sortSelect = document.getElementById('sort-select');
     const sortVal = sortSelect ? sortSelect.value : 'default';
     if (sortVal === 'price-asc') filtered.sort((a,b) => (Number(a.price)||0) - (Number(b.price)||0));
@@ -179,16 +204,22 @@ function applyFilters() {
         breadcrumb.innerHTML = path;
     }
     
+    window.filteredProducts = filtered;
+    window.visibleCount = 20; // Reset pagination on data change
     renderProductGrid(grid, filtered);
 }
 
 function renderProductGrid(grid, products) {
-    grid.innerHTML = '';
     if(products.length === 0) {
         grid.innerHTML = '<p class="text-on-surface-variant col-span-full text-center py-8">No products found matching your active filters.</p>';
+        const lmContainer = document.getElementById('load-more-container');
+        if (lmContainer) lmContainer.classList.add('hidden');
         return;
     }
-    products.forEach(p => {
+
+    const showItems = products.slice(0, window.visibleCount);
+    
+    const html = showItems.map(p => {
         // Expiry logic: <= 7 days yellow, expired red
         const expiryDate = new Date(p.expiry);
         const today = new Date();
@@ -202,22 +233,20 @@ function renderProductGrid(grid, products) {
         let btnDisabled = '';
         
         if (p.status !== 'Available' || (!isNaN(daysDiff) && daysDiff < 0) || Number(p.stock) === 0) {
-            // Out of stock or Expired
             statusTag = `<span class="bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">${p.status !== 'Available' || Number(p.stock) === 0 ? 'Out of Stock' : 'Expired'}</span>`;
             cardClass = 'bg-surface-container-low opacity-60 grayscale';
             btnClass = 'bg-surface-variant text-on-surface-variant cursor-not-allowed opacity-70';
             btnText = 'Available Soon';
             btnDisabled = 'disabled';
         } else if (!isNaN(daysDiff) && daysDiff <= 7) {
-            // Warning
             statusTag = `<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Warning</span>`;
         }
         
         const imgBlock = p.image_url ? 
-            `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover">` : 
+            `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" loading="lazy">` : 
             `<span class="material-symbols-outlined text-4xl text-outline border border-dashed border-outline-variant/50 p-6 rounded-lg bg-surface">image</span>`;
 
-        grid.innerHTML += `
+        return `
         <div class="${cardClass} rounded-xl p-6 flex flex-col transition-all shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] border border-transparent hover:border-outline-variant/20">
             <div class="w-full h-40 bg-surface-container-high rounded-md mb-4 flex items-center justify-center overflow-hidden">
                 ${imgBlock}
@@ -241,11 +270,23 @@ function renderProductGrid(grid, products) {
                     </div>
                 </div>
                 <div>
-                    <button class="${btnClass} w-full py-3 text-white rounded-lg text-sm font-bold border-none block" ${btnDisabled} onclick="addToCart('${p.id}', '${p.name.replace("'", "\\'")}', ${p.price})">${btnText}</button>
+                    <button class="${btnClass} w-full py-3 text-white rounded-lg text-sm font-bold border-none block" ${btnDisabled} onclick="addToCart('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price})">${btnText}</button>
                 </div>
             </div>
         </div>`;
-    });
+    }).join('');
+
+    grid.innerHTML = html;
+
+    // Toggle Load More button
+    const lmContainer = document.getElementById('load-more-container');
+    if (lmContainer) {
+        if (products.length > window.visibleCount) {
+            lmContainer.classList.remove('hidden');
+        } else {
+            lmContainer.classList.add('hidden');
+        }
+    }
 }
 
 window.addToCart = (id, name, price) => {
