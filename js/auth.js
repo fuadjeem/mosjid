@@ -6,6 +6,7 @@ const SUPABASE_URL = 'https://hqarozktuvzrzhfhhjbd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxYXJvemt0dXZ6cnpoZmhoamJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NjQ3MjgsImV4cCI6MjA5MDM0MDcyOH0.f-JXg-R5cvyxvgNc3NvjO-aNjr706JrKkSqzNB1T6T0';
 
 var sbClient = null;
+const ADMIN_EMAILS = ['admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com'];
 
 function initSupabase() {
     try {
@@ -98,14 +99,22 @@ function attachFormHandlers() {
             const email = document.getElementById('login-email').value.trim();
             const pass = document.getElementById('login-password').value;
             const btn = document.getElementById('login-btn');
+            
             if (btn) { btn.disabled = true; btn.textContent = 'Signing in...'; }
-            const { error } = await sbClient.auth.signInWithPassword({ email, password: pass });
-            if (error) {
-                showMsg('login-msg', error.message, true);
+            
+            try {
+                const { error } = await sbClient.auth.signInWithPassword({ email, password: pass });
+                if (error) {
+                    showMsg('login-msg', error.message, true);
+                    if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
+                } else {
+                    showMsg('login-msg', '✅ Success!', false);
+                    window.location.href = '/index.html';
+                }
+            } catch (err) {
+                console.error('[AUTH] Login Exception:', err);
+                showMsg('login-msg', 'An unexpected error occurred.', true);
                 if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
-            } else {
-                showMsg('login-msg', '✅ Success!', false);
-                window.location.href = '/index.html';
             }
             return false;
         };
@@ -121,17 +130,31 @@ function attachFormHandlers() {
             const pass = document.getElementById('reg-password').value;
             const btn = document.getElementById('register-btn');
             if (btn) { btn.disabled = true; btn.textContent = 'Creating...'; }
-            const { error } = await sbClient.auth.signUp({ 
-                email, 
-                password: pass, 
-                options: { data: { full_name: name } } 
-            });
-            if (error) {
-                showMsg('register-msg', error.message, true);
-                if (btn) { btn.disabled = false; btn.textContent = 'Create Account'; }
-            } else {
-                showMsg('register-msg', '✅ Account created!', false);
-                window.location.href = '/index.html';
+            
+            try {
+                const { error } = await sbClient.auth.signUp({ 
+                    email, 
+                    password: pass, 
+                    options: { data: { full_name: name } }
+                });
+                if (error) {
+                    showMsg('register-msg', error.message, true);
+                    if (btn) { btn.disabled = false; btn.textContent = 'Create Account'; }
+                } else {
+                    showMsg('register-msg', '✅ Account created!', false);
+                    window.location.href = '/index.html';
+                }
+            } catch (err) {
+                console.error('[Admin] Unexpected Exception:', err);
+                const errorContainer = document.getElementById('register-msg');
+                if (errorContainer) {
+                    errorContainer.textContent = 'A system error occurred. Please try again.';
+                    errorContainer.classList.remove('hidden');
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Create Account';
+                }
             }
             return false;
         };
@@ -227,18 +250,25 @@ function updateNavigationUI(session) {
     }
     
     // Orders Link Logic
-    const ordersLink = document.getElementById('orders-nav-link');
-    if (ordersLink) {
-        if (session) {
-            ordersLink.href = 'javascript:void(0)';
-            ordersLink.onclick = (e) => { 
-                e.preventDefault(); 
-                window.location.href = '/profile.html#orders';
-            };
         } else {
             ordersLink.href = '/login.html';
             ordersLink.onclick = null;
         }
+    }
+    
+    // Admin Link Logic (New: Auto-reveal Dashboard)
+    const adminDesktop = document.getElementById('admin-nav-link');
+    const adminMobile = document.getElementById('mobile-admin-item');
+    const userEmail = session?.user?.email?.toLowerCase().trim();
+    const isAdmin = userEmail && ADMIN_EMAILS.includes(userEmail);
+    
+    if (adminDesktop) {
+        if (isAdmin) adminDesktop.classList.remove('hidden');
+        else adminDesktop.classList.add('hidden');
+    }
+    if (adminMobile) {
+        if (isAdmin) adminMobile.classList.remove('hidden');
+        else adminMobile.classList.add('hidden');
     }
 }
 
