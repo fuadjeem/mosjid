@@ -69,16 +69,16 @@ async function loadLatestNews() {
 
         const hasImage = !!news.image_url;
         container.innerHTML = `
-            <div class="group relative bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 hover:shadow-lg transition-all duration-300 cursor-pointer" onclick="window.location.href='news.html'">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div class="flex flex-col gap-1 overflow-hidden">
+            <div class="group relative bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden max-w-full" onclick="window.location.href='news.html'">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 min-w-0">
+                    <div class="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                         <div class="flex items-center gap-2 mb-1">
-                            <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">সর্বশেষ সংবাদ</span>
+                            <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse shrink-0"></span>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 truncate">সর্বশেষ সংবাদ</span>
                         </div>
                         <h2 class="text-base sm:text-lg font-black text-slate-900 group-hover:text-primary transition-colors truncate">${news.title}</h2>
                     </div>
-                    <a href="news.html" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-xs hover:bg-primary transition-all shrink-0">
+                    <a href="news.html" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-xs hover:bg-primary transition-all shrink-0 sm:w-auto w-full">
                         আরও পড়ুন
                         <span class="material-symbols-outlined text-sm">arrow_forward</span>
                     </a>
