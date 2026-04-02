@@ -12,6 +12,19 @@
     </script>
     <style>body { font-family: 'Inter', sans-serif; background-color: #f9f9ff; }</style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+        // High-Priority Mobile Redirection (Master Fix for Chrome Mobile)
+        (function() {
+            const h = window.location.hash;
+            const p = window.location.pathname.toLowerCase();
+            const isAuth = p.includes('login') || p.includes('register');
+            // If we land on login/register with a hash (access_token or any), JUMP to index immediately
+            // index.html will handle the session parsing instead of staying on the login page.
+            if (h && (h.includes('access_token=') || h.includes('type=recovery')) && isAuth) {
+                window.location.replace(window.location.origin + '/index.html' + h);
+            }
+        })();
+    </script>
 </head>
 <body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col items-center justify-center p-4">
     <!-- Instant Auth Check: Show loader if session exists -->
