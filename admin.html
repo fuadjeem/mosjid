@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="js/auth.js"></script>
     <script id="tailwind-config">
       tailwind.config = {
         darkMode: "class",
@@ -100,7 +99,7 @@
 <h1 class="text-3xl font-bold tracking-tight text-on-surface">Admin Login</h1>
 <p class="text-on-surface-variant text-sm font-medium">Enter your credentials to access the management console.</p>
 </div>
-<form class="space-y-6">
+<form id="admin-login-form" class="space-y-6">
 <div class="space-y-1.5">
 <label class="block text-xs font-bold uppercase tracking-widest text-outline" for="admin-email">Administrator Email</label>
 <div class="relative group">
@@ -138,8 +137,6 @@
                 </button>
             </div>
 </form>
-<script src="/js/auth.js"></script>
-<script src="/js/admin.js"></script>
 <div class="flex items-center gap-4 py-2">
 <div class="h-px flex-grow bg-surface-container-high"></div>
 <span class="text-[10px] font-bold text-outline uppercase tracking-[0.2em]">Security Protocol</span>
@@ -175,5 +172,6 @@
             © 2024 Bangladeschi Asiatische Kulturzentrum linz. High-performance utility.
         </p>
 </footer>
-<script src="js/admin.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/admin.js"></script>
 </body></html>

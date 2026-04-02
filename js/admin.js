@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Login Submission
-    const loginForm = document.querySelector('form');
+    const loginForm = document.getElementById('admin-login-form');
     const errorContainer = document.getElementById('error-msg');
 
     if (loginForm && isLoginPage) {
