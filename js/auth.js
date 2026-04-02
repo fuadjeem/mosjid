@@ -43,11 +43,21 @@ function setupAuthListeners() {
         console.log('[AUTH] State changed:', event);
         updateNavigationUI(session);
         
+        // 🔑 HANDLE PASSWORD RECOVERY
+        if (event === 'PASSWORD_RECOVERY') {
+            const updateContainer = document.getElementById('update-password-container');
+            const requestContainer = document.getElementById('request-reset-container');
+            if (updateContainer && requestContainer) {
+                updateContainer.classList.remove('hidden');
+                requestContainer.classList.add('hidden');
+            }
+        }
+
         // Auto-redirect if on login/register page and signed in
         const path = window.location.pathname.toLowerCase();
         const isAuthPage = path.includes('login') || path.includes('register');
         
-            if (session && isAuthPage) {
+        if (session && isAuthPage && event !== 'PASSWORD_RECOVERY') {
             console.log('[AUTH] Redirecting to index (onAuthStateChange)...');
             window.location.replace(window.location.origin + '/index.html');
         }
@@ -178,15 +188,41 @@ if (resetForm) {
             });
             if (result.error) {
                 showMsg('reset-msg', result.error.message, true);
+                if (btn) { btn.disabled = false; btn.textContent = 'Send Reset Link'; }
             } else {
-                showMsg('reset-msg', '✅ Check your email for a password reset link!', false);
+                showMsg('reset-msg', '✅ Link sent! Please check your email inbox.', false);
             }
         } catch (err) {
             showMsg('reset-msg', 'Error: ' + err.message, true);
+            if (btn) { btn.disabled = false; btn.textContent = 'Send Reset Link'; }
         }
-        if (btn) { btn.disabled = false; btn.textContent = 'Send Reset Link'; }
     });
 }
+
+// ===== UPDATE PASSWORD FORM (Recovery) =====
+window.updatePassword = async function() {
+    if (!sbClient) return;
+    const newPass = document.getElementById('new-password').value;
+    const btn = document.getElementById('update-btn');
+    if (!newPass) { showMsg('update-msg', 'Please enter a password.', true); return; }
+    if (newPass.length < 6) { showMsg('update-msg', 'Password must be at least 6 characters.', true); return; }
+    
+    if (btn) { btn.disabled = true; btn.textContent = 'Updating...'; }
+    
+    try {
+        const { error } = await sbClient.auth.updateUser({ password: newPass });
+        if (error) {
+            showMsg('update-msg', error.message, true);
+            if (btn) { btn.disabled = false; btn.textContent = 'Update Password'; }
+        } else {
+            showMsg('update-msg', '✅ Password updated! Logging you in...', false);
+            setTimeout(function() { window.location.href = '/index.html'; }, 1500);
+        }
+    } catch (err) {
+        showMsg('update-msg', 'Error: ' + err.message, true);
+        if (btn) { btn.disabled = false; btn.textContent = 'Update Password'; }
+    }
+};
 
 // ===== NAV UI UPDATER (MOVED TO setupAuthListeners) =====
 function updateNavigationUI(session) {
