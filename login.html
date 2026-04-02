@@ -53,17 +53,6 @@
 </head>
 <body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col items-center justify-center p-4">
     <!-- Instant Auth Check: Hide UI if already logged in or coming back from OAuth -->
-    <script>
-        (function() {
-            const hasSession = localStorage.getItem('supabase.auth.token') || 
-                               localStorage.getItem('sb-hqarozktuvzrzhfhhjbd-auth-token');
-            const isCallback = window.location.hash.includes('access_token=') || 
-                               window.location.hash.includes('type=recovery');
-            if (hasSession || isCallback) {
-                document.body.style.display = 'none';
-            }
-        })();
-    </script>
     <!-- Instant Auth Check: Show loader if session exists -->
     <div id="auth-sync-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#f9f9ff;z-index:9999;flex-direction:column;align-items:center;justify-content:center;font-family:Inter,sans-serif;font-weight:600;color:#005bbf;gap:15px;">
         <div style="width:40px;height:40px;border:4px solid #ecedf7;border-top:4px solid #005bbf;border-radius:50%;animation:spin 1s linear infinite;"></div>
