@@ -138,11 +138,11 @@
             <a class="text-slate-500 hover:text-slate-900 transition-all active:scale-95 cursor-pointer" id="orders-nav-link"
                 href="login.html">My Orders</a>
         </nav>
-        </div>
-        <span
-            class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-primary transition-colors">notifications</span>
-        <a href="login.html" id="user-nav-icon"><span
-                class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-primary transition-colors">account_circle</span></a>
+        <div class="flex items-center gap-4">
+            <span class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-primary transition-colors">notifications</span>
+            <a href="login.html" id="user-nav-icon">
+                <span class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-primary transition-colors">account_circle</span>
+            </a>
         </div>
     </header>
     <div class="flex pt-16 min-h-screen relative">
@@ -171,20 +171,23 @@
             </a>
     </div>
     </aside>
-    <!-- Main Content -->
-    <main class="flex-1 md:ml-64 p-8 bg-surface">
-        <!-- Header Section -->
-        <div class="mb-12">
-            <div id="breadcrumb" class="text-xs font-medium text-outline mb-4">Home <span
-                    class="mx-1 text-outline-variant">/</span> News & Announcements</div>
-            <h1 class="text-3xl font-extrabold tracking-tighter text-on-surface mb-2">খবর এবং আপডেট</h1>
-            <p class="text-on-surface-variant text-sm max-w-2xl">আমাদের সকল নতুন খবর, আপডেট এবং নোটিশ এখানে পাবেন।</p>
-        </div>
-        <!-- News Grid -->
-        <div id="news-grid" class="flex flex-col gap-6 max-w-4xl mx-auto">
-            <div class="py-12 text-center text-outline">Loading announcements...</div>
-        </div>
-    </main>
+        <!-- Main Content -->
+        <main class="flex-1 md:ml-64 p-4 md:p-8 bg-surface">
+            <!-- Header Section -->
+            <div class="mb-8">
+                <div id="breadcrumb" class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Home / Announcements</div>
+                <h1 class="text-3xl font-black tracking-tight text-on-surface">Community News</h1>
+                <p class="text-on-surface-variant text-sm mt-1">Latest updates and announcements from Mosjid.</p>
+            </div>
+
+            <!-- News Hero Section (Injecting via JS) -->
+            <div id="news-hero-container" class="mb-10"></div>
+
+            <!-- News Grid -->
+            <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div class="py-12 text-center text-outline">Loading announcements...</div>
+            </div>
+        </main>
     </div>
     <!-- Footer -->
     <footer
@@ -205,33 +208,6 @@
         </div>
     </footer>
     <!-- Mobile Navigation Shell -->
-    <div
-        class="md:hidden fixed bottom-0 left-0 w-full bg-slate-50/90 backdrop-blur-lg flex justify-around items-center py-4 border-t border-slate-200 z-50">
-        <a href="index.html" class="flex flex-col items-center text-slate-400">
-            <span class="material-symbols-outlined">home</span>
-            <span class="text-[10px] font-bold uppercase tracking-tighter">Home</span>
-        </a>
-        <a href="news.html" class="flex flex-col items-center text-blue-700">
-            <span class="material-symbols-outlined">newspaper</span>
-            <span class="text-[10px] font-bold uppercase tracking-tighter">News</span>
-        </a>
-        <button id="mobile-filter-btn" class="flex flex-col items-center text-slate-400">
-            <span class="material-symbols-outlined">filter_list</span>
-            <span class="text-[10px] font-bold uppercase tracking-tighter">Filters</span>
-        </button>
-        <a href="cart.html" class="flex flex-col items-center text-slate-400">
-            <span class="material-symbols-outlined">shopping_cart</span>
-            <span class="text-[10px] font-bold uppercase tracking-tighter">Cart</span>
-        </a>
-        <a id="mobile-admin-item" href="admin.html" class="hidden flex flex-col items-center text-red-600">
-            <span class="material-symbols-outlined">admin_panel_settings</span>
-            <span class="text-[10px] font-bold uppercase tracking-tighter">Admin</span>
-        </a>
-        <a id="mobile-profile-item" href="login.html" class="flex flex-col items-center text-slate-400">
-            <span class="material-symbols-outlined">account_circle</span>
-            <span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
-        </a>
-    </div>
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
             const grid = document.getElementById('news-grid');
@@ -251,37 +227,80 @@
                 if (error) throw error;
 
                 if (!data || data.length === 0) {
-                    grid.innerHTML = '<div class="bg-surface-container-lowest p-8 rounded-2xl border border-surface-container text-center flex flex-col items-center justify-center gap-4"><p class="text-on-surface-variant font-medium">কোনো খবর বা আপডেট নেই।</p><a href="index.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-on-primary rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition-opacity"><span class="material-symbols-outlined text-sm">home</span> Go back to Home</a></div>';
+                    grid.innerHTML = '<div class="col-span-full py-12 text-center text-outline">No announcements yet.</div>';
                     return;
                 }
-
-                grid.innerHTML = data.map(news => `
-                <div class="bg-surface-container-lowest overflow-hidden rounded-2xl border border-surface-container flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow">
-                    ${news.image_url ? `<img src="${news.image_url}" class="w-full h-48 object-cover mb-2" alt="${news.title}">` : ''}
-                    <div class="p-6 pt-2 flex flex-col gap-3">
-                        <div class="flex justify-between items-start">
-                            <h2 class="text-xl font-bold text-on-surface">${news.title}</h2>
-                            <span class="text-xs font-semibold px-2 py-1 rounded bg-surface-container-high text-on-surface-variant">${new Date(news.date).toLocaleDateString()}</span>
+                
+                // 1. Render Hero Card (First item)
+                const hero = data[0];
+                const heroContainer = document.getElementById('news-hero-container');
+                if (heroContainer) {
+                    const hasImage = !!hero.image_url;
+                    heroContainer.innerHTML = `
+                        <div class="group relative overflow-hidden bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-500">
+                            <div class="flex flex-col md:flex-row">
+                                ${hasImage ? `
+                                <div class="md:w-1/2 h-64 md:h-auto overflow-hidden">
+                                    <img src="${hero.image_url}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="News">
+                                </div>
+                                ` : ''}
+                                <div class="flex-1 p-8 md:p-12">
+                                    <div class="flex items-center gap-3 mb-6">
+                                        <span class="px-3 py-1 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-full">New Update</span>
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${new Date(hero.date).toLocaleDateString()}</span>
+                                    </div>
+                                    <h2 class="text-2xl md:text-4xl font-black text-slate-900 tracking-tight mb-4 leading-tight">${hero.title}</h2>
+                                    <p class="text-slate-600 text-base leading-relaxed mb-8">${hero.content}</p>
+                                    <div class="flex items-center gap-4 py-6 border-t border-slate-100">
+                                        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-slate-500">person</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-[10px] font-black uppercase tracking-widest text-slate-900">Admin Team</p>
+                                            <p class="text-[10px] text-slate-400 uppercase tracking-widest">Community Manager</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <p class="text-on-surface-variant whitespace-pre-wrap text-sm leading-relaxed">${news.content}</p>
-                    </div>
-                </div>
-            `).join('');
+                    `;
+                }
 
-            } catch (e) {
-                console.error("News Load Error:", e);
-                grid.innerHTML = '<div class="py-12 text-center text-error font-medium">Failed to load news from database.</div>';
+                // 2. Render rest in Grid
+                const rest = data.slice(1);
+                if (rest.length > 0) {
+                    grid.innerHTML = rest.map(news => `
+                        <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg transition-all group">
+                            ${news.image_url ? `
+                                <div class="h-40 -mx-6 -mt-6 mb-6 overflow-hidden rounded-t-2xl">
+                                    <img src="${news.image_url}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="${news.title}">
+                                </div>
+                            ` : ''}
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${new Date(news.date).toLocaleDateString()}</span>
+                            </div>
+                            <h3 class="text-lg font-black text-slate-900 tracking-tight mb-2 line-clamp-2">${news.title}</h3>
+                            <p class="text-on-surface-variant text-sm line-clamp-3 leading-relaxed">${news.content}</p>
+                        </div>
+                    `).join('');
+                } else {
+                    grid.innerHTML = '';
+                }
+            } catch (err) {
+                console.error("Error fetching news:", err);
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-red-500">Failed to load news: ${err.message}</div>`;
             }
 
             // Mobile Sidebar toggles
             const overlay = document.getElementById('sidebar-overlay');
             const sidebar = document.getElementById('sidebar');
             const mMenu = document.getElementById('mobile-menu-btn');
-            const mFilter = document.getElementById('mobile-filter-btn'); // For news, maybe it acts as menu
+            const mFilter = document.getElementById('mobile-filter-btn');
+
             if (sidebar && overlay) {
                 const toggle = () => {
-                    const hidden = sidebar.classList.toggle('-translate-x-full');
-                    if (hidden) overlay.classList.add('hidden');
+                    const isHidden = sidebar.classList.toggle('-translate-x-full');
+                    if (isHidden) overlay.classList.add('hidden');
                     else overlay.classList.remove('hidden');
                 };
                 if (mMenu) mMenu.addEventListener('click', toggle);
@@ -290,7 +309,31 @@
             }
         });
     </script>
-    <script src="js/auth.js"></script>
+  <!-- Mobile Navigation Shell -->
+  <div
+    class="md:hidden fixed bottom-0 left-0 w-full bg-slate-50/90 backdrop-blur-lg flex justify-around items-center py-4 border-t border-slate-200 z-50">
+    <a href="index.html" class="flex flex-col items-center text-slate-400">
+      <span class="material-symbols-outlined">home</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter">Home</span>
+    </a>
+    <a href="news.html" class="flex flex-col items-center text-blue-700 font-bold">
+      <span class="material-symbols-outlined">newspaper</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter">News</span>
+    </a>
+    <a href="cart.html" class="flex flex-col items-center text-slate-400">
+      <span class="material-symbols-outlined">shopping_cart</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter">Cart</span>
+    </a>
+    <a id="mobile-admin-item" href="admin.html" class="hidden flex flex-col items-center text-red-600">
+      <span class="material-symbols-outlined font-bold">admin_panel_settings</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter">Admin</span>
+    </a>
+    <a id="mobile-profile-item" href="login.html" class="flex flex-col items-center text-slate-400">
+      <span class="material-symbols-outlined text-slate-500">account_circle</span>
+      <span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
+    </a>
+  </div>
+  <script src="js/auth.js"></script>
 </body>
 
 </html>

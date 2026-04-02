@@ -257,20 +257,21 @@
             mobileOrders.href = session ? 'profile.html#orders' : 'login.html';
         }
         
-        // Admin Link Logic
-        const adminDesktop = document.getElementById('admin-nav-link');
-        const adminMobile = document.getElementById('mobile-admin-item');
+        // Admin Link Logic - Targeting all instances to prevent duplication ghosting
+        const adminDesktopLinks = document.querySelectorAll('#admin-nav-link');
+        const adminMobileLinks = document.querySelectorAll('#mobile-admin-item');
         const userEmail = session?.user?.email?.toLowerCase().trim();
         const isAdmin = userEmail && ADMIN_EMAILS.includes(userEmail);
         
-        if (adminDesktop) {
-            if (isAdmin) adminDesktop.classList.remove('hidden');
-            else adminDesktop.classList.add('hidden');
-        }
-        if (adminMobile) {
-            if (isAdmin) adminMobile.classList.remove('hidden');
-            else adminMobile.classList.add('hidden');
-        }
+        adminDesktopLinks.forEach(link => {
+            if (isAdmin) link.classList.remove('hidden');
+            else link.classList.add('hidden');
+        });
+        
+        adminMobileLinks.forEach(link => {
+            if (isAdmin) link.classList.remove('hidden');
+            else link.classList.add('hidden');
+        });
     }
 
     // Global Auth Actions

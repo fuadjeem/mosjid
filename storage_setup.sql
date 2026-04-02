@@ -47,5 +47,5 @@ ON storage.objects FOR DELETE
 TO authenticated
 USING (
     bucket_id = 'product-images' 
-    AND (auth.jwt() ->> 'email') IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com')
+    AND (auth.jwt() ->> 'email') IN ('admin@bakl.org', 'fuadxeem@gmail.com', 'fuad.bioinfo@icloud.com', 'ahsan.tazbir@gmail.com')
 );

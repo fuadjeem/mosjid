@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('news-date').value = new Date().toISOString().split('T')[0];
         document.getElementById('news-imageurl').value = '';
         document.getElementById('news-content').value = '';
+        updateModalPreview(null); // Clear preview for new post
         document.getElementById('modal-title').innerText = 'Add Announcement';
         document.getElementById('add-news-modal').classList.remove('hidden');
     });
@@ -45,14 +46,34 @@ async function setupNewsImageUpload() {
             
             const urlInput = document.getElementById('news-imageurl');
             const status = document.getElementById('news-upload-status');
+            const saveBtn = document.getElementById('save-news-btn');
             
             if (typeof handleImageUpload === 'function') {
-                await handleImageUpload(file, urlInput, status);
+                if(saveBtn) { 
+                    saveBtn.disabled = true;
+                    saveBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+                
+                const publicUrl = await handleImageUpload(file, urlInput, status);
+                
+                if (publicUrl) {
+                    updateModalPreview(publicUrl);
+                }
+                
+                if(saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
             } else {
                 console.error("handleImageUpload helper not found");
             }
         });
     }
+
+    // Add manual entry support for preview
+    document.getElementById('news-imageurl')?.addEventListener('input', (e) => {
+        updateModalPreview(e.target.value);
+    });
 }
 
 async function loadNews() {
@@ -83,20 +104,48 @@ function renderNews(newsList) {
     
     newsList.forEach(news => {
         const card = document.createElement('div');
-        card.className = "bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-sm flex flex-col gap-3";
-        card.innerHTML = `
-            <div class="flex justify-between items-start">
-                <h3 class="font-bold text-lg text-on-surface tracking-tight">${news.title}</h3>
-                <span class="text-xs font-semibold px-2 py-1 rounded bg-surface-container-high text-on-surface-variant">${new Date(news.date).toLocaleDateString()}</span>
+        card.className = "bg-surface-container-lowest overflow-hidden rounded-2xl border border-surface-container shadow-sm flex flex-col hover:shadow-md transition-all group";
+        
+        const imageHtml = news.image_url ? `
+            <div class="w-full h-32 overflow-hidden bg-slate-100">
+                <img src="${news.image_url}" class="w-full h-full object-cover transition-transform group-hover:scale-105" alt="${news.title}">
             </div>
-            <p class="text-sm text-on-surface-variant flex-grow line-clamp-3">${news.content}</p>
-            <div class="flex gap-2 pt-2 border-t border-surface-container-high mt-2">
-                <button class="text-xs font-bold text-primary hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors" onclick="editNews('${news.id}')">Edit</button>
-                <button class="text-xs font-bold text-error hover:bg-error/10 px-3 py-1.5 rounded-lg transition-colors" onclick="deleteNews('${news.id}')">Delete</button>
+        ` : `
+            <div class="w-full h-24 bg-slate-50 flex items-center justify-center text-slate-300">
+                <span class="material-symbols-outlined text-3xl">image</span>
+            </div>
+        `;
+        
+        card.innerHTML = `
+            ${imageHtml}
+            <div class="p-6 flex flex-col gap-3">
+                <div class="flex justify-between items-start gap-4">
+                    <h3 class="font-bold text-sm text-on-surface tracking-tight line-clamp-1">${news.title}</h3>
+                    <span class="text-[9px] font-bold px-2 py-1 rounded bg-surface-container-high text-on-surface-variant whitespace-nowrap">${new Date(news.date).toLocaleDateString()}</span>
+                </div>
+                <p class="text-xs text-on-surface-variant flex-grow line-clamp-2 leading-relaxed">${news.content}</p>
+                <div class="flex gap-2 pt-3 border-t border-surface-container-high mt-1">
+                    <button class="text-[10px] font-bold text-primary hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors border border-primary/10" onclick="editNews('${news.id}')">Edit</button>
+                    <button class="text-[10px] font-bold text-error hover:bg-error/10 px-3 py-1.5 rounded-lg transition-colors border border-error/10" onclick="deleteNews('${news.id}')">Delete</button>
+                </div>
             </div>
         `;
         grid.appendChild(card);
     });
+}
+
+function updateModalPreview(url) {
+    const previewContainer = document.getElementById('news-image-preview-container');
+    const previewImg = document.getElementById('news-image-preview');
+    if (!previewContainer || !previewImg) return;
+    
+    if (url) {
+        previewImg.src = url;
+        previewContainer.classList.remove('hidden');
+    } else {
+        previewImg.src = '';
+        previewContainer.classList.add('hidden');
+    }
 }
 
 function editNews(id) {
@@ -108,6 +157,9 @@ function editNews(id) {
     document.getElementById('news-date').value = news.date;
     document.getElementById('news-imageurl').value = news.image_url || '';
     document.getElementById('news-content').value = news.content;
+    
+    updateModalPreview(news.image_url);
+    
     document.getElementById('modal-title').innerText = 'Edit Announcement';
     document.getElementById('add-news-modal').classList.remove('hidden');
 }

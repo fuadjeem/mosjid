@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const productGrid = document.getElementById('product-grid');
     if (productGrid) {
         loadProducts(productGrid);
+        loadLatestNews(); // Fetch latest announcement for homepage
     }
 
     // 2. If on cart page
@@ -48,6 +49,65 @@ let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 window.allProducts = [];
 window.filteredProducts = [];
 window.visibleCount = 20;
+
+async function loadLatestNews() {
+    const container = document.getElementById('latest-news-container');
+    if (!container || !window.supabaseClient) return;
+
+    try {
+        const { data: news, error } = await window.supabaseClient
+            .from('news')
+            .select('*')
+            .order('date', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (error || !news) {
+            container.classList.add('hidden');
+            return;
+        }
+
+        const hasImage = !!news.image_url;
+        container.innerHTML = `
+            <div class="group relative overflow-hidden bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 cursor-pointer" onclick="window.location.href='news.html'">
+                <div class="flex flex-col lg:flex-row min-h-[320px]">
+                    ${hasImage ? `
+                    <div class="lg:w-1/2 h-64 lg:h-auto overflow-hidden relative">
+                        <img src="${news.image_url}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="News">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    </div>
+                    ` : `
+                    <div class="lg:w-1/3 h-48 lg:h-auto bg-slate-50 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-6xl text-slate-200">newspaper</span>
+                    </div>
+                    `}
+                    <div class="flex-1 p-8 lg:p-12 flex flex-col justify-center bg-white">
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="px-4 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] rounded-full ring-1 ring-primary/20">সর্বশেষ আপডেট</span>
+                            <div class="flex items-center gap-1.5 text-[11px] font-bold text-slate-400">
+                                <span class="material-symbols-outlined text-sm">calendar_month</span>
+                                ${new Date(news.date).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' })}
+                            </div>
+                        </div>
+                        <h2 class="text-2xl lg:text-3xl font-black text-slate-900 leading-tight mb-4 group-hover:text-primary transition-colors text-balance">${news.title}</h2>
+                        <p class="text-slate-500 text-sm lg:text-base line-clamp-3 leading-relaxed mb-8 text-pretty">${news.content}</p>
+                        
+                        <div class="flex items-center gap-4 mt-auto">
+                            <a href="news.html" class="flex items-center gap-3 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-primary transition-all group/btn shadow-lg shadow-slate-900/20">
+                                বিস্তারিত পড়ুন
+                                <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.classList.remove('hidden');
+    } catch (e) {
+        console.warn("No latest news found or error fetching:", e);
+        container.classList.add('hidden');
+    }
+}
 
 function renderSkeletons(grid) {
     const skeleton = `
