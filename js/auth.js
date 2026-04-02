@@ -39,6 +39,17 @@ if (!initSupabase()) {
 function setupAuthListeners() {
     if (!sbClient) return;
 
+    // 🔑 INITIAL UI CHECK FOR RECOVERY
+    const h = window.location.hash;
+    if (h.includes('type=recovery') || h.includes('access_token=')) {
+        const updateContainer = document.getElementById('update-password-container');
+        const requestContainer = document.getElementById('request-reset-container');
+        if (updateContainer && requestContainer) {
+            updateContainer.classList.remove('hidden');
+            requestContainer.classList.add('hidden');
+        }
+    }
+
     sbClient.auth.onAuthStateChange(function(event, session) {
         console.log('[AUTH] State changed:', event);
         updateNavigationUI(session);
