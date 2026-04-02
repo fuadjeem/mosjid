@@ -153,6 +153,7 @@ function attachFormHandlers() {
                 if (btn) { btn.disabled = false; btn.textContent = 'Send Reset Link'; }
             } else {
                 showMsg('reset-msg', '✅ Success! If an account exists for ' + email + ', you will receive a link shortly. Not receiving anything? ', false);
+                if (btn) { btn.disabled = false; btn.textContent = 'Send Reset Link'; }
                 // Dynamically add the create account link
                 const box = document.getElementById('reset-msg');
                 if (box) {
@@ -206,10 +207,12 @@ function updateNavigationUI(session) {
         if (session) {
             const name = (session.user.user_metadata && session.user.user_metadata.full_name) || 'Account';
             navLink.innerHTML = `<button class="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-primary flex items-center gap-2 border border-slate-200 bg-white px-3 py-1.5 rounded-full"><span class="w-2 h-2 rounded-full bg-green-500"></span>${name.split(' ')[0]}</button>`;
-            navLink.onclick = () => window.location.href = '/profile.html';
+            navLink.href = 'javascript:void(0)';
+            navLink.onclick = (e) => { e.preventDefault(); window.location.href = '/profile.html'; };
         } else {
             navLink.innerHTML = '<span class="material-symbols-outlined text-slate-500 hover:text-primary">account_circle</span>';
-            navLink.onclick = () => window.location.href = '/login.html';
+            navLink.href = '/login.html';
+            navLink.onclick = null;
         }
     }
     const mobileProfile = document.getElementById('mobile-profile-item');
@@ -220,6 +223,21 @@ function updateNavigationUI(session) {
         } else {
             mobileProfile.href = '/login.html';
             mobileProfile.innerHTML = `<span class="material-symbols-outlined">account_circle</span><span class="text-[10px] font-bold uppercase">Profile</span>`;
+        }
+    }
+    
+    // Orders Link Logic
+    const ordersLink = document.getElementById('orders-nav-link');
+    if (ordersLink) {
+        if (session) {
+            ordersLink.href = 'javascript:void(0)';
+            ordersLink.onclick = (e) => { 
+                e.preventDefault(); 
+                window.location.href = '/profile.html#orders';
+            };
+        } else {
+            ordersLink.href = '/login.html';
+            ordersLink.onclick = null;
         }
     }
 }
