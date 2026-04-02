@@ -394,7 +394,46 @@
         }
     }
 
-    function updateOrderDashboardStats(orders) { /* Revenue calc here */ }
+    function updateOrderDashboardStats(orders) {
+        if (!orders) return;
+        
+        // 1. Total Revenue (Sum of all total_amount)
+        const totalRevenue = orders.reduce((acc, o) => acc + Number(o.total_amount || 0), 0);
+        
+        // 2. Pending Orders (Not Delivered and Not Cancelled)
+        const pendingOrders = orders.filter(o => {
+            const status = (o.status || '').toLowerCase();
+            return status !== 'delivered' && status !== 'cancelled';
+        });
+        
+        // 3. Delivered (Last 30 Days)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const deliveredRecent = orders.filter(o => {
+            const status = (o.status || '').toLowerCase();
+            const orderDate = new Date(o.created_at);
+            return status === 'delivered' && orderDate >= thirtyDaysAgo;
+        });
+
+        // 4. Update DOM
+        const revEl = document.getElementById('stat-revenue');
+        const pendingEl = document.getElementById('stat-pending');
+        const deliveredEl = document.getElementById('stat-delivered');
+        
+        if (revEl) revEl.innerText = '€' + totalRevenue.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (pendingEl) pendingEl.innerText = pendingOrders.length;
+        if (deliveredEl) deliveredEl.innerText = deliveredRecent.length;
+        
+        // Update subtext labels
+        const pendingSub = document.getElementById('stat-pending-subtext');
+        if (pendingSub) pendingSub.innerHTML = `<span class="material-symbols-outlined text-[14px]">schedule</span> ${pendingOrders.length} active orders`;
+        
+        const deliveredRate = document.getElementById('stat-delivered-rate');
+        if (deliveredRate && orders.length > 0) {
+            const rate = ((orders.filter(o => (o.status || '').toLowerCase() === 'delivered').length / orders.length) * 100).toFixed(1);
+            deliveredRate.innerHTML = `<span class="material-symbols-outlined text-[14px]">check_circle</span> ${rate}% Success rate`;
+        }
+    }
     function setupAdminProfile() { 
         const btn = document.getElementById('admin-profile-btn');
         if (btn) btn.onclick = () => window.logoutAdmin(); 
