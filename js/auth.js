@@ -57,7 +57,7 @@ if (loginForm) {
                 if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
             } else {
                 showMsg('login-msg', '✅ Signed in! Redirecting...', false);
-                setTimeout(function() { window.location.href = '/index.html'; }, 1000);
+                setTimeout(function() { window.location.href = '/index.html'; }, 500);
             }
         } catch (err) {
             showMsg('login-msg', 'Error: ' + err.message, true);
@@ -95,7 +95,7 @@ if (registerForm) {
                 if (btn) { btn.disabled = false; btn.textContent = 'Create Account'; }
             } else {
                 showMsg('register-msg', '✅ Account created! Redirecting to homepage...', false);
-                setTimeout(function() { window.location.href = '/index.html'; }, 1500);
+                setTimeout(function() { window.location.href = '/index.html'; }, 500);
             }
         } catch (err) {
             showMsg('register-msg', 'Error: ' + err.message, true);
@@ -135,9 +135,22 @@ if (resetForm) {
 if (sbClient) {
     sbClient.auth.onAuthStateChange(function(event, session) {
         updateNavigationUI(session);
+        
+        // Auto-redirect if on login/register page and signed in
+        if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
+            console.log('[AUTH] User already signed in. Redirecting to home...');
+            window.location.href = '/index.html';
+        }
     });
+
     sbClient.auth.getSession().then(function(resp) {
-        updateNavigationUI(resp.data.session);
+        var session = resp.data.session;
+        updateNavigationUI(session);
+        
+        // Initial check for session on login/register pages
+        if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
+            window.location.href = '/index.html';
+        }
     });
 }
 
@@ -208,6 +221,7 @@ window.logOut = async function() {
 window.authGoogle = async function() {
     if (!sbClient) return;
     var redirectUrl = window.location.href.split('#')[0].split('?')[0];
+    // If we're on login/register, always go to index.html to avoid "stuck" state
     if (redirectUrl.includes('login.html') || redirectUrl.includes('register.html')) {
         redirectUrl = window.location.origin + '/index.html';
     }
@@ -219,7 +233,6 @@ window.authGoogle = async function() {
 
 window.authFacebook = async function() {
     if (!sbClient) return;
-    // Optimize redirect to return to THE CURRENT PAGE
     var redirectUrl = window.location.href.split('#')[0].split('?')[0];
     if (redirectUrl.includes('login.html') || redirectUrl.includes('register.html')) {
         redirectUrl = window.location.origin + '/index.html';
@@ -229,8 +242,7 @@ window.authFacebook = async function() {
         await sbClient.auth.signInWithOAuth({
             provider: 'facebook',
             options: { 
-                redirectTo: redirectUrl,
-                queryParams: { auth_type: 'reauthenticate' } // Useful if they want a fresh login
+                redirectTo: redirectUrl
             }
         });
     } catch (err) {
