@@ -21,7 +21,7 @@
             // If we land on login/register with a hash (access_token or any), JUMP to index immediately
             // index.html will handle the session parsing instead of staying on the login page.
             if (h && (h.includes('access_token=') || h.includes('type=recovery')) && isAuth) {
-                window.location.replace(window.location.origin + '/index.html' + h);
+                window.location.replace('index.html' + h);
             }
         })();
     </script>
@@ -31,7 +31,7 @@
     <div id="auth-sync-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#f9f9ff;z-index:9999;flex-direction:column;align-items:center;justify-content:center;font-family:Inter,sans-serif;font-weight:600;color:#005bbf;gap:15px;">
         <div style="width:40px;height:40px;border:4px solid #ecedf7;border-top:4px solid #005bbf;border-radius:50%;animation:spin 1s linear infinite;"></div>
         <p>Synchronizing Session...</p>
-        <button onclick="window.location.href='/index.html'" style="margin-top:20px;padding:8px 16px;background:white;border:1px solid #005bbf;color:#005bbf;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;opacity:0.8;box-shadow:0 2px 10px rgba(0,0,0,0.05);">Proceed to Store</button>
+        <button onclick="window.location.href='index.html'" style="margin-top:20px;padding:8px 16px;background:white;border:1px solid #005bbf;color:#005bbf;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;opacity:0.8;box-shadow:0 2px 10px rgba(0,0,0,0.05);">Proceed to Store</button>
     </div>
     <style>@keyframes spin {0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}</style>
     <script>
@@ -54,7 +54,7 @@
         })();
     </script>
 
-    <a href="/login.html" class="absolute top-8 left-8 flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+    <a href="login.html" class="absolute top-8 left-8 flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
         <span class="material-symbols-outlined text-sm">arrow_back</span>
         <span class="text-xs font-bold uppercase tracking-widest">Back to Login</span>
     </a>
@@ -105,7 +105,7 @@
         </div>
 
         <div class="mt-8 text-center text-xs text-on-surface-variant">
-            Already have an account? <a href="/login.html" class="font-bold text-primary hover:underline">Log in</a>
+            Already have an account? <a href="login.html" class="font-bold text-primary hover:underline">Log in</a>
         </div>
     </div>
 
@@ -127,7 +127,6 @@
         });
     </script>
 
-    <script src="/js/auth.js"></script>
-    <script src="/js/auth.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>
