@@ -142,7 +142,7 @@ if (sbClient) {
 }
 
 function updateNavigationUI(session) {
-    // Account Icon Logic
+    // Desktop Account Icon Logic
     var navLink = document.getElementById('user-nav-icon');
     if (navLink) {
         if (session) {
@@ -155,6 +155,27 @@ function updateNavigationUI(session) {
             navLink.onclick = null;
             navLink.href = '/login.html';
             navLink.innerHTML = '<span class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-primary transition-colors">account_circle</span>';
+        }
+    }
+
+    // Mobile Bottom Nav Profile Logic
+    var mobileProfileLink = document.getElementById('mobile-profile-item');
+    if (mobileProfileLink) {
+        if (session) {
+            mobileProfileLink.href = '/profile.html';
+            mobileProfileLink.innerHTML = `
+                <span class="material-symbols-outlined text-primary relative">
+                    account_circle
+                    <span class="absolute top-0 right-0 w-2 h-2 bg-green-500 border border-white rounded-full"></span>
+                </span>
+                <span class="text-[10px] font-extrabold uppercase tracking-tighter text-primary">Profile</span>
+            `;
+        } else {
+            mobileProfileLink.href = '/login.html';
+            mobileProfileLink.innerHTML = `
+                <span class="material-symbols-outlined">account_circle</span>
+                <span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
+            `;
         }
     }
 
@@ -186,16 +207,33 @@ window.logOut = async function() {
 
 window.authGoogle = async function() {
     if (!sbClient) return;
+    var redirectUrl = window.location.href.split('#')[0].split('?')[0];
+    if (redirectUrl.includes('login.html') || redirectUrl.includes('register.html')) {
+        redirectUrl = window.location.origin + '/index.html';
+    }
     await sbClient.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin + '/index.html' }
+        options: { redirectTo: redirectUrl }
     });
 };
 
 window.authFacebook = async function() {
     if (!sbClient) return;
-    await sbClient.auth.signInWithOAuth({
-        provider: 'facebook',
-        options: { redirectTo: window.location.origin + '/index.html' }
-    });
+    // Optimize redirect to return to THE CURRENT PAGE
+    var redirectUrl = window.location.href.split('#')[0].split('?')[0];
+    if (redirectUrl.includes('login.html') || redirectUrl.includes('register.html')) {
+        redirectUrl = window.location.origin + '/index.html';
+    }
+
+    try {
+        await sbClient.auth.signInWithOAuth({
+            provider: 'facebook',
+            options: { 
+                redirectTo: redirectUrl,
+                queryParams: { auth_type: 'reauthenticate' } // Useful if they want a fresh login
+            }
+        });
+    } catch (err) {
+        console.error('FB Auth Error:', err);
+    }
 };
