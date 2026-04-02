@@ -69,36 +69,19 @@ async function loadLatestNews() {
 
         const hasImage = !!news.image_url;
         container.innerHTML = `
-            <div class="group relative overflow-hidden bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 cursor-pointer" onclick="window.location.href='news.html'">
-                <div class="flex flex-col lg:flex-row min-h-[320px]">
-                    ${hasImage ? `
-                    <div class="lg:w-1/2 h-64 lg:h-auto overflow-hidden relative">
-                        <img src="${news.image_url}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="News">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    </div>
-                    ` : `
-                    <div class="lg:w-1/3 h-48 lg:h-auto bg-slate-50 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-6xl text-slate-200">newspaper</span>
-                    </div>
-                    `}
-                    <div class="flex-1 p-8 lg:p-12 flex flex-col justify-center bg-white">
-                        <div class="flex items-center gap-3 mb-6">
-                            <span class="px-4 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] rounded-full ring-1 ring-primary/20">সর্বশেষ আপডেট</span>
-                            <div class="flex items-center gap-1.5 text-[11px] font-bold text-slate-400">
-                                <span class="material-symbols-outlined text-sm">calendar_month</span>
-                                ${new Date(news.date).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' })}
-                            </div>
+            <div class="group relative bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 hover:shadow-lg transition-all duration-300 cursor-pointer" onclick="window.location.href='news.html'">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex flex-col gap-1 overflow-hidden">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">সর্বশেষ সংবাদ</span>
                         </div>
-                        <h2 class="text-2xl lg:text-3xl font-black text-slate-900 leading-tight mb-4 group-hover:text-primary transition-colors text-balance">${news.title}</h2>
-                        <p class="text-slate-500 text-sm lg:text-base line-clamp-3 leading-relaxed mb-8 text-pretty">${news.content}</p>
-                        
-                        <div class="flex items-center gap-4 mt-auto">
-                            <a href="news.html" class="flex items-center gap-3 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-primary transition-all group/btn shadow-lg shadow-slate-900/20">
-                                বিস্তারিত পড়ুন
-                                <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
-                            </a>
-                        </div>
+                        <h2 class="text-base sm:text-lg font-black text-slate-900 group-hover:text-primary transition-colors truncate">${news.title}</h2>
                     </div>
+                    <a href="news.html" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-xs hover:bg-primary transition-all shrink-0">
+                        আরও পড়ুন
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
                 </div>
             </div>
         `;
