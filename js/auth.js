@@ -137,7 +137,10 @@ if (sbClient) {
         updateNavigationUI(session);
         
         // Auto-redirect if on login/register page and signed in
-        if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
+        const path = window.location.pathname;
+        const isAuthPage = path.includes('login') || path.includes('register');
+        
+        if (session && isAuthPage) {
             console.log('[AUTH] User already signed in. Redirecting to home...');
             window.location.href = '/index.html';
         }
@@ -147,8 +150,11 @@ if (sbClient) {
         var session = resp.data.session;
         updateNavigationUI(session);
         
+        const path = window.location.pathname;
+        const isAuthPage = path.includes('login') || path.includes('register');
+        
         // Initial check for session on login/register pages
-        if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
+        if (session && isAuthPage) {
             window.location.href = '/index.html';
         }
     });
@@ -222,7 +228,7 @@ window.authGoogle = async function() {
     if (!sbClient) return;
     var redirectUrl = window.location.href.split('#')[0].split('?')[0];
     // If we're on login/register, always go to index.html to avoid "stuck" state
-    if (redirectUrl.includes('login.html') || redirectUrl.includes('register.html')) {
+    if (redirectUrl.includes('login') || redirectUrl.includes('register')) {
         redirectUrl = window.location.origin + '/index.html';
     }
     await sbClient.auth.signInWithOAuth({
@@ -234,7 +240,7 @@ window.authGoogle = async function() {
 window.authFacebook = async function() {
     if (!sbClient) return;
     var redirectUrl = window.location.href.split('#')[0].split('?')[0];
-    if (redirectUrl.includes('login.html') || redirectUrl.includes('register.html')) {
+    if (redirectUrl.includes('login') || redirectUrl.includes('register')) {
         redirectUrl = window.location.origin + '/index.html';
     }
 
