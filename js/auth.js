@@ -48,10 +48,19 @@ function setupAuthListeners() {
         const isAuthPage = path.includes('login') || path.includes('register');
         
             if (session && isAuthPage) {
-                console.log('[AUTH] Redirecting to index (onAuthStateChange)...');
-                window.location.replace(window.location.origin + '/index.html');
-            }
-        });
+            console.log('[AUTH] Redirecting to index (onAuthStateChange)...');
+            window.location.replace(window.location.origin + '/index.html');
+        }
+    });
+
+    // Forced Escape for Callbacks: If we have a hash, redirect after a short delay regardless of session
+    const h = window.location.hash;
+    if ((h.includes('access_token=') || h.includes('type=recovery')) && (window.location.pathname.includes('login') || window.location.pathname.includes('register'))) {
+        console.log('[AUTH] Callback detected. Setting fallback redirect timer...');
+        setTimeout(function() {
+            window.location.replace(window.location.origin + '/index.html');
+        }, 2000); // 2s fallback to skip blank screen
+    }
     
         sbClient.auth.getSession().then(function(resp) {
             var session = resp.data.session;
