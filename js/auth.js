@@ -152,7 +152,16 @@ function attachFormHandlers() {
                 showMsg('reset-msg', error.message, true);
                 if (btn) { btn.disabled = false; btn.textContent = 'Send Reset Link'; }
             } else {
-                showMsg('reset-msg', '✅ Link sent! Check your email.', false);
+                showMsg('reset-msg', '✅ Success! If an account exists for ' + email + ', you will receive a link shortly. Not receiving anything? ', false);
+                // Dynamically add the create account link
+                const box = document.getElementById('reset-msg');
+                if (box) {
+                    const link = document.createElement('a');
+                    link.href = '/register.html?email=' + encodeURIComponent(email);
+                    link.className = 'underline font-bold';
+                    link.textContent = 'Create a New Account';
+                    box.appendChild(link);
+                }
             }
             return false;
         };
