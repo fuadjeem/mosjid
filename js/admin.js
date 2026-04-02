@@ -248,8 +248,14 @@
     window.deleteProduct = async (e, id) => {
         if (e) e.stopPropagation();
         if (!confirm('Delete this product?')) return;
-        const { error } = await window.supabaseClient.from('products').delete().eq('id', id);
-        if (!error) loadInventory();
+        try {
+            const { error } = await window.supabaseClient.from('products').delete().eq('id', id);
+            if (error) throw error;
+            loadInventory();
+        } catch (err) {
+            console.error("[Admin] Delete Failed:", err);
+            alert("❌ Delete failed: " + err.message);
+        }
     };
 
     function setupInventoryModals() {
@@ -265,6 +271,11 @@
         document.getElementById('close-modal-btn')?.addEventListener('click', () => modal.classList.add('hidden'));
         document.getElementById('cancel-modal-btn')?.addEventListener('click', () => modal.classList.add('hidden'));
         document.getElementById('save-product-btn')?.addEventListener('click', async () => {
+            const saveBtn = document.getElementById('save-product-btn');
+            const originalText = saveBtn.innerText;
+            saveBtn.disabled = true;
+            saveBtn.innerText = "Saving...";
+
             const data = {
                 name: document.getElementById('prod-name').value,
                 category: document.getElementById('prod-cat').value,
@@ -274,10 +285,29 @@
                 image_url: document.getElementById('prod-imageurl').value,
                 status: document.getElementById('prod-status').checked ? 'Available' : 'Unavailable'
             };
-            if (editingProductId) await window.supabaseClient.from('products').update(data).eq('id', editingProductId);
-            else await window.supabaseClient.from('products').insert([{ id: 'P_' + Date.now(), ...data }]);
-            modal.classList.add('hidden');
-            loadInventory();
+
+            try {
+                let error;
+                if (editingProductId) {
+                    const res = await window.supabaseClient.from('products').update(data).eq('id', editingProductId);
+                    error = res.error;
+                } else {
+                    const res = await window.supabaseClient.from('products').insert([{ id: 'P_' + Date.now(), ...data }]);
+                    error = res.error;
+                }
+
+                if (error) throw error;
+
+                modal.classList.add('hidden');
+                loadInventory();
+                alert("✅ Product saved successfully!");
+            } catch (err) {
+                console.error("[Admin] Save Failed:", err);
+                alert("❌ Save failed: " + err.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = originalText;
+            }
         });
     }
 
