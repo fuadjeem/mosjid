@@ -184,10 +184,11 @@ if (resetForm) {
 
         try {
             var result = await sbClient.auth.resetPasswordForEmail(email, {
-                redirectTo: 'https://shop.bakl.org/reset-password.html'
+                redirectTo: window.location.origin + '/reset-password.html'
             });
             if (result.error) {
-                showMsg('reset-msg', result.error.message, true);
+                console.error('[AUTH] Reset error full details:', result.error);
+                showMsg('reset-msg', 'Error (' + (result.error.code || result.error.status || 'Email') + '): ' + result.error.message, true);
                 if (btn) { btn.disabled = false; btn.textContent = 'Send Reset Link'; }
             } else {
                 showMsg('reset-msg', '✅ Link sent! Please check your email inbox.', false);
