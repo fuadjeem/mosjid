@@ -154,13 +154,13 @@
         }
 
         // Wait for supabase
-        if (typeof sbClient === 'undefined' || !sbClient) {
+        if (typeof window.sbClient === 'undefined' || !window.sbClient) {
             loading.classList.add('hidden');
             guest.classList.remove('hidden');
             return;
         }
 
-        const { data: { session } } = await sbClient.auth.getSession();
+        const { data: { session } } = await window.sbClient.auth.getSession();
         loading.classList.add('hidden');
 
         if (!session) {
@@ -191,7 +191,7 @@
             const list = document.getElementById('order-history-list');
             if (!list) return;
             try {
-                const { data: orders, error } = await sbClient
+                const { data: orders, error } = await window.sbClient
                     .from('orders')
                     .select('*, order_items(*)')
                     .order('created_at', { ascending: false });
@@ -267,7 +267,7 @@
             this.disabled = true;
             this.textContent = 'Saving...';
             try {
-                const { error } = await sbClient.auth.updateUser({ data: { full_name: newName } });
+                const { error } = await window.sbClient.auth.updateUser({ data: { full_name: newName } });
                 if (error) { showMsg('profile-msg', error.message, true); }
                 else {
                     showMsg('profile-msg', '✅ Profile updated!', false);
@@ -288,7 +288,7 @@
             this.disabled = true;
             this.textContent = 'Updating...';
             try {
-                const { error } = await sbClient.auth.updateUser({ password: pw });
+                const { error } = await window.sbClient.auth.updateUser({ password: pw });
                 if (error) { showMsg('password-msg', error.message, true); }
                 else {
                     showMsg('password-msg', '✅ Password updated!', false);
@@ -302,7 +302,7 @@
 
         // Log Out
         document.getElementById('logout-btn').addEventListener('click', async function() {
-            await sbClient.auth.signOut();
+            await window.sbClient.auth.signOut();
             window.location.href = 'index.html';
         });
     })();

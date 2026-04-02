@@ -14,9 +14,10 @@
             if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
                 if (!window.supabaseClient) {
                     window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                }
-                sbClient = window.supabaseClient;
-                console.log('[auth.js] Supabase client initialized (V8_ISOLATED)');
+                window.sbClient = window.supabaseClient;
+            }
+            sbClient = window.supabaseClient;
+            console.log('[auth.js] Supabase client initialized (V8_ISOLATED)');
                 setupAuthListeners();
                 return true;
             }
