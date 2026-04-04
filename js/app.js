@@ -208,9 +208,6 @@ function setupStorefrontFilters() {
     const searchInput = document.getElementById('search-input');
     if (searchInput) searchInput.addEventListener('input', applyFilters);
     
-    const sortSelect = document.getElementById('sort-select');
-    if (sortSelect) sortSelect.addEventListener('change', applyFilters);
-}
 
 function applyFilters() {
     const grid = document.getElementById('product-grid');
@@ -238,15 +235,7 @@ function applyFilters() {
         
         return true;
     });
-       // Sort
-    const sortSelect = document.getElementById('sort-select');
-    const sortVal = sortSelect ? sortSelect.value : 'default';
-    if (sortVal === 'price-asc') filtered.sort((a,b) => (Number(a.price)||0) - (Number(b.price)||0));
-    else if (sortVal === 'price-desc') filtered.sort((a,b) => (Number(b.price)||0) - (Number(a.price)||0));
-    else if (sortVal === 'name-asc') filtered.sort((a,b) => a.name.localeCompare(b.name));
-    
-    // Breadcrumbs
-    const breadcrumb = document.getElementById('breadcrumb');
+
     if (breadcrumb) {
         let path = "Home";
         if (activeCats.length === 1) path += ` <span class="mx-1 text-outline-variant">/</span> ${escapeHTML(activeCats[0])}`;
