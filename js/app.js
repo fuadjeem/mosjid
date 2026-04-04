@@ -207,7 +207,7 @@ function setupStorefrontFilters() {
     // 3. Search & Sort
     const searchInput = document.getElementById('search-input');
     if (searchInput) searchInput.addEventListener('input', applyFilters);
-    
+}
 
 function applyFilters() {
     const grid = document.getElementById('product-grid');
@@ -236,6 +236,7 @@ function applyFilters() {
         return true;
     });
 
+    const breadcrumb = document.getElementById('breadcrumb');
     if (breadcrumb) {
         let path = "Home";
         if (activeCats.length === 1) path += ` <span class="mx-1 text-outline-variant">/</span> ${escapeHTML(activeCats[0])}`;
