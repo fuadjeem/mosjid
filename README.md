@@ -7,8 +7,10 @@ A high-performance grocery storefront and administrative dashboard built for **B
 ### 1. Setup
 This project is built using vanilla HTML/JS and Tailwind CSS. No complex build steps are required.
 - **Clone the repository**: `git clone https://github.com/fuadjeem/mosjid.git`
+- **Environment Variables**: 
+  - For frontend variables, copy `js/env.example.js` to `js/env.js` and add your Supabase credentials.
+  - For python automation scripts, set the `ADMIN_TOKEN` environment variable (`export ADMIN_TOKEN="your_jwt_token"`).
 - **Run locally**: You can open `index.html` directly in your browser, or use a "Live Server" extension in VS Code for a better experience.
-
 ### 2. Technology Stack
 - **Frontend**: HTML5, Vanilla JavaScript, Tailwind CSS (via Play CDN).
 - **Backend**: Supabase (Database, Auth, and Realtime).

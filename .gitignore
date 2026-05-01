@@ -6,3 +6,5 @@ __pycache__/
 *.env
 .env
 js/secrets.js
+grocereylist/*.jpeg
+*.xlsx

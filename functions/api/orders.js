@@ -7,6 +7,7 @@ export async function onRequestGet({ request, env }) {
 }
 
 export async function onRequestPost({ request, env }) {
+  if (!(await validateAdmin(request, env))) return new Response("Unauthorized", { status: 401 });
   const orderDetails = await request.json();
   const data = await env.STORE_KV.get('orders', { type: 'json' }) || [];
   

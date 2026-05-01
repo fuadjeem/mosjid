@@ -44,13 +44,24 @@ export async function validateAdmin(request, env) {
 }
 
 export async function onRequest({ request, next, env }) {
-    // Attach validateAdmin to the context if needed, but in Pages, we can't easily attach to 'env' or 'request' 
-    // without using a custom context. 
-    // However, we can just export it and import it in other files? 
-    // No, Pages functions are separate modules.
-    
-    // Actually, I'll just keep the helper in each file for now as it's more straightforward for Cloudflare Pages 
-    // unless I use the 'data' context in _middleware.
-    
-    return next();
+    const origin = request.headers.get("Origin") || "";
+    const isAllowed = origin.includes("localhost") || origin.includes("bakl1.pages.dev") || origin.includes("bakl.org");
+    const allowedOrigin = isAllowed ? origin : "https://bakl1.pages.dev";
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        headers: {
+          "Access-Control-Allow-Origin": allowedOrigin,
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          "Access-Control-Max-Age": "86400"
+        }
+      });
+    }
+
+    const response = await next();
+    response.headers.set("Access-Control-Allow-Origin", allowedOrigin);
+    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    return response;
 }

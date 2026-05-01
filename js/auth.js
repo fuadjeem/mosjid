@@ -96,6 +96,9 @@
     }
 
     // New: Admin State Management
+    // NOTE: This flag (userIsAdmin) is purely for UI/UX toggling. 
+    // It can be bypassed in DevTools, but all actual admin actions 
+    // are strictly protected by server-side JWT and RLS checks.
     window.userIsAdmin = false;
 
     async function updateAdminState(session) {
