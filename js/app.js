@@ -59,7 +59,18 @@ window.visibleCount = 20;
 
 async function loadLatestNews() {
     const container = document.getElementById('latest-news-container');
-    if (!container || !window.supabaseClient) return;
+    if (!container) return;
+
+    // Wait for Supabase client if not ready
+    if (!window.supabaseClient) {
+        let waitCount = 0;
+        while (!window.supabaseClient && waitCount < 50) {
+            await new Promise(r => setTimeout(r, 100));
+            waitCount++;
+        }
+    }
+    
+    if (!window.supabaseClient) return;
 
     try {
         const { data: news, error } = await window.supabaseClient
@@ -113,8 +124,19 @@ function renderSkeletons(grid) {
 
 async function loadProducts(grid) {
     try {
+        // Wait for Supabase client if not ready
         if (!window.supabaseClient) {
-            console.error("Supabase client not initialized.");
+            console.log('[app.js] Waiting for Supabase client...');
+            let waitCount = 0;
+            while (!window.supabaseClient && waitCount < 50) {
+                await new Promise(r => setTimeout(r, 100));
+                waitCount++;
+            }
+        }
+
+        if (!window.supabaseClient) {
+            console.error("Supabase client failed to initialize in time.");
+            grid.innerHTML = '<p class="text-on-surface-variant">Database connection timeout. Please refresh.</p>';
             return;
         }
         
