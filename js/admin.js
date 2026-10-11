@@ -451,9 +451,9 @@
             deliveredRate.innerHTML = `<span class="material-symbols-outlined text-[14px]">check_circle</span> ${rate}% Success rate`;
         }
     }
-    function setupAdminProfile() { 
+    function setupAdminProfile() {
         const btn = document.getElementById('admin-profile-btn');
-        if (btn) btn.onclick = () => window.logoutAdmin(); 
+        if (btn) btn.onclick = () => { window.location.href = 'profile.html'; };
     }
     function setupImageUploadHooks() {
         const fileInput = document.getElementById('prod-image-file');
