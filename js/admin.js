@@ -8,6 +8,7 @@
     let editingProductId = null;
     let currentPage = 1;
     const itemsPerPage = 10;
+    let imageUploadInProgress = false;
     // Admin list is now database-driven via 'admin_users' table.
 
     function escapeHTML(str) {
@@ -334,6 +335,11 @@
             const saveBtn = document.getElementById('save-product-btn');
             const originalText = saveBtn.innerText;
 
+            if (imageUploadInProgress) {
+                alert("⏳ Please wait for the image to finish uploading before saving.");
+                return;
+            }
+
             const catSelect = document.getElementById('prod-cat').value;
             let category = catSelect === '__new__' ? document.getElementById('prod-cat-new').value.trim() : catSelect;
 
@@ -563,6 +569,7 @@
     function setupImageUploadHooks() {
         const urlInput = document.getElementById('prod-imageurl');
         const statusEl = document.getElementById('upload-status');
+        const saveBtn = document.getElementById('save-product-btn');
 
         const wireInput = (input) => {
             if (!input || !urlInput) return;
@@ -570,12 +577,28 @@
                 const file = e.target.files[0];
                 if (!file) return;
 
-                // Call the shared helper
-                if (typeof window.handleImageUpload === 'function') {
-                    await window.handleImageUpload(file, urlInput, statusEl);
-                } else {
-                    console.error("[Admin] handleImageUpload helper not found.");
-                    alert("❌ Upload helper missing. Please reload the page.");
+                // Block Save until the resize + upload finishes, so a product
+                // can never be saved with a half-uploaded (or missing) image.
+                imageUploadInProgress = true;
+                if (saveBtn) {
+                    saveBtn.disabled = true;
+                    saveBtn.innerText = "Waiting for image...";
+                }
+
+                try {
+                    // Call the shared helper
+                    if (typeof window.handleImageUpload === 'function') {
+                        await window.handleImageUpload(file, urlInput, statusEl);
+                    } else {
+                        console.error("[Admin] handleImageUpload helper not found.");
+                        alert("❌ Upload helper missing. Please reload the page.");
+                    }
+                } finally {
+                    imageUploadInProgress = false;
+                    if (saveBtn) {
+                        saveBtn.disabled = false;
+                        saveBtn.innerText = "Save Product";
+                    }
                 }
             });
         };
