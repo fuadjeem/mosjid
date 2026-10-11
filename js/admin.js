@@ -561,15 +561,15 @@
         if (btn) btn.onclick = () => { window.location.href = 'profile.html'; };
     }
     function setupImageUploadHooks() {
-        const fileInput = document.getElementById('prod-image-file');
         const urlInput = document.getElementById('prod-imageurl');
         const statusEl = document.getElementById('upload-status');
 
-        if (fileInput && urlInput) {
-            fileInput.addEventListener('change', async (e) => {
+        const wireInput = (input) => {
+            if (!input || !urlInput) return;
+            input.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-                
+
                 // Call the shared helper
                 if (typeof window.handleImageUpload === 'function') {
                     await window.handleImageUpload(file, urlInput, statusEl);
@@ -578,7 +578,10 @@
                     alert("❌ Upload helper missing. Please reload the page.");
                 }
             });
-        }
+        };
+
+        wireInput(document.getElementById('prod-image-file'));
+        wireInput(document.getElementById('prod-image-camera'));
     }
 
     // --- Order Detail Logic ---

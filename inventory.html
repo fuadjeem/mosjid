@@ -430,8 +430,14 @@
             <input type="file" id="prod-image-file" class="hidden" accept="image/*">
             <button type="button" onclick="document.getElementById('prod-image-file').click()"
               class="bg-blue-50 hover:bg-blue-100 px-4 rounded-xl flex items-center justify-center transition-all group border border-blue-100"
-              title="Upload to Supabase Storage">
+              title="Upload from device">
               <span class="material-symbols-outlined text-blue-600 group-hover:scale-110 transition-transform">cloud_upload</span>
+            </button>
+            <input type="file" id="prod-image-camera" class="hidden" accept="image/*" capture="environment">
+            <button type="button" onclick="document.getElementById('prod-image-camera').click()"
+              class="bg-blue-50 hover:bg-blue-100 px-4 rounded-xl flex items-center justify-center transition-all group border border-blue-100"
+              title="Take a photo">
+              <span class="material-symbols-outlined text-blue-600 group-hover:scale-110 transition-transform">photo_camera</span>
             </button>
           </div>
           <p id="upload-status" class="text-[10px] mt-1 font-bold text-primary hidden">Uploading...</p>
