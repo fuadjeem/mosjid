@@ -365,6 +365,9 @@
                         <button class="p-2 text-slate-400 hover:text-primary transition-colors">
                             <span class="material-symbols-outlined text-sm">visibility</span>
                         </button>
+                        <button class="p-2 text-slate-400 hover:text-red-600 transition-colors" onclick="event.stopPropagation(); deleteOrder('${safeId}')" title="Delete order">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
                     </td>
                 </tr>
                 `;
@@ -372,6 +375,39 @@
             updateOrderDashboardStats(data);
         }
     }
+
+    window.deleteOrder = async (id) => {
+        if (!id) return;
+        if (!confirm('Delete this order permanently? This cannot be undone.')) return;
+
+        try {
+            const { error } = await window.supabaseClient.from('orders').delete().eq('id', id);
+            if (error) throw error;
+
+            const ordersTbody = document.getElementById('orders-table-body');
+            if (ordersTbody) loadOrders(ordersTbody);
+        } catch (err) {
+            console.error("[Admin] Delete Order Fail:", err);
+            alert("❌ Failed to delete order: " + err.message);
+        }
+    };
+
+    window.deleteAllOrders = async () => {
+        if (!confirm('Delete ALL orders? This will permanently clear every order and its items so you can start fresh. This cannot be undone.')) return;
+        if (!confirm('Are you absolutely sure? This removes every order in the system.')) return;
+
+        try {
+            const { error } = await window.supabaseClient.from('orders').delete().not('id', 'is', null);
+            if (error) throw error;
+
+            alert("✅ All orders cleared.");
+            const ordersTbody = document.getElementById('orders-table-body');
+            if (ordersTbody) loadOrders(ordersTbody);
+        } catch (err) {
+            console.error("[Admin] Delete All Orders Fail:", err);
+            alert("❌ Failed to clear orders: " + err.message);
+        }
+    };
 
     function updateStatsGrid(items) {
         const total = document.getElementById('val-total-items');
