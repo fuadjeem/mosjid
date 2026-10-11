@@ -190,6 +190,22 @@
           class="px-6 py-2.5 rounded-xl font-bold text-sm text-white bg-primary hover:bg-primary/90 transition-colors shadow-sm">Save Changes</button>
       </div>
     </form>
+
+    <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-sm max-w-2xl p-6 space-y-4 mt-8">
+      <h2 class="text-lg font-bold text-on-surface">Admin Users</h2>
+      <p class="text-[11px] text-on-surface-variant">People listed here can log in and manage products, orders, news and settings. At least one admin must always remain.</p>
+
+      <div id="admin-users-list" class="space-y-2">
+        <!-- Populated by JS -->
+      </div>
+
+      <form id="add-admin-form" class="flex gap-2 pt-3 border-t border-surface-container-high">
+        <input type="email" id="new-admin-email" placeholder="email@example.com" required
+          class="flex-grow bg-surface-container p-3 rounded-xl border border-transparent focus:border-primary/30 outline-none text-sm font-semibold transition-all" />
+        <button type="submit"
+          class="px-5 py-2.5 rounded-xl font-bold text-sm text-white bg-primary hover:bg-primary/90 transition-colors shadow-sm whitespace-nowrap">Add Admin</button>
+      </form>
+    </div>
   </main>
   <!-- Mobile Navigation Shell -->
   <div

@@ -137,6 +137,11 @@
             setupSettingsForm(settingsForm);
         }
 
+        const adminUsersList = document.getElementById('admin-users-list');
+        if (adminUsersList) {
+            setupAdminUsersPanel();
+        }
+
         // Global functions (attached to window)
         window.logoutAdmin = async () => {
             await window.supabaseClient.auth.signOut();
@@ -508,6 +513,94 @@
             deliveredRate.innerHTML = `<span class="material-symbols-outlined text-[14px]">check_circle</span> ${rate}% Success rate`;
         }
     }
+    // Core/owner accounts — permanently protected from removal, regardless
+    // of how many admins exist. Enforced here for UX and again in the DB
+    // trigger (prevent_last_admin_delete) as the real safety net.
+    const PROTECTED_ADMIN_EMAILS = ['admin@bakl.org', 'fuad.bioinfo@icloud.com'];
+
+    async function setupAdminUsersPanel() {
+        const listEl = document.getElementById('admin-users-list');
+        const addForm = document.getElementById('add-admin-form');
+        const emailInput = document.getElementById('new-admin-email');
+
+        async function loadAdminUsers() {
+            listEl.innerHTML = '<p class="text-xs text-on-surface-variant">Loading...</p>';
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('admin_users')
+                    .select('email')
+                    .order('created_at', { ascending: true });
+                if (error) throw error;
+
+                const currentEmail = (window.supabaseClient.auth.getUser ? (await window.supabaseClient.auth.getUser()).data?.user?.email : null) || '';
+                const onlyOneLeft = (data || []).length <= 1;
+
+                listEl.innerHTML = (data || []).map(row => {
+                    const safeEmail = escapeHTML(row.email);
+                    const isYou = row.email.toLowerCase() === currentEmail.toLowerCase();
+                    const isProtected = PROTECTED_ADMIN_EMAILS.includes(row.email.toLowerCase());
+
+                    let disabledAttrs = '';
+                    if (isProtected) disabledAttrs = 'disabled title="This admin account is permanently protected"';
+                    else if (onlyOneLeft) disabledAttrs = 'disabled title="At least one admin must remain"';
+
+                    return `
+                        <div class="flex items-center justify-between bg-surface-container p-3 rounded-xl">
+                            <span class="text-sm font-semibold text-on-surface">${safeEmail}${isYou ? ' <span class="text-[10px] font-bold text-primary uppercase">(you)</span>' : ''}${isProtected ? ' <span class="material-symbols-outlined text-[14px] text-on-surface-variant align-middle" title="Protected account">lock</span>' : ''}</span>
+                            <button type="button" onclick="removeAdminUser('${safeEmail}')" ${disabledAttrs}
+                                class="p-1.5 text-slate-400 hover:text-red-600 rounded-md transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                                <span class="material-symbols-outlined text-lg">delete</span>
+                            </button>
+                        </div>
+                    `;
+                }).join('') || '<p class="text-xs text-on-surface-variant">No admins found.</p>';
+            } catch (e) {
+                console.error("[Admin] Admin Users Load Fail:", e);
+                listEl.innerHTML = '<p class="text-xs text-error">Failed to load admin users.</p>';
+            }
+        }
+
+        window.removeAdminUser = async (email) => {
+            if (PROTECTED_ADMIN_EMAILS.includes(email.toLowerCase())) {
+                alert("❌ This admin account is permanently protected and cannot be removed.");
+                return;
+            }
+            if (!confirm(`Remove admin access for ${email}?`)) return;
+            try {
+                const { error } = await window.supabaseClient.from('admin_users').delete().eq('email', email);
+                if (error) throw error;
+                loadAdminUsers();
+            } catch (err) {
+                console.error("[Admin] Remove Admin Fail:", err);
+                alert("❌ Failed to remove admin: " + err.message);
+            }
+        };
+
+        if (addForm) {
+            addForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = emailInput.value.trim().toLowerCase();
+                if (!email) return;
+
+                try {
+                    const { error } = await window.supabaseClient.from('admin_users').insert([{ email }]);
+                    if (error) throw error;
+                    emailInput.value = '';
+                    loadAdminUsers();
+                } catch (err) {
+                    console.error("[Admin] Add Admin Fail:", err);
+                    if (err.code === '23505') {
+                        alert("❌ That email is already an admin.");
+                    } else {
+                        alert("❌ Failed to add admin: " + err.message);
+                    }
+                }
+            });
+        }
+
+        loadAdminUsers();
+    }
+
     async function setupSettingsForm(form) {
         const titleInput = document.getElementById('setting-hero-title');
         const subtitleInput = document.getElementById('setting-hero-subtitle');
