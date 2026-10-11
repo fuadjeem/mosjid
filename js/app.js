@@ -421,7 +421,7 @@ function renderProductGrid(grid, products) {
 window.addToCart = (id, name, price) => {
     const qtyInput = document.getElementById(`qty-${id}`);
     const qtyToAdd = qtyInput ? parseInt(qtyInput.value, 10) : 1;
-    
+
     if (isNaN(qtyToAdd) || qtyToAdd < 1) return;
 
     const existing = cart.find(i => i.id === id);
@@ -429,8 +429,31 @@ window.addToCart = (id, name, price) => {
     else cart.push({id, name, price, qty: qtyToAdd});
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartIcon();
-    alert(`${qtyToAdd}x ${name} added to cart`);
+    showToast(`${qtyToAdd}x ${name} added to cart`);
 };
+
+function showToast(message) {
+    let toast = document.getElementById('app-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'app-toast';
+        toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#191c23;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:9999;opacity:0;transition:opacity 0.25s ease, transform 0.25s ease;pointer-events:none;max-width:90vw;text-align:center;';
+        document.body.appendChild(toast);
+    }
+
+    toast.textContent = message;
+    clearTimeout(toast._hideTimer);
+
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+
+    toast._hideTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(20px)';
+    }, 2000);
+}
 
 function updateCartIcon() {
     // A more advanced app would update the UI here
