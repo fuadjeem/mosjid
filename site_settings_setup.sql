@@ -24,5 +24,9 @@ WITH CHECK (auth.jwt() ->> 'email' IN (SELECT email FROM public.admin_users));
 -- Seed with the current homepage hero text so nothing changes until edited
 INSERT INTO public.site_settings (key, value) VALUES
     ('homepage_hero_title', '৩০ ইউরোর বেশি অর্ডারে ফ্রি হোম ডেলিভারি'),
-    ('homepage_hero_subtitle', 'আপনার পছন্দের সকল গ্রোসারি পণ্য এখন অনলাইনে। ৩০ ইউরোর বেশি বাজার করলেই পাচ্ছেন ফ্রি হোম ডেলিভারি সুবিধা (শুধুমাত্র লিন্জ শহরের জন্য)।')
+    ('homepage_hero_subtitle', 'আপনার পছন্দের সকল গ্রোসারি পণ্য এখন অনলাইনে। ৩০ ইউরোর বেশি বাজার করলেই পাচ্ছেন ফ্রি হোম ডেলিভারি সুবিধা (শুধুমাত্র লিন্জ শহরের জন্য)।'),
+    ('free_delivery_threshold', '30')
 ON CONFLICT (key) DO NOTHING;
+
+-- Already ran this file before? Re-running is safe (IF NOT EXISTS / ON CONFLICT DO NOTHING),
+-- so just re-run it whenever a new setting key is added.

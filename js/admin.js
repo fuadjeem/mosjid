@@ -505,18 +505,20 @@
     async function setupSettingsForm(form) {
         const titleInput = document.getElementById('setting-hero-title');
         const subtitleInput = document.getElementById('setting-hero-subtitle');
+        const deliveryThresholdInput = document.getElementById('setting-delivery-threshold');
         const saveBtn = document.getElementById('save-settings-btn');
 
         try {
             const { data, error } = await window.supabaseClient
                 .from('site_settings')
                 .select('key, value')
-                .in('key', ['homepage_hero_title', 'homepage_hero_subtitle']);
+                .in('key', ['homepage_hero_title', 'homepage_hero_subtitle', 'free_delivery_threshold']);
             if (error) throw error;
 
             (data || []).forEach(row => {
                 if (row.key === 'homepage_hero_title' && titleInput) titleInput.value = row.value;
                 if (row.key === 'homepage_hero_subtitle' && subtitleInput) subtitleInput.value = row.value;
+                if (row.key === 'free_delivery_threshold' && deliveryThresholdInput) deliveryThresholdInput.value = row.value;
             });
         } catch (e) {
             console.error("[Admin] Settings Load Fail:", e);
@@ -525,6 +527,13 @@
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            const threshold = parseFloat(deliveryThresholdInput.value);
+            if (deliveryThresholdInput && (isNaN(threshold) || threshold < 0)) {
+                alert("❌ Please enter a valid non-negative delivery minimum.");
+                return;
+            }
+
             const originalText = saveBtn.innerText;
             saveBtn.disabled = true;
             saveBtn.innerText = "Saving...";
@@ -532,7 +541,8 @@
             try {
                 const { error } = await window.supabaseClient.from('site_settings').upsert([
                     { key: 'homepage_hero_title', value: titleInput.value },
-                    { key: 'homepage_hero_subtitle', value: subtitleInput.value }
+                    { key: 'homepage_hero_subtitle', value: subtitleInput.value },
+                    { key: 'free_delivery_threshold', value: String(threshold) }
                 ]);
                 if (error) throw error;
                 alert("✅ Settings saved.");

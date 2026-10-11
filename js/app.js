@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. If on cart page
     const cartContainer = document.getElementById('cart-items-container');
     if (cartContainer) {
-        renderCart(cartContainer);
+        loadDeliveryThreshold().then(() => renderCart(cartContainer));
         setupCheckout();
     }
     
@@ -50,6 +50,32 @@ let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 window.allProducts = [];
 window.filteredProducts = [];
 window.visibleCount = 20;
+window.freeDeliveryThreshold = 30;
+
+async function loadDeliveryThreshold() {
+    if (!window.supabaseClient) {
+        let waitCount = 0;
+        while (!window.supabaseClient && waitCount < 50) {
+            await new Promise(r => setTimeout(r, 100));
+            waitCount++;
+        }
+    }
+    if (!window.supabaseClient) return;
+
+    try {
+        const { data, error } = await window.supabaseClient
+            .from('site_settings')
+            .select('value')
+            .eq('key', 'free_delivery_threshold')
+            .maybeSingle();
+
+        if (error || !data) return; // Table not set up yet — keep the default of 30
+        const parsed = parseFloat(data.value);
+        if (!isNaN(parsed) && parsed >= 0) window.freeDeliveryThreshold = parsed;
+    } catch (e) {
+        console.warn("Could not load delivery threshold setting, using default:", e);
+    }
+}
 
     function escapeHTML(str) {
         if (!str) return '';
@@ -467,16 +493,18 @@ function renderCart(container) {
     
     document.getElementById('subtotal-val').innerText = '€' + total.toFixed(2);
     
+    const freeDeliveryThreshold = window.freeDeliveryThreshold || 30;
+
     if (modePickupRadio && modeDeliveryRadio) {
-        if (total < 30) {
+        if (total < freeDeliveryThreshold) {
             modeDeliveryRadio.disabled = true;
             modeDeliveryRadio.classList.add('cursor-not-allowed');
             modeDeliveryLabel.classList.add('opacity-50');
             modeDeliveryLabel.classList.remove('hover:bg-surface');
             modePickupRadio.checked = true;
-            
+
             if(deliveryEligibilityText) {
-                deliveryEligibilityText.innerHTML = `Requires €30.00 minimum`;
+                deliveryEligibilityText.innerHTML = `Requires €${freeDeliveryThreshold.toFixed(2)} minimum`;
                 deliveryEligibilityText.classList.add('text-error');
                 deliveryEligibilityText.classList.remove('text-on-surface-variant');
             }
@@ -512,8 +540,8 @@ function renderCart(container) {
                 }
                 
                 if (warningTextBlock) {
-                    if (total < 30) {
-                        const diff = (30 - total).toFixed(2);
+                    if (total < freeDeliveryThreshold) {
+                        const diff = (freeDeliveryThreshold - total).toFixed(2);
                         warningTextBlock.innerHTML = `
                             <p class="text-xs font-bold text-on-secondary-fixed-variant">Local Pickup Selected</p>
                             <p class="text-[11px] text-on-secondary-fixed-variant/80">Add €${diff} more to your cart to unlock Free Home Delivery.</p>
