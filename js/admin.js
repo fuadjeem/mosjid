@@ -152,13 +152,24 @@
             if (error) throw error;
             globalInventory = data;
 
+            const cats = [...new Set(data.map(p => p.category))].filter(Boolean).sort();
+
             const catFilter = document.getElementById('category-filter');
             if (catFilter) {
-                const cats = [...new Set(data.map(p => p.category))].filter(Boolean);
                 const current = catFilter.value;
                 catFilter.innerHTML = `<option>All Categories</option>` + cats.map(c => `<option>${escapeHTML(c)}</option>`).join('');
                 if (cats.includes(current) || current === 'All Categories') catFilter.value = current;
             }
+
+            const catSelect = document.getElementById('prod-cat');
+            if (catSelect) {
+                const current = catSelect.value;
+                catSelect.innerHTML = `<option value="">Select category</option>` +
+                    cats.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('') +
+                    `<option value="__new__">+ Add new category</option>`;
+                if (cats.includes(current)) catSelect.value = current;
+            }
+
             renderInventory();
         } catch (e) { console.error("[Admin] Inventory Load Fail:", e); }
     }
@@ -257,7 +268,7 @@
         const modal = document.getElementById('add-product-modal');
         document.getElementById('modal-title').innerText = "Edit Product";
         document.getElementById('prod-name').value = prod.name;
-        document.getElementById('prod-cat').value = prod.category;
+        setCategorySelection(prod.category);
         document.getElementById('prod-price').value = prod.price;
         document.getElementById('prod-stock').value = prod.stock;
         document.getElementById('prod-expiry').value = prod.expiry || '';
@@ -280,13 +291,34 @@
         }
     };
 
+    function setCategorySelection(category) {
+        const select = document.getElementById('prod-cat');
+        const newInput = document.getElementById('prod-cat-new');
+        if (!select) return;
+
+        const hasOption = category && [...select.options].some(o => o.value === category);
+        select.value = hasOption ? category : (category ? '__new__' : '');
+        if (newInput) {
+            newInput.value = hasOption ? '' : (category || '');
+            newInput.style.display = select.value === '__new__' ? 'block' : 'none';
+        }
+    }
+
     function setupInventoryModals() {
         const modal = document.getElementById('add-product-modal');
+        document.getElementById('prod-cat')?.addEventListener('change', (e) => {
+            const newInput = document.getElementById('prod-cat-new');
+            if (newInput) {
+                newInput.style.display = e.target.value === '__new__' ? 'block' : 'none';
+                if (e.target.value === '__new__') newInput.focus();
+            }
+        });
         document.getElementById('add-product-btn')?.addEventListener('click', () => {
             editingProductId = null;
             document.getElementById('modal-title').innerText = "Add New Product";
             document.getElementById('admin-login-form')?.reset(); // Actually it should be prod form
             document.getElementById('prod-name').value = '';
+            setCategorySelection('');
             document.getElementById('delete-product-modal-btn')?.classList.add('hidden');
             modal?.classList.remove('hidden');
         });
@@ -295,12 +327,25 @@
         document.getElementById('save-product-btn')?.addEventListener('click', async () => {
             const saveBtn = document.getElementById('save-product-btn');
             const originalText = saveBtn.innerText;
+
+            const catSelect = document.getElementById('prod-cat').value;
+            let category = catSelect === '__new__' ? document.getElementById('prod-cat-new').value.trim() : catSelect;
+
+            if (!category) {
+                alert("❌ Please select or enter a category.");
+                return;
+            }
+
+            // Avoid near-duplicate categories from inconsistent casing (e.g. "Snacks" vs "snacks")
+            const existingMatch = [...new Set(globalInventory.map(p => p.category))].find(c => c && c.toLowerCase() === category.toLowerCase());
+            if (existingMatch) category = existingMatch;
+
             saveBtn.disabled = true;
             saveBtn.innerText = "Saving...";
 
             const data = {
                 name: document.getElementById('prod-name').value,
-                category: document.getElementById('prod-cat').value,
+                category: category,
                 price: document.getElementById('prod-price').value,
                 stock: document.getElementById('prod-stock').value,
                 expiry: document.getElementById('prod-expiry').value,
