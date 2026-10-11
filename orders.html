@@ -368,9 +368,6 @@
                     </select>
                 </div>
                 <div class="flex items-center gap-4 text-sm text-on-surface-variant">
-                    <button class="flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-700 border border-red-200 hover:bg-red-50 rounded-lg px-3 py-2 transition-colors" onclick="deleteAllOrders()" title="Delete every order">
-                        <span class="material-symbols-outlined text-[16px]">delete_sweep</span> Clear Test Orders
-                    </button>
                     <span class="material-symbols-outlined cursor-pointer hover:text-on-surface">filter_list</span>
                     <span>Showing <span id="order-pagination-summary">0 of 0</span> orders</span>
                 </div>
@@ -571,6 +568,10 @@
                 <button id="modal-delivered-btn" onclick="markAsDelivered(currentOrderId)" class="hidden px-6 py-2.5 bg-green-600 text-white font-bold text-sm rounded-xl shadow-xl shadow-green-900/20 hover:bg-green-700 transition-all flex items-center gap-2">
                     <span class="material-symbols-outlined text-sm">check_circle</span>
                     Mark as Delivered
+                </button>
+                <button onclick="deleteOrder(currentOrderId)" class="px-6 py-2.5 bg-red-600 text-white font-bold text-sm rounded-xl shadow-xl shadow-red-900/20 hover:bg-red-700 transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">delete</span>
+                    Delete Order
                 </button>
                 <button onclick="closeOrderModal()" class="px-6 py-2.5 text-slate-600 font-bold text-sm hover:bg-slate-200 rounded-xl transition-all">Close</button>
                 <button onclick="printInvoice()" class="px-6 py-2.5 bg-primary text-white font-bold text-sm rounded-xl shadow-xl shadow-primary/20 hover:opacity-90 transition-opacity flex items-center gap-2">
