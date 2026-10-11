@@ -10,16 +10,23 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
 ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
 
 -- Anyone (including guests) can read site settings — needed to render the homepage
+DROP POLICY IF EXISTS "Public can view site settings" ON public.site_settings;
 CREATE POLICY "Public can view site settings"
 ON public.site_settings FOR SELECT
 USING (true);
 
 -- Only admins can change them
+DROP POLICY IF EXISTS "Admins can manage site settings" ON public.site_settings;
 CREATE POLICY "Admins can manage site settings"
 ON public.site_settings FOR ALL
 TO authenticated
 USING (auth.jwt() ->> 'email' IN (SELECT email FROM public.admin_users))
 WITH CHECK (auth.jwt() ->> 'email' IN (SELECT email FROM public.admin_users));
+
+-- Ensure anon/authenticated roles can actually reach this table via the Data API
+-- (RLS alone doesn't expose a table — PostgREST also needs the GRANT)
+GRANT SELECT ON public.site_settings TO anon, authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.site_settings TO authenticated;
 
 -- Seed with the current homepage hero text so nothing changes until edited
 INSERT INTO public.site_settings (key, value) VALUES
@@ -28,5 +35,9 @@ INSERT INTO public.site_settings (key, value) VALUES
     ('free_delivery_threshold', '30')
 ON CONFLICT (key) DO NOTHING;
 
--- Already ran this file before? Re-running is safe (IF NOT EXISTS / ON CONFLICT DO NOTHING),
+-- Force PostgREST to pick up the new table immediately instead of waiting
+-- for its next automatic schema cache refresh
+NOTIFY pgrst, 'reload schema';
+
+-- Already ran this file before? Re-running is safe (IF NOT EXISTS / DROP+CREATE / ON CONFLICT DO NOTHING),
 -- so just re-run it whenever a new setting key is added.
