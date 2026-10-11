@@ -130,6 +130,12 @@
             loadOrders(ordersTable);
         }
 
+        // Settings Page
+        const settingsForm = document.getElementById('settings-form');
+        if (settingsForm) {
+            setupSettingsForm(settingsForm);
+        }
+
         // Global functions (attached to window)
         window.logoutAdmin = async () => {
             await window.supabaseClient.auth.signOut();
@@ -496,6 +502,50 @@
             deliveredRate.innerHTML = `<span class="material-symbols-outlined text-[14px]">check_circle</span> ${rate}% Success rate`;
         }
     }
+    async function setupSettingsForm(form) {
+        const titleInput = document.getElementById('setting-hero-title');
+        const subtitleInput = document.getElementById('setting-hero-subtitle');
+        const saveBtn = document.getElementById('save-settings-btn');
+
+        try {
+            const { data, error } = await window.supabaseClient
+                .from('site_settings')
+                .select('key, value')
+                .in('key', ['homepage_hero_title', 'homepage_hero_subtitle']);
+            if (error) throw error;
+
+            (data || []).forEach(row => {
+                if (row.key === 'homepage_hero_title' && titleInput) titleInput.value = row.value;
+                if (row.key === 'homepage_hero_subtitle' && subtitleInput) subtitleInput.value = row.value;
+            });
+        } catch (e) {
+            console.error("[Admin] Settings Load Fail:", e);
+            alert("❌ Could not load settings. Has site_settings_setup.sql been run in Supabase yet?");
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const originalText = saveBtn.innerText;
+            saveBtn.disabled = true;
+            saveBtn.innerText = "Saving...";
+
+            try {
+                const { error } = await window.supabaseClient.from('site_settings').upsert([
+                    { key: 'homepage_hero_title', value: titleInput.value },
+                    { key: 'homepage_hero_subtitle', value: subtitleInput.value }
+                ]);
+                if (error) throw error;
+                alert("✅ Settings saved.");
+            } catch (err) {
+                console.error("[Admin] Settings Save Fail:", err);
+                alert("❌ Failed to save settings: " + err.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = originalText;
+            }
+        });
+    }
+
     function setupAdminProfile() {
         const btn = document.getElementById('admin-profile-btn');
         if (btn) btn.onclick = () => { window.location.href = 'profile.html'; };

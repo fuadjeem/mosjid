@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (productGrid) {
         loadProducts(productGrid);
         loadLatestNews(); // Fetch latest announcement for homepage
+        loadHeroText(); // Fetch admin-editable homepage banner text
     }
 
     // 2. If on cart page
@@ -56,6 +57,37 @@ window.visibleCount = 20;
         div.textContent = str;
         return div.innerHTML;
     }
+
+async function loadHeroText() {
+    const titleEl = document.getElementById('hero-title');
+    const subtitleEl = document.getElementById('hero-subtitle');
+    if (!titleEl && !subtitleEl) return;
+
+    if (!window.supabaseClient) {
+        let waitCount = 0;
+        while (!window.supabaseClient && waitCount < 50) {
+            await new Promise(r => setTimeout(r, 100));
+            waitCount++;
+        }
+    }
+    if (!window.supabaseClient) return;
+
+    try {
+        const { data, error } = await window.supabaseClient
+            .from('site_settings')
+            .select('key, value')
+            .in('key', ['homepage_hero_title', 'homepage_hero_subtitle']);
+
+        if (error || !data) return; // Table not set up yet — keep the hardcoded fallback text
+
+        data.forEach(row => {
+            if (row.key === 'homepage_hero_title' && titleEl && row.value) titleEl.textContent = row.value;
+            if (row.key === 'homepage_hero_subtitle' && subtitleEl && row.value) subtitleEl.textContent = row.value;
+        });
+    } catch (e) {
+        console.warn("Could not load homepage banner settings, using defaults:", e);
+    }
+}
 
 async function loadLatestNews() {
     const container = document.getElementById('latest-news-container');
