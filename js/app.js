@@ -77,6 +77,7 @@ async function loadLatestNews() {
             .from('news')
             .select('*')
             .order('date', { ascending: false })
+            .order('created_at', { ascending: false })
             .limit(1)
             .single();
 
