@@ -538,7 +538,7 @@ function renderCart(container) {
             modeDeliveryLabel.classList.add('hover:bg-surface');
             
             if(deliveryEligibilityText) {
-                deliveryEligibilityText.innerHTML = `Unlocked. Ships immediately.`;
+                deliveryEligibilityText.innerHTML = `Unlocked. We'll contact you about the delivery date.`;
                 deliveryEligibilityText.classList.remove('text-error');
                 deliveryEligibilityText.classList.add('text-on-surface-variant');
             }
@@ -583,8 +583,7 @@ function renderCart(container) {
                 checkoutBtn.classList.add('bg-primary');
                 checkoutBtn.innerText = 'অর্ডার কনফার্ম করুন (পিকআপ)';
                 
-                const fDateLabel = document.getElementById('fulfillment-date-label');
-                if (fDateLabel) fDateLabel.innerText = "পিকআপের তারিখ";
+                toggleFulfillmentDate(true);
             } else {
                 if (logisticsText) logisticsText.innerText = 'Home Delivery';
                 if (logisticsVal) logisticsVal.innerText = 'Free';
@@ -603,7 +602,7 @@ function renderCart(container) {
                 if (warningTextBlock) {
                     warningTextBlock.innerHTML = `
                         <p class="text-xs font-bold text-on-primary-fixed-variant">Free Home Delivery Selected</p>
-                        <p class="text-[11px] text-on-primary-fixed-variant/80">Your order qualifies for fast, free courier dispatch.</p>
+                        <p class="text-[11px] text-on-primary-fixed-variant/80">Your order qualifies for free home delivery. We will contact you to arrange the delivery date.</p>
                     `;
                 }
                 
@@ -613,8 +612,7 @@ function renderCart(container) {
                 checkoutBtn.classList.add('bg-primary');
                 checkoutBtn.innerText = 'অর্ডার কনফার্ম করুন (ডেলিভারি)';
                 
-                const fDateLabel = document.getElementById('fulfillment-date-label');
-                if (fDateLabel) fDateLabel.innerText = "ডেলিভারির তারিখ";
+                toggleFulfillmentDate(false);
             }
             
             document.getElementById('total-val').innerText = '€' + total.toFixed(2);
@@ -643,12 +641,32 @@ window.updateCartQty = (id, newQty) => {
     }
 };
 
+// Pickup date is only shown for pickup orders; delivery dates are arranged by the shop.
+function toggleFulfillmentDate(isPickup) {
+    const wrap = document.getElementById('fulfillment-date-wrap');
+    const note = document.getElementById('delivery-date-note');
+    if (wrap) wrap.classList.toggle('hidden', !isPickup);
+    if (note) note.classList.toggle('hidden', isPickup);
+}
+
+// Pickups happen on Fridays only: offer the next few Fridays (today counts if it is Friday).
+function populatePickupFridays(select, count = 4) {
+    const pad = n => String(n).padStart(2, '0');
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + ((5 - d.getDay() + 7) % 7));
+    select.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+        const value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        const label = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        select.add(new Option(label, value, i === 0, i === 0));
+        d.setDate(d.getDate() + 7);
+    }
+}
+
 function setupCheckout() {
     const fulfillmentDate = document.getElementById('fulfillment-date');
-    if (fulfillmentDate) {
-        const today = new Date().toISOString().split('T')[0];
-        fulfillmentDate.setAttribute('min', today);
-    }
+    if (fulfillmentDate) populatePickupFridays(fulfillmentDate);
 
     const btn = document.getElementById('checkout-btn');
     if (!btn) return;
@@ -679,15 +697,15 @@ function setupCheckout() {
             customer: document.getElementById('fname').value,
             email: document.getElementById('email').value,
             phone: document.getElementById('phone').value,
-            date: document.getElementById('fulfillment-date').value,
+            date: isDelivery ? null : document.getElementById('fulfillment-date').value,
             address: isDelivery ? document.getElementById('address').value : 'Pickup in Store',
             items: cart,
             total: document.getElementById('total-val').innerText.replace('€', ''),
             deliveryMode: isDelivery ? 'Home Delivery' : 'Local Pickup'
         };
         
-        if (!payload.date || !payload.customer || !payload.email || (isDelivery && !payload.address)) {
-            alert("Please fill all required details, including Fulfillment Date.");
+        if (!payload.customer || !payload.email || (isDelivery ? !payload.address : !payload.date)) {
+            alert(isDelivery ? "Please fill all required details, including your address." : "Please fill all required details, including the pickup Friday.");
             return;
         }
         

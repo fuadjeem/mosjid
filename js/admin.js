@@ -404,6 +404,19 @@
         }).subscribe();
     }
 
+    // Final states: 'Delivered' for home delivery, 'Picked Up' for in-store pickup.
+    function isCompletedStatus(status) {
+        const s = (status || '').toLowerCase();
+        return s === 'delivered' || s === 'picked up';
+    }
+
+    function statusBadgeClass(status) {
+        const s = (status || '').toLowerCase();
+        if (s === 'delivered') return 'bg-green-100 text-green-700';
+        if (s === 'picked up') return 'bg-blue-100 text-blue-700';
+        return 'bg-slate-100 text-slate-600';
+    }
+
     async function loadOrders(tbody) {
         if (!tbody) return;
         const { data, error } = await window.supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
@@ -422,7 +435,7 @@
                     <td class="px-6 py-4 font-bold text-slate-900">${safeCustomer}</td>
                     <td class="px-6 py-4 font-black text-slate-900">€${safeTotal}</td>
                     <td class="px-6 py-4 text-xs text-slate-500">${escapeHTML(safeDate)}</td>
-                    <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${status.toLowerCase() === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}">${escapeHTML(status)}</span></td>
+                    <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${statusBadgeClass(status)}">${escapeHTML(status)}</span></td>
                     <td class="px-6 py-4 text-right">
                         <button class="p-2 text-slate-400 hover:text-primary transition-colors">
                             <span class="material-symbols-outlined text-sm">visibility</span>
@@ -482,16 +495,15 @@
         // 2. Pending Orders (Not Delivered and Not Cancelled)
         const pendingOrders = orders.filter(o => {
             const status = (o.status || '').toLowerCase();
-            return status !== 'delivered' && status !== 'cancelled';
+            return !isCompletedStatus(status) && status !== 'cancelled';
         });
         
         // 3. Delivered (Last 30 Days)
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         const deliveredRecent = orders.filter(o => {
-            const status = (o.status || '').toLowerCase();
             const orderDate = new Date(o.created_at);
-            return status === 'delivered' && orderDate >= thirtyDaysAgo;
+            return isCompletedStatus(o.status) && orderDate >= thirtyDaysAgo;
         });
 
         // 4. Update DOM
@@ -509,7 +521,7 @@
         
         const deliveredRate = document.getElementById('stat-delivered-rate');
         if (deliveredRate && orders.length > 0) {
-            const rate = ((orders.filter(o => (o.status || '').toLowerCase() === 'delivered').length / orders.length) * 100).toFixed(1);
+            const rate = ((orders.filter(o => isCompletedStatus(o.status)).length / orders.length) * 100).toFixed(1);
             deliveredRate.innerHTML = `<span class="material-symbols-outlined text-[14px]">check_circle</span> ${rate}% Success rate`;
         }
     }
@@ -726,16 +738,25 @@
             document.getElementById('modal-customer-address').innerText = order.delivery_info?.address || 'N/A';
             document.getElementById('modal-order-total').innerText = '€' + Number(order.total_amount).toFixed(2);
 
-            // Handle "Delivered" button visibility
-            const deliveredBtn = document.getElementById('modal-delivered-btn');
-            if (deliveredBtn) {
-                const currentStatus = (order.status || '').toLowerCase();
-                if (currentStatus !== 'delivered') {
-                    deliveredBtn.classList.remove('hidden');
-                } else {
-                    deliveredBtn.classList.add('hidden');
-                }
+            // Fulfillment mode: pickup orders get "Picked Up", deliveries get "Delivered"
+            const isPickup = order.delivery_info?.delivery_mode === 'Local Pickup';
+            const fulfillmentEl = document.getElementById('modal-fulfillment');
+            if (fulfillmentEl) {
+                const pickupDate = order.delivery_info?.date
+                    ? new Date(order.delivery_info.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+                    : 'date not set';
+                fulfillmentEl.innerText = isPickup ? `Local Pickup — ${pickupDate}` : 'Home Delivery — date to be arranged';
             }
+            const fulfillmentIcon = document.getElementById('modal-fulfillment-icon');
+            if (fulfillmentIcon) fulfillmentIcon.innerText = isPickup ? 'storefront' : 'local_shipping';
+            const addressHeading = document.getElementById('modal-address-heading');
+            if (addressHeading) addressHeading.innerText = isPickup ? 'Pickup' : 'Delivery Address';
+
+            const completed = isCompletedStatus(order.status);
+            const deliveredBtn = document.getElementById('modal-delivered-btn');
+            const pickedUpBtn = document.getElementById('modal-pickedup-btn');
+            if (deliveredBtn) deliveredBtn.classList.toggle('hidden', completed || isPickup);
+            if (pickedUpBtn) pickedUpBtn.classList.toggle('hidden', completed || !isPickup);
 
             // Fetch Order Items
             const { data: items, error: itemsErr } = await window.supabaseClient.from('order_items').select('*').eq('order_id', id);
@@ -782,21 +803,21 @@
         window.currentOrderId = null;
     };
 
-    window.markAsDelivered = async (id) => {
+    async function setOrderStatus(id, status, btnId, confirmMsg) {
         if (!id) return;
-        if (!confirm('Confirm delivery for this order?')) return;
+        if (!confirm(confirmMsg)) return;
 
-        const btn = document.getElementById('modal-delivered-btn');
+        const btn = document.getElementById(btnId);
         const originalText = btn.innerHTML;
         
         try {
             btn.disabled = true;
             btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">sync</span> Processing...';
 
-            const { error } = await window.supabaseClient.from('orders').update({ status: 'Delivered' }).eq('id', id);
+            const { error } = await window.supabaseClient.from('orders').update({ status }).eq('id', id);
             if (error) throw error;
 
-            alert("✅ Order marked as Delivered.");
+            alert(`✅ Order marked as ${status}.`);
             closeOrderModal();
             
             // Refresh Orders Table if on orders page
@@ -810,7 +831,10 @@
             btn.disabled = false;
             btn.innerHTML = originalText;
         }
-    };
+    }
+
+    window.markAsDelivered = (id) => setOrderStatus(id, 'Delivered', 'modal-delivered-btn', 'Confirm delivery for this order?');
+    window.markAsPickedUp = (id) => setOrderStatus(id, 'Picked Up', 'modal-pickedup-btn', 'Confirm this order was picked up in store?');
 
     window.printInvoice = () => {
         window.print();
