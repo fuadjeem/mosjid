@@ -713,14 +713,7 @@ function setupCheckout() {
         btn.disabled = true;
         
         try {
-            // Validate session (Optional for Guest)
-            let user_id = null;
-            if (window.supabaseClient) {
-                const { data: { session } } = await window.supabaseClient.auth.getSession();
-                if (session && session.user) {
-                    user_id = session.user.id;
-                }
-            } else {
+            if (!window.supabaseClient) {
                 console.error("Supabase client is not loaded.");
                 alert("Critical error: Database connection unavailable.");
                 btn.innerText = "Proceed to Checkout";
@@ -728,56 +721,22 @@ function setupCheckout() {
                 return;
             }
 
-            const { data: orderData, error: orderError } = await window.supabaseClient
-                .from('orders')
-                .insert([
-                    {
-                        user_id: user_id,
-                        total_amount: parseFloat(payload.total),
-                        status: 'pending_delivery',
-                        delivery_info: {
-                            customer: payload.customer,
-                            email: payload.email,
-                            phone: payload.phone,
-                            date: payload.date,
-                            address: payload.address,
-                            delivery_mode: payload.deliveryMode
-                        }
-                    }
-                ])
-                .select()
-                .single();
+            // place_order (place_order_function.sql) creates the order + items and reduces
+            // stock in one transaction, rejecting the order if any item is out of stock.
+            const { data: orderId, error: orderError } = await window.supabaseClient.rpc('place_order', {
+                p_delivery_info: {
+                    customer: payload.customer,
+                    email: payload.email,
+                    phone: payload.phone,
+                    date: payload.date,
+                    address: payload.address,
+                    delivery_mode: payload.deliveryMode
+                },
+                p_items: payload.items.map(item => ({ id: item.id.toString(), qty: parseInt(item.qty, 10) }))
+            });
 
             if (orderError) throw orderError;
-
-            // Insert Order Items
-            const itemsToInsert = payload.items.map(item => ({
-                order_id: orderData.id,
-                product_id: item.id.toString(),
-                product_name: item.name,
-                quantity: parseInt(item.qty, 10),
-                price: parseFloat(item.price)
-            }));
-
-            const { error: itemsError } = await window.supabaseClient
-                .from('order_items')
-                .insert(itemsToInsert);
-                
-            if (itemsError) throw itemsError;
-
-            // --- DECREMENT STOCK ---
-            for (const item of cart) {
-                // Fetch current stock to be safe, or just atomic decrement if we had RPC
-                // For now, simple update based on loaded data
-                const prod = window.allProducts.find(p => p.id === item.id);
-                if (prod) {
-                    const newStock = Math.max(0, prod.stock - item.qty);
-                    await window.supabaseClient
-                        .from('products')
-                        .update({ stock: newStock })
-                        .eq('id', item.id);
-                }
-            }
+            const orderData = { id: orderId };
 
             cart = [];
             localStorage.setItem('cart', '[]');
@@ -796,7 +755,9 @@ function setupCheckout() {
 
         } catch(e) { 
             console.error(e); 
-            alert("Checkout failed: " + (e.message || "Please try again."));
+            // Server errors look like "OUT_OF_STOCK: Only 2 left of "Rice"." — show just the human part
+            const msg = (e.message || "Please try again.").replace(/^[A-Z_]+:\s*/, '');
+            alert("Checkout failed: " + msg);
             btn.innerText = "Proceed to Checkout";
             btn.disabled = false;
         }
