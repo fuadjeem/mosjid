@@ -414,6 +414,7 @@
         const s = (status || '').toLowerCase();
         if (s === 'delivered') return 'bg-green-100 text-green-700';
         if (s === 'picked up') return 'bg-blue-100 text-blue-700';
+        if (s === 'cancelled') return 'bg-red-100 text-red-700';
         return 'bg-slate-100 text-slate-600';
     }
 
@@ -757,6 +758,11 @@
             const pickedUpBtn = document.getElementById('modal-pickedup-btn');
             if (deliveredBtn) deliveredBtn.classList.toggle('hidden', completed || isPickup);
             if (pickedUpBtn) pickedUpBtn.classList.toggle('hidden', completed || !isPickup);
+            const cancelled = (order.status || '').toLowerCase() === 'cancelled';
+            if (deliveredBtn && cancelled) deliveredBtn.classList.add('hidden');
+            if (pickedUpBtn && cancelled) pickedUpBtn.classList.add('hidden');
+            const cancelBtn = document.getElementById('modal-cancel-btn');
+            if (cancelBtn) cancelBtn.classList.toggle('hidden', completed || cancelled);
 
             // Fetch Order Items
             const { data: items, error: itemsErr } = await window.supabaseClient.from('order_items').select('*').eq('order_id', id);
@@ -835,6 +841,33 @@
 
     window.markAsDelivered = (id) => setOrderStatus(id, 'Delivered', 'modal-delivered-btn', 'Confirm delivery for this order?');
     window.markAsPickedUp = (id) => setOrderStatus(id, 'Picked Up', 'modal-pickedup-btn', 'Confirm this order was picked up in store?');
+
+    // Cancel via cancel_order() (lock_down_orders.sql): sets 'Cancelled' and returns items to stock
+    window.cancelOrder = async (id) => {
+        if (!id) return;
+        if (!confirm('Cancel this order? Its items will be put back into stock.')) return;
+
+        const btn = document.getElementById('modal-cancel-btn');
+        const originalText = btn.innerHTML;
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">sync</span> Processing...';
+
+            const { error } = await window.supabaseClient.rpc('cancel_order', { p_order_id: id });
+            if (error) throw error;
+
+            alert("✅ Order cancelled. Items were returned to stock.");
+            closeOrderModal();
+            const ordersTbody = document.getElementById('orders-table-body');
+            if (ordersTbody) loadOrders(ordersTbody);
+        } catch (err) {
+            console.error("[Admin] Cancel Order Fail:", err);
+            alert("❌ Failed to cancel order: " + (err.message || '').replace(/^[A-Z_]+:\s*/, ''));
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    };
 
     window.printInvoice = () => {
         window.print();

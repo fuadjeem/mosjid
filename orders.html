@@ -585,6 +585,10 @@
                     <span class="material-symbols-outlined text-sm">storefront</span>
                     Mark as Picked Up
                 </button>
+                <button id="modal-cancel-btn" onclick="cancelOrder(currentOrderId)" class="hidden px-6 py-2.5 bg-amber-500 text-white font-bold text-sm rounded-xl shadow-xl shadow-amber-900/20 hover:bg-amber-600 transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">block</span>
+                    Cancel Order
+                </button>
                 <button onclick="deleteOrder(currentOrderId)" class="px-6 py-2.5 bg-red-600 text-white font-bold text-sm rounded-xl shadow-xl shadow-red-900/20 hover:bg-red-700 transition-all flex items-center gap-2">
                     <span class="material-symbols-outlined text-sm">delete</span>
                     Delete Order
@@ -626,7 +630,7 @@
         </a>
     </div>
     <script src="js/auth.js?v=20261011a"></script>
-    <script src="js/admin.js?v=20261018a"></script>
+    <script src="js/admin.js?v=20261018b"></script>
 </body>
 
 </html>
